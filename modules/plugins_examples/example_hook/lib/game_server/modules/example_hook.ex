@@ -82,7 +82,7 @@ defmodule GameServer.Modules.ExampleHook do
   end
 
   @impl true
-  def after_user_login(user) do
+  def after_user_logged_in(user) do
     # Also seeded here, not just on registration: on a database that already
     # has players, nobody registers again and the group would never appear.
     ensure_group(user)

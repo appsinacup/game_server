@@ -22,7 +22,7 @@ signal lobby_member_online(payload: Dictionary)   ## user came online while in l
 signal lobby_member_offline(payload: Dictionary)  ## user went offline while in lobby
 signal lobby_member_updated(payload: Dictionary)  ## member updated while in lobby
 signal lobby_host_changed(payload: Dictionary)    ## {new_host_id}
-signal lobby_chat_message(message: Dictionary)         ## new_chat_message
+signal lobby_chat_message(message: Dictionary)         ## chat_message_created
 signal lobby_chat_message_updated(message: Dictionary) ## chat_message_updated
 signal lobby_chat_message_deleted(payload: Dictionary) ## chat_message_deleted {id}
 
@@ -650,7 +650,7 @@ func _handle_user_event(event: String, payload: Dictionary):
 					if party_id != "":
 						listen_to_party()
 			user_updated.emit(payload)
-		"notification":
+		"notification_created":
 			notification_emitted.emit(payload)
 		"kv_updated":
 			kv_updated.emit(payload)
@@ -680,7 +680,7 @@ func _handle_user_event(event: String, payload: Dictionary):
 			friend_request_cancelled.emit(payload)
 		"friend_removed":
 			friend_removed.emit(payload)
-		"new_chat_message":
+		"chat_message_created":
 			friend_chat_message.emit(payload)
 		"chat_message_updated":
 			friend_chat_message_updated.emit(payload)
@@ -690,9 +690,9 @@ func _handle_user_event(event: String, payload: Dictionary):
 			group_invite_accepted.emit(payload)
 		"group_invite_cancelled":
 			group_invite_cancelled.emit(payload)
-		"group_join_approved":
+		"group_join_request_approved":
 			group_join_request_approved.emit(payload)
-		"group_join_rejected":
+		"group_join_request_rejected":
 			group_join_request_rejected.emit(payload)
 		"party_invite_accepted":
 			party_invite_accepted.emit(payload)
@@ -721,15 +721,15 @@ func _handle_lobby_event(event: String, payload: Dictionary):
 			lobby_member_left.emit(payload)
 		"user_kicked":
 			lobby_member_kicked.emit(payload)
-		"member_online":
+		"user_online":
 			lobby_member_online.emit(payload)
-		"member_offline":
+		"user_offline":
 			lobby_member_offline.emit(payload)
-		"member_updated":
+		"user_updated":
 			lobby_member_updated.emit(payload)
 		"host_changed":
 			lobby_host_changed.emit(payload)
-		"new_chat_message":
+		"chat_message_created":
 			lobby_chat_message.emit(payload)
 		"chat_message_updated":
 			lobby_chat_message_updated.emit(payload)
@@ -763,7 +763,7 @@ func _handle_party_event(event: String, payload: Dictionary):
 			party_member_updated.emit(payload)
 		"disbanded":
 			party_disbanded.emit(payload)
-		"new_chat_message":
+		"chat_message_created":
 			party_chat_message.emit(payload)
 		"chat_message_updated":
 			party_chat_message_updated.emit(payload)
@@ -794,7 +794,7 @@ func _handle_group_event(event: String, payload: Dictionary):
 			group_join_request_approved.emit(payload)
 		"join_request_rejected":
 			group_join_request_rejected.emit(payload)
-		"new_chat_message":
+		"chat_message_created":
 			group_chat_message.emit(payload)
 		"chat_message_updated":
 			group_chat_message_updated.emit(payload)
@@ -1630,7 +1630,7 @@ func admin_achievements_admin_increment_achievement(request: AdminIncrementAchie
 ## may rewrite or reject it server-side, so the stored ticket can differ from
 ## what was sent. Keep the realtime socket connected while queued: tickets of
 ## users that go offline are cancelled by the sweep.
-## The match itself arrives as a `matchmaking_found` event on the user channel.
+## The match itself arrives as a `match_found` event on the user channel.
 func matchmaking_join(match_params: Dictionary = {}, min_players = null, max_players = null) -> GamendResult:
 	var request = MatchmakingJoinRequest.new()
 	request.match_params = match_params

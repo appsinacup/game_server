@@ -147,7 +147,10 @@ defmodule GameServerWeb.AdminLive.Runtime do
   end
 
   defp paginate(socket) do
-    %{all_rows: all, search: search, page: page, page_size: page_size} = socket.assigns
+    %{all_rows: all, search: search, page: page} = socket.assigns
+    # Hooks render grouped by category, so they show all at once — a section
+    # split across pages would defeat the grouping.
+    page_size = if socket.assigns.tab == "hooks", do: 1000, else: socket.assigns.page_size
 
     filtered =
       all
@@ -306,7 +309,7 @@ defmodule GameServerWeb.AdminLive.Runtime do
         </tr>
       </thead>
       <tbody>
-        <%= for row <- @rows do %>
+        <%= for row <- ordered_hooks(@rows) do %>
           <tr
             class={[
               "cursor-pointer hover:bg-base-300/40",
@@ -721,5 +724,14 @@ defmodule GameServerWeb.AdminLive.Runtime do
       </tbody>
     </table>
     """
+  end
+
+  # Order hook rows by category (fixed order), so the Category column reads
+  # grouped without needing section-divider rows.
+  defp ordered_hooks(rows) do
+    by_section = Enum.group_by(rows, & &1.section)
+
+    GameServerWeb.RuntimeIntrospection.hook_group_order()
+    |> Enum.flat_map(fn section -> Map.get(by_section, section, []) end)
   end
 end

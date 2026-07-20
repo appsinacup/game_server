@@ -76,7 +76,7 @@ defmodule GameServerWeb.ProtobufFormatTest do
       inserted_at: ts
     }
 
-    {:ok, bin} = EventCodec.encode("user:x", "notification", payload)
+    {:ok, bin} = EventCodec.encode("user:x", "notification_created", payload)
     decoded = PB.Notification.decode(IO.iodata_to_binary(bin))
 
     assert decoded.id == payload.id
@@ -151,7 +151,7 @@ defmodule GameServerWeb.ProtobufFormatTest do
 
     # Lobby presence events carry the user brief plus user_id.
     {:ok, bin} =
-      EventCodec.encode("lobby:x", "member_online", %{
+      EventCodec.encode("lobby:x", "user_online", %{
         user_id: "u1",
         id: "u1",
         display_name: "Alice",
@@ -176,7 +176,7 @@ defmodule GameServerWeb.ProtobufFormatTest do
     assert %PB.User{username: "ada"} = PB.User.decode(IO.iodata_to_binary(bin))
 
     {:ok, bin} =
-      EventCodec.encode("lobby:x", "member_updated", %{id: "u1", username: "ada"})
+      EventCodec.encode("lobby:x", "user_updated", %{id: "u1", username: "ada"})
 
     assert %PB.UserBrief{username: "ada"} = PB.UserBrief.decode(IO.iodata_to_binary(bin))
   end
@@ -199,7 +199,8 @@ defmodule GameServerWeb.ProtobufFormatTest do
 
   test "malformed payload falls back to JSON instead of raising" do
     ExUnit.CaptureLog.capture_log(fn ->
-      assert EventCodec.encode("user:x", "notification", %{inserted_at: :not_a_time}) == :json
+      assert EventCodec.encode("user:x", "notification_created", %{inserted_at: :not_a_time}) ==
+               :json
     end)
   end
 

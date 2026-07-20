@@ -33,7 +33,7 @@ defmodule GameServerWeb.UserAuthTest do
       alias GameServer.Repo
 
       @impl true
-      def after_user_login(user) do
+      def after_user_logged_in(user) do
         meta = Map.put(user.metadata || %{}, "hooked_from_log_in", true)
         Repo.update!(Ecto.Changeset.change(user, metadata: meta))
       end
@@ -47,7 +47,7 @@ defmodule GameServerWeb.UserAuthTest do
       assert Accounts.get_user_by_session_token(token)
     end
 
-    test "triggers hooks.after_user_login for non-token logins", %{conn: conn, user: user} do
+    test "triggers hooks.after_user_logged_in for non-token logins", %{conn: conn, user: user} do
       Application.put_env(:game_server_core, :hooks_module, TestHooksLogin)
 
       _conn = UserAuth.log_in_user(conn, user, %{})

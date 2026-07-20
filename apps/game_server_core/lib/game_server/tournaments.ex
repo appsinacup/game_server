@@ -724,7 +724,7 @@ defmodule GameServer.Tournaments do
         payload = match_payload(tournament, match)
 
         GameServer.Async.run(fn ->
-          GameServer.Hooks.internal_call(:after_tournament_match, [payload])
+          GameServer.Hooks.internal_call(:after_tournament_match_resolved, [payload])
         end)
       end
 

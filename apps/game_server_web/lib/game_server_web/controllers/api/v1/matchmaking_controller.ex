@@ -38,7 +38,7 @@ defmodule GameServerWeb.Api.V1.MatchmakingController do
     description: """
     Creates a matchmaking ticket for the caller. Tickets with identical
     match_params are grouped; when enough are queued the server creates a
-    hidden lobby and pushes a `matchmaking_found` event on the caller's user
+    hidden lobby and pushes a `match_found` event on the caller's user
     channel. Keep a socket connected while queued — a player who stays offline
     past the grace period is dropped from the queue by the sweep.
 

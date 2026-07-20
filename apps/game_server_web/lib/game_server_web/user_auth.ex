@@ -52,7 +52,9 @@ defmodule GameServerWeb.UserAuth do
     # a magic-link "token" key.
     unless Map.has_key?(params || %{}, "token") do
       # Use safe wrapper for hook invocation so missing hooks don't crash background tasks
-      GameServer.Async.run(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
+      GameServer.Async.run(fn ->
+        GameServer.Hooks.internal_call(:after_user_logged_in, [user])
+      end)
     end
 
     conn |> redirect(to: user_return_to || signed_in_path(conn))

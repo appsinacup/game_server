@@ -229,14 +229,14 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
   UserChannel       "user:{id}"         updated, notification,
                                         friend_updated,
                                         kv_updated, kv_deleted,
-                                        new_chat_message,
+                                        chat_message_created,
                                         chat_message_updated,
                                         chat_message_deleted,
                                         achievement_unlocked,
                                         group_invite_accepted,
                                         group_invite_cancelled,
-                                        group_join_approved,
-                                        group_join_rejected,
+                                        group_join_request_approved,
+                                        group_join_request_rejected,
                                         party_invite_accepted,
                                         party_invite_declined,
                                         party_invite_cancelled,
@@ -244,12 +244,12 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
                                         tournament_match_ready,
                                         tournament_match_resolved,
                                         tournament_finished,
-                                        matchmaking_found
+                                        match_found
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
-                                        member_online, member_offline,
-                                        member_updated,
-                                        new_chat_message,
+                                        user_online, user_offline,
+                                        user_updated,
+                                        chat_message_created,
                                         chat_message_updated,
                                         chat_message_deleted
   LobbiesChannel    "lobbies"           lobby_created, lobby_updated,
@@ -262,7 +262,7 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
                                         member_updated,
                                         join_request_approved,
                                         join_request_rejected,
-                                        new_chat_message,
+                                        chat_message_created,
                                         chat_message_updated,
                                         chat_message_deleted
   GroupsChannel     "groups"            group_created, group_updated,
@@ -271,7 +271,7 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
                                         disbanded,
                                         member_online, member_offline,
                                         member_updated,
-                                        new_chat_message,
+                                        chat_message_created,
                                         chat_message_updated,
                                         chat_message_deleted</pre>
       </div>
@@ -306,7 +306,7 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               </td>
             </tr>
             <tr>
-              <td class="font-mono">notification</td>
+              <td class="font-mono">notification_created</td>
               <td>{doc_text("New notification / all on join")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, sender_id, sender_name, recipient_id, title, content, metadata, inserted_at}
@@ -327,7 +327,7 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               </td>
             </tr>
             <tr>
-              <td class="font-mono">matchmaking_found</td>
+              <td class="font-mono">match_found</td>
               <td>{doc_text("The user's matchmaking ticket matched into a lobby")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {lobby_id, match_params}
@@ -348,7 +348,7 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               </td>
             </tr>
             <tr>
-              <td class="font-mono">new_chat_message</td>
+              <td class="font-mono">chat_message_created</td>
               <td>{doc_text("Friend DM received")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
@@ -384,12 +384,12 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               <td class="font-mono" phx-no-curly-interpolation>{group_id, group_name}</td>
             </tr>
             <tr>
-              <td class="font-mono">group_join_approved</td>
+              <td class="font-mono">group_join_request_approved</td>
               <td>{doc_text("Your group join request was approved")}</td>
               <td class="font-mono" phx-no-curly-interpolation>{group_id}</td>
             </tr>
             <tr>
-              <td class="font-mono">group_join_rejected</td>
+              <td class="font-mono">group_join_request_rejected</td>
               <td>{doc_text("Your group join request was declined")}</td>
               <td class="font-mono" phx-no-curly-interpolation>{group_id}</td>
             </tr>
@@ -523,28 +523,28 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               <td class="font-mono" phx-no-curly-interpolation>{new_host_id, display_name}</td>
             </tr>
             <tr>
-              <td class="font-mono">member_online</td>
+              <td class="font-mono">user_online</td>
               <td>{doc_text("A lobby member came online")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
-              <td class="font-mono">member_offline</td>
+              <td class="font-mono">user_offline</td>
               <td>{doc_text("A lobby member went offline")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
-              <td class="font-mono">member_updated</td>
+              <td class="font-mono">user_updated</td>
               <td>{doc_text("A lobby member was updated")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
-              <td class="font-mono">new_chat_message</td>
+              <td class="font-mono">chat_message_created</td>
               <td>{doc_text("New lobby chat message")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
@@ -698,7 +698,7 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               </td>
             </tr>
             <tr>
-              <td class="font-mono">new_chat_message</td>
+              <td class="font-mono">chat_message_created</td>
               <td>{doc_text("New group chat message")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
@@ -819,7 +819,7 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               </td>
             </tr>
             <tr>
-              <td class="font-mono">new_chat_message</td>
+              <td class="font-mono">chat_message_created</td>
               <td>{doc_text("New party chat message")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}

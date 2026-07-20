@@ -21,7 +21,7 @@ defmodule GameServer.Matchmaking.Match do
 
   @doc """
   Creates a hidden lobby for the claimed tickets, seats the users, locks the
-  lobby, records it on the tickets and broadcasts `matchmaking_found`.
+  lobby, records it on the tickets and broadcasts `match_found`.
   """
   @spec create([Types.matchmaking_ticket()]) :: {:ok, Ecto.UUID.t()} | {:error, term()}
   def create(tickets) do

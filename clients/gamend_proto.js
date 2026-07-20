@@ -117,8 +117,8 @@ const decoders = {
     },
     group_invite_accepted: (bin) => PB.GroupInviteEvent.toObject(PB.GroupInviteEvent.decode(bin)),
     group_invite_cancelled: (bin) => PB.GroupInviteEvent.toObject(PB.GroupInviteEvent.decode(bin)),
-    group_join_approved: (bin) => PB.GroupInviteEvent.toObject(PB.GroupInviteEvent.decode(bin)),
-    group_join_rejected: (bin) => PB.GroupInviteEvent.toObject(PB.GroupInviteEvent.decode(bin)),
+    group_join_request_approved: (bin) => PB.GroupInviteEvent.toObject(PB.GroupInviteEvent.decode(bin)),
+    group_join_request_rejected: (bin) => PB.GroupInviteEvent.toObject(PB.GroupInviteEvent.decode(bin)),
     party_invite_accepted: (bin) => PB.PartyInviteEvent.toObject(PB.PartyInviteEvent.decode(bin)),
     party_invite_declined: (bin) => PB.PartyInviteEvent.toObject(PB.PartyInviteEvent.decode(bin)),
     party_invite_cancelled: (bin) => PB.PartyInviteEvent.toObject(PB.PartyInviteEvent.decode(bin)),
@@ -134,7 +134,7 @@ const decoders = {
         defaults: true,
         longs: Number,
       }),
-    matchmaking_found: (bin) =>
+    match_found: (bin) =>
       PB.MatchmakingFound.toObject(PB.MatchmakingFound.decode(bin), { defaults: true }),
   },
   lobby: {
@@ -143,9 +143,9 @@ const decoders = {
     user_left: (bin) => decodeMember(bin),
     user_kicked: (bin) => decodeMember(bin),
     host_changed: (bin) => PB.HostChanged.toObject(PB.HostChanged.decode(bin)),
-    member_online: (bin) => decodeMember(bin),
-    member_offline: (bin) => decodeMember(bin),
-    member_updated: (bin) => decodeBrief(bin),
+    user_online: (bin) => decodeMember(bin),
+    user_offline: (bin) => decodeMember(bin),
+    user_updated: (bin) => decodeBrief(bin),
   },
   lobbies: {
     lobby_created: (bin) => decodeLobby(bin),
@@ -233,12 +233,12 @@ function decodeBrief(bin) {
 const anyTopic = {
   kv_updated: (bin) => decodeKv(bin),
   kv_deleted: (bin) => decodeKv(bin),
-  notification: (bin) =>
+  notification_created: (bin) =>
     withParsedJson(
       PB.Notification.toObject(PB.Notification.decode(bin), { defaults: true, longs: Number }),
       [['metadata_json', 'metadata']]
     ),
-  new_chat_message: (bin) => decodeChat(bin),
+  chat_message_created: (bin) => decodeChat(bin),
   chat_message_updated: (bin) => decodeChat(bin),
   chat_message_deleted: (bin) => PB.EntityId.toObject(PB.EntityId.decode(bin)),
   achievement_unlocked: (bin) =>

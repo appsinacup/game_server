@@ -87,9 +87,9 @@ static func decode_event(topic: String, event: String, data: PackedByteArray) ->
 	match event:
 		"kv_updated", "kv_deleted":
 			return _kv(data)
-		"notification":
+		"notification_created":
 			return _notification_payload(data)
-		"new_chat_message", "chat_message_updated":
+		"chat_message_created", "chat_message_updated":
 			return _chat(data)
 		"chat_message_deleted":
 			return _decode(PB.EntityId.new(), data, func(m): return {"id": m.get_id()})
@@ -103,7 +103,7 @@ static func decode_event(topic: String, event: String, data: PackedByteArray) ->
 					return _decode(PB.User.new(), data, _user_to_dict)
 				"friend_updated":
 					return _friend_update(data)
-				"group_invite_accepted", "group_invite_cancelled", "group_join_approved", "group_join_rejected":
+				"group_invite_accepted", "group_invite_cancelled", "group_join_request_approved", "group_join_request_rejected":
 					return _decode(PB.GroupInviteEvent.new(), data, func(m): return {"group_id": m.get_group_id()})
 				"party_invite_accepted", "party_invite_declined", "party_invite_cancelled":
 					return _decode(PB.PartyInviteEvent.new(), data, func(m): return {"party_id": m.get_party_id(), "user_id": m.get_user_id()})
@@ -118,17 +118,17 @@ static func decode_event(topic: String, event: String, data: PackedByteArray) ->
 						"deadline_ms": m.get_deadline_ms(),
 						"winner_entry_id": m.get_winner_entry_id(),
 					})
-				"matchmaking_found":
+				"match_found":
 					return _decode(PB.MatchmakingFound.new(), data, func(m): return {"lobby_id": m.get_lobby_id(), "match_params": m.get_match_params()})
 		"lobby":
 			match event:
 				"updated":
 					return _decode(PB.Lobby.new(), data, _lobby_to_dict)
-				"user_joined", "user_left", "user_kicked", "member_online", "member_offline":
+				"user_joined", "user_left", "user_kicked", "user_online", "user_offline":
 					return _decode(PB.MemberEvent.new(), data, _member_event_to_dict)
 				"host_changed":
 					return _decode(PB.HostChanged.new(), data, func(m): return {"new_host_id": m.get_new_host_id(), "display_name": m.get_display_name()})
-				"member_updated":
+				"user_updated":
 					return _decode(PB.UserBrief.new(), data, _brief_to_dict)
 		"lobbies":
 			match event:

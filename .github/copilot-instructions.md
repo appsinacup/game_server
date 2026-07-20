@@ -175,8 +175,8 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Join requests are stored in the `group_join_requests` table with `status`: `"pending"`, `"approved"`, `"rejected"`.
 - **Group invites** are stored in the dedicated `group_invites` table with fields: `id`, `group_id`, `sender_id`, `recipient_id`, `status` (`"pending"`, `"accepted"`, `"declined"`, `"cancelled"`), `inserted_at`, `updated_at`. An informational notification is also sent, but the invite record is independent — deleting notifications does not affect pending invites.
 - Inviting a blocked user (or a user who blocked you) returns `{:error, :blocked}`.
-- Group creation runs through the `before_group_create(user, attrs)` hook — return `{:ok, attrs}` to allow or `{:error, reason}` to block. After creation, `after_group_create(group)` fires asynchronously. Group joining runs through the `before_group_join(user, group, opts)` hook. Group updates run through `before_group_update(group, attrs)` — return `{:ok, attrs}` to allow (optionally modified) or `{:error, reason}` to block. After update, `after_group_update(group)` fires asynchronously.
-- Group after-hooks (all fire-and-forget via `GameServer.Async.run`): `after_group_join(user_id, group)` fires after any successful join (public, invite accept, request approval). `after_group_leave(user_id, group_id)` fires after a user leaves. `after_group_kick(admin_id, target_id, group_id)` fires after a kick. `after_group_delete(group)` fires after a group is deleted (including auto-delete when last member leaves).
+- Group creation runs through the `before_group_create(user, attrs)` hook — return `{:ok, attrs}` to allow or `{:error, reason}` to block. After creation, `after_group_create(group)` fires asynchronously. Group joining runs through the `before_group_join(user, group, opts)` hook. Group updates run through `before_group_update(group, attrs)` — return `{:ok, attrs}` to allow (optionally modified) or `{:error, reason}` to block. After update, `after_group_updated(group)` fires asynchronously.
+- Group after-hooks (all fire-and-forget via `GameServer.Async.run`): `after_group_join(user_id, group)` fires after any successful join (public, invite accept, request approval). `after_group_leave(user_id, group_id)` fires after a user leaves. `after_group_kick(admin_id, target_id, group_id)` fires after a kick. `after_group_deleted(group)` fires after a group is deleted (including auto-delete when last member leaves).
 - API endpoints live under `/api/v1/groups`. Admin API under `/api/v1/admin/groups`.
 
 ### Parties
@@ -188,7 +188,7 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - **Invite mechanism**: Invites are stored in the dedicated `party_invites` table with fields: `id`, `party_id`, `sender_id`, `recipient_id`, `status` (`"pending"`, `"accepted"`, `"declined"`, `"cancelled"`), `inserted_at`, `updated_at`. An informational notification is also sent, but the invite record is independent — deleting notifications does not affect pending invites. `invite_to_party/2` (leader only, target must be friend or shared group member), `accept_party_invite/2` (joins the party and marks invite as accepted), `decline_party_invite/2` (marks invite as declined), `cancel_party_invite/2` (leader deletes pending invite). `list_party_invitations/1` returns pending PartyInvite records.
 - Joining is exclusively invite-based.
 - Parties can create/join lobbies as a group: `create_lobby_with_party/2`, `join_lobby_with_party/2`. These check that no party member is already in another lobby.
-- Party hooks: `before_party_create(user, attrs)` — return `{:ok, attrs}` to allow or `{:error, reason}` to block. `after_party_create(party)` fires asynchronously. `before_party_update(party, attrs)` — return `{:ok, attrs}` to allow or `{:error, reason}` to block. `after_party_update(party)` fires asynchronously.
+- Party hooks: `before_party_create(user, attrs)` — return `{:ok, attrs}` to allow or `{:error, reason}` to block. `after_party_create(party)` fires asynchronously. `before_party_update(party, attrs)` — return `{:ok, attrs}` to allow or `{:error, reason}` to block. `after_party_updated(party)` fires asynchronously.
 - Party after-hooks (all fire-and-forget via `GameServer.Async.run`): `after_party_join(user, party)` fires after invite accept. `after_party_leave(user, party_id)` fires after a user leaves. `after_party_kick(target, leader, party)` fires after a kick. `after_party_disband(party)` fires after party is disbanded.
 - API endpoints live under `/api/v1/parties`.
 
@@ -233,15 +233,15 @@ API routes use JWT tokens via Guardian for stateless authentication:
   **Friends:**
   - `friend_request` — new incoming friend request
   - `friend_accepted` — your friend request was accepted
-  - `friend_declined` — your friend request was declined
+  - `friend_rejected` — your friend request was rejected
 
   **Groups:**
   - `group_invite` — invited to join a group
   - `group_invite_accepted` — your group invite was accepted
   - `group_invite_declined` — your group invite was declined
   - `group_join_request` — someone requested to join your group (sent to admins)
-  - `group_join_approved` — your group join request was approved
-  - `group_join_declined` — your group join request was declined
+  - `group_join_request_approved` — your group join request was approved
+  - `group_join_request_rejected` — your group join request was rejected
   - `group_kicked` — you were removed from a group
   - `group_promoted` — you were promoted to admin
   - `group_demoted` — you were demoted to member

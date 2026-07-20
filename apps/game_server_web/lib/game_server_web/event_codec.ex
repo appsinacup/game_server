@@ -50,8 +50,8 @@ defmodule GameServerWeb.EventCodec do
   defp message_for("user", "friend_updated", p), do: friend_update(p)
   defp message_for(_, "kv_updated", p), do: kv_entry(p)
   defp message_for(_, "kv_deleted", p), do: kv_entry(p)
-  defp message_for(_, "notification", p), do: notification(p)
-  defp message_for(_, "new_chat_message", p), do: chat_message(p)
+  defp message_for(_, "notification_created", p), do: notification(p)
+  defp message_for(_, "chat_message_created", p), do: chat_message(p)
   defp message_for(_, "chat_message_updated", p), do: chat_message(p)
   defp message_for(_, "chat_message_deleted", p), do: %PB.EntityId{id: get(p, :id)}
   defp message_for(_, "achievement_unlocked", p), do: user_achievement(p)
@@ -59,7 +59,7 @@ defmodule GameServerWeb.EventCodec do
   defp message_for("lobby", "updated", p), do: lobby(p)
 
   defp message_for("lobby", event, p)
-       when event in ~w(user_joined user_left user_kicked member_online member_offline),
+       when event in ~w(user_joined user_left user_kicked user_online user_offline),
        do: member_event(p)
 
   defp message_for("lobby", "host_changed", p),
@@ -68,7 +68,9 @@ defmodule GameServerWeb.EventCodec do
       display_name: get(p, :display_name) || ""
     }
 
-  defp message_for(kind, "member_updated", p) when kind in ~w(lobby group party),
+  defp message_for("lobby", "user_updated", p), do: user_brief(p)
+
+  defp message_for(kind, "member_updated", p) when kind in ~w(group party),
     do: user_brief(p)
 
   defp message_for("lobbies", event, p) when event in ~w(lobby_created lobby_updated),
@@ -98,7 +100,7 @@ defmodule GameServerWeb.EventCodec do
   defp message_for("party", "disbanded", p), do: %PB.PartyRef{party_id: get(p, :party_id)}
 
   defp message_for("user", event, p)
-       when event in ~w(group_invite_accepted group_invite_cancelled group_join_approved group_join_rejected),
+       when event in ~w(group_invite_accepted group_invite_cancelled group_join_request_approved group_join_request_rejected),
        do: %PB.GroupInviteEvent{group_id: get(p, :group_id)}
 
   defp message_for("user", event, p)
@@ -124,7 +126,7 @@ defmodule GameServerWeb.EventCodec do
          winner_entry_id: get(p, :winner_entry_id) || ""
        }
 
-  defp message_for("user", "matchmaking_found", p),
+  defp message_for("user", "match_found", p),
     do: %PB.MatchmakingFound{
       lobby_id: get(p, :lobby_id),
       match_params: stringify_map(get(p, :match_params) || %{})

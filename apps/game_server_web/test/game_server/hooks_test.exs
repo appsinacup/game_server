@@ -29,7 +29,7 @@ defmodule GameServer.HooksTest do
     end
 
     @impl true
-    def after_user_login(user) do
+    def after_user_logged_in(user) do
       # mark metadata to signal the hook ran
       meta = Map.put(user.metadata || %{}, "hooked", true)
       Repo.update!(Ecto.Changeset.change(user, metadata: meta))
@@ -79,7 +79,7 @@ defmodule GameServer.HooksTest do
     assert user.device_id == device_id
   end
 
-  test "after_user_login hook runs on successful magic-link login" do
+  test "after_user_logged_in hook runs on successful magic-link login" do
     Application.put_env(:game_server_core, :hooks_module, TestHooksRegister)
 
     user = unconfirmed_user_fixture()
@@ -88,7 +88,7 @@ defmodule GameServer.HooksTest do
 
     assert {:ok, {_, _}} = Accounts.login_user_by_magic_link(encoded_token)
 
-    # after_user_login runs asynchronously; wait for update
+    # after_user_logged_in runs asynchronously; wait for update
     Process.sleep(50)
 
     reloaded = Accounts.get_user!(user.id)

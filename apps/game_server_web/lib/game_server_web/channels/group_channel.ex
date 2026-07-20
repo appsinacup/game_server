@@ -16,7 +16,7 @@ defmodule GameServerWeb.GroupChannel do
   - `"updated"` - Group settings were updated. Payload: group object
   - `"join_request_approved"` - A join request was approved. Payload: `%{group_id, user_id}`
   - `"join_request_rejected"` - A join request was rejected. Payload: `%{group_id, user_id}`
-  - `"new_chat_message"` - A new chat message. Payload: chat message object
+  - `"chat_message_created"` - A new chat message. Payload: chat message object
   - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
   - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
   - `"member_updated"` - A group member was updated. Payload: user brief object
@@ -160,8 +160,8 @@ defmodule GameServerWeb.GroupChannel do
   end
 
   @impl true
-  def handle_info({:new_chat_message, message}, socket) do
-    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+  def handle_info({:chat_message_created, message}, socket) do
+    push_event(socket, "chat_message_created", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 

@@ -57,7 +57,7 @@ defmodule GameServerWeb.ProtobufBenchTest do
          },
          has_password: true
        }},
-      {"user:x", "notification",
+      {"user:x", "notification_created",
        %{
          id: uuid.(2),
          sender_id: uuid.(3),
@@ -68,7 +68,7 @@ defmodule GameServerWeb.ProtobufBenchTest do
          metadata: %{"kind" => "friend_request"},
          inserted_at: ts
        }},
-      {"user:x", "new_chat_message",
+      {"user:x", "chat_message_created",
        %{
          id: uuid.(5),
          content: "gg wp everyone, rematch in 5?",
@@ -79,7 +79,7 @@ defmodule GameServerWeb.ProtobufBenchTest do
          chat_ref_id: uuid.(7),
          inserted_at: ts
        }},
-      {"user:x", "matchmaking_found",
+      {"user:x", "match_found",
        %{lobby_id: uuid.(11), match_params: %{"mode" => "ranked", "band" => "2"}}},
       {"user:x", "kv_updated",
        %{key: "loadout", user_id: uuid.(8), lobby_id: nil, data: %{"weapon" => 12}, metadata: %{}}},

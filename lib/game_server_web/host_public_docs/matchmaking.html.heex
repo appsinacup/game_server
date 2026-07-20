@@ -54,7 +54,7 @@ POST /matchmaking/tickets ──► ticket (queued)
                                   │
         hidden lobby created, players seated, lobby locked
                                   │
-        "matchmaking_found" pushed on each player's user channel</pre>
+        "match_found" pushed on each player's user channel</pre>
       </div>
 
       <p class="text-sm text-base-content/80">
@@ -107,7 +107,7 @@ POST /matchmaking/tickets ──► ticket (queued)
 
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "Mutations are HTTP; the WebSocket is only used for the result. After joining, keep the user channel connected and wait for the matchmaking_found event — it carries the lobby id to join. Disconnecting cancels your tickets (and a periodic sweep also cancels tickets of users the server no longer sees online), so a queued ticket always belongs to someone who can actually be seated."
+          "Mutations are HTTP; the WebSocket is only used for the result. After joining, keep the user channel connected and wait for the match_found event — it carries the lobby id to join. Disconnecting cancels your tickets (and a periodic sweep also cancels tickets of users the server no longer sees online), so a queued ticket always belongs to someone who can actually be seated."
         )}
       </p>
 
@@ -122,7 +122,7 @@ POST /matchmaking/tickets ──► ticket (queued)
           </thead>
           <tbody class="text-xs">
             <tr>
-              <td class="font-mono">matchmaking_found</td>
+              <td class="font-mono">match_found</td>
               <td class="font-mono" phx-no-curly-interpolation>user:{user_id}</td>
               <td class="font-mono" phx-no-curly-interpolation>{lobby_id, match_params}</td>
             </tr>

@@ -180,7 +180,7 @@ defmodule GameServer.Chat do
         chat_ref_id = message.chat_ref_id
 
         invalidate_chat_cache(chat_type, chat_ref_id)
-        broadcast_chat(chat_type, chat_ref_id, sender_id, {:new_chat_message, message})
+        broadcast_chat(chat_type, chat_ref_id, sender_id, {:chat_message_created, message})
 
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_chat_message, [message])

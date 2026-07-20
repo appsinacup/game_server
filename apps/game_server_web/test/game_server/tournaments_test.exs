@@ -53,7 +53,8 @@ defmodule GameServer.TournamentsTest do
       end
     end
 
-    def after_tournament_match(match), do: notify({:after_tournament_match, match.id})
+    def after_tournament_match_resolved(match),
+      do: notify({:after_tournament_match_resolved, match.id})
 
     def after_tournament_finished(tournament, standings),
       do: notify({:after_tournament_finished, tournament.id, standings})
@@ -286,7 +287,7 @@ defmodule GameServer.TournamentsTest do
       assert {:ok, resolved} = Tournaments.resolve_match(m1.id, m1.a_entry_id)
       assert resolved.winner_entry_id == m1.a_entry_id
       assert_receive {:before_tournament_result, _, _}
-      assert_receive {:after_tournament_match, _}
+      assert_receive {:after_tournament_match_resolved, _}
 
       final =
         Tournaments.list_matches(tournament.id)

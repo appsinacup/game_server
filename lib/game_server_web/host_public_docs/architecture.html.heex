@@ -256,7 +256,7 @@
                            3. Insert into DB
                            4. Invalidate Nebulex cache
                            5. PubSub broadcast ─────────► WebSocket push
-                           6. Async: after_chat_message     "new_chat_message"
+                           6. Async: after_chat_message     "chat_message_created"
                               hook + send notifications ──► "notification" event
 
   PATCH /chat/messages/:id ► 1. Verify ownership (sender_id)

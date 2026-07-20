@@ -261,12 +261,12 @@ defmodule GameServer.LobbiesTest do
         def after_lobby_join(_user, _lobby), do: :ok
         def before_lobby_leave(_, _), do: {:ok, :noop}
         def after_lobby_leave(_, _), do: :ok
-        def before_user_kicked(_, _, _), do: {:ok, :noop}
-        def after_user_kicked(_, _, _), do: :ok
+        def before_lobby_kick(_, _, _), do: {:ok, :noop}
+        def after_lobby_kick(_, _, _), do: :ok
         def before_lobby_update(_, _), do: {:ok, %{}}
-        def after_lobby_update(_), do: :ok
+        def after_lobby_updated(_), do: :ok
         def before_lobby_delete(_), do: {:ok, %{}}
-        def after_lobby_delete(_), do: :ok
+        def after_lobby_deleted(_), do: :ok
         def after_lobby_host_change(_, _), do: :ok
       end
 

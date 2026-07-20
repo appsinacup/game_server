@@ -1068,7 +1068,7 @@ defmodule GameServer.Parties do
             broadcast_party(updated.id, {:party_updated, with_party_members(updated)})
 
             GameServer.Async.run(fn ->
-              GameServer.Hooks.internal_call(:after_party_update, [updated])
+              GameServer.Hooks.internal_call(:after_party_updated, [updated])
             end)
 
             {:ok, updated}

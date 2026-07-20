@@ -495,7 +495,7 @@ defmodule GameServerWeb.ChatLive do
   end
 
   @impl true
-  def handle_info({:new_chat_message, msg}, socket) do
+  def handle_info({:chat_message_created, msg}, socket) do
     user = socket.assigns.user
 
     if matches_current_chat?(socket, msg) do

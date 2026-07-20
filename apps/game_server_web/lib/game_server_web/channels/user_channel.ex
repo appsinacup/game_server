@@ -15,8 +15,8 @@ defmodule GameServerWeb.UserChannel do
   ## Notifications
 
   On join the channel pushes all undeleted notifications for the user in
-  chronological order (oldest-first) as individual `"notification"` events.
-  New notifications arriving while connected are also pushed as `"notification"`.
+  chronological order (oldest-first) as individual `"notification_created"` events.
+  New notifications arriving while connected are also pushed as `"notification_created"`.
 
   ## Hook RPC
 
@@ -373,14 +373,14 @@ defmodule GameServerWeb.UserChannel do
   # ── Notification PubSub events ──────────────────────────────────────────────
 
   @impl true
-  def handle_info({:new_notification, notification}, socket) do
-    push_event(socket, "notification", Serializers.serialize_notification(notification))
+  def handle_info({:notification_created, notification}, socket) do
+    push_event(socket, "notification_created", Serializers.serialize_notification(notification))
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info({:new_chat_message, message}, socket) do
-    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+  def handle_info({:chat_message_created, message}, socket) do
+    push_event(socket, "chat_message_created", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
@@ -409,14 +409,14 @@ defmodule GameServerWeb.UserChannel do
   end
 
   @impl true
-  def handle_info({:group_join_approved, payload}, socket) do
-    push_event(socket, "group_join_approved", payload)
+  def handle_info({:group_join_request_approved, payload}, socket) do
+    push_event(socket, "group_join_request_approved", payload)
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info({:group_join_rejected, payload}, socket) do
-    push_event(socket, "group_join_rejected", payload)
+  def handle_info({:group_join_request_rejected, payload}, socket) do
+    push_event(socket, "group_join_request_rejected", payload)
     {:noreply, socket}
   end
 
@@ -540,7 +540,7 @@ defmodule GameServerWeb.UserChannel do
     notifications = Notifications.list_recent_notifications(user_id, @initial_notification_window)
 
     Enum.each(notifications, fn notification ->
-      push_event(socket, "notification", Serializers.serialize_notification(notification))
+      push_event(socket, "notification_created", Serializers.serialize_notification(notification))
     end)
   end
 

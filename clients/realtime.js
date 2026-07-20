@@ -12,7 +12,7 @@
  *
  *   // Join the authenticated user channel
  *   const userChannel = realtime.joinUserChannel(userId)
- *   userChannel.on('notification', (payload) => console.log('notification:', payload))
+ *   userChannel.on('notification_created', (payload) => console.log('notification:', payload))
  *   userChannel.on('updated', (payload) => console.log('user updated:', payload))
  *
  *   // Join a lobby channel

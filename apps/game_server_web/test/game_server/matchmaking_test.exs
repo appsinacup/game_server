@@ -324,7 +324,7 @@ defmodule GameServer.MatchmakingTest do
 
       assert Repo.get!(Ticket, stranger.id).status == "queued"
 
-      assert_receive {:matchmaking_event, "matchmaking_found", payload}
+      assert_receive {:matchmaking_event, "match_found", payload}
       assert payload.lobby_id == lobby.id
       assert payload.match_params == %{"mode" => "duel"}
     end

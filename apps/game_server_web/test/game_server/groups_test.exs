@@ -1153,7 +1153,7 @@ defmodule GameServer.GroupsTest do
   end
 
   # ---------------------------------------------------------------------------
-  # before_group_update / after_group_update hooks
+  # before_group_update / after_group_updated hooks
   # ---------------------------------------------------------------------------
 
   describe "before_group_update hook" do
@@ -1272,7 +1272,7 @@ defmodule GameServer.GroupsTest do
     end
   end
 
-  describe "after_group_delete hook" do
+  describe "after_group_deleted hook" do
     test "fires after delete without breaking the flow", %{owner: owner} do
       {:ok, group} =
         Groups.create_group(owner.id, %{"title" => "AfterDeleteTest", "type" => "public"})

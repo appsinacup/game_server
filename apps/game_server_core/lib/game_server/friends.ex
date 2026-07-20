@@ -158,7 +158,7 @@ defmodule GameServer.Friends do
     :ok
   end
 
-  defp notify_friend_declined(%Friendship{} = f) do
+  defp notify_friend_rejected(%Friendship{} = f) do
     requester_name = user_display_name(f.requester_id)
     target_name = user_display_name(f.target_id)
 
@@ -173,7 +173,7 @@ defmodule GameServer.Friends do
       GameServer.Notifications.admin_create_notification(f.target_id, f.requester_id, %{
         "title" => "#{target_name} declined your friend request",
         "content" => "",
-        "metadata" => %{"type" => "friend_declined", "friendship_id" => f.id}
+        "metadata" => %{"type" => "friend_rejected", "friendship_id" => f.id}
       })
 
     :ok
@@ -410,7 +410,7 @@ defmodule GameServer.Friends do
       broadcast_user(rejected.requester_id, {:friend_rejected, rejected})
       broadcast_user(rejected.target_id, {:friend_rejected, rejected})
       broadcast_all({:friend_rejected, rejected})
-      notify_friend_declined(rejected)
+      notify_friend_rejected(rejected)
 
       {:ok, rejected}
     else

@@ -16,7 +16,7 @@ defmodule GameServerWeb.PartyChannel do
   - `"member_updated"` - A party member was updated. Payload: user brief object
   - `"updated"` - The party settings were updated. Payload: party object
   - `"disbanded"` - The party was disbanded. Payload: `%{party_id: integer}`
-  - `"new_chat_message"` - A new chat message. Payload: chat message object
+  - `"chat_message_created"` - A new chat message. Payload: chat message object
   - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
   - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
   """
@@ -134,8 +134,8 @@ defmodule GameServerWeb.PartyChannel do
   # Chat messages forwarded from PubSub
 
   @impl true
-  def handle_info({:new_chat_message, message}, socket) do
-    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+  def handle_info({:chat_message_created, message}, socket) do
+    push_event(socket, "chat_message_created", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 

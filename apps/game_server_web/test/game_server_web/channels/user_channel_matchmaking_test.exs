@@ -26,7 +26,7 @@ defmodule GameServerWeb.UserChannelMatchmakingTest do
 
   defp user_fixture, do: AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-  test "matched players receive matchmaking_found on their user channel" do
+  test "matched players receive match_found on their user channel" do
     alice = user_fixture()
     bob = user_fixture()
 
@@ -38,7 +38,7 @@ defmodule GameServerWeb.UserChannelMatchmakingTest do
 
     assert Worker.sweep() == 1
 
-    assert_push "matchmaking_found", %{lobby_id: lobby_id, match_params: %{"mode" => "duel"}}
+    assert_push "match_found", %{lobby_id: lobby_id, match_params: %{"mode" => "duel"}}
     assert is_binary(lobby_id)
   end
 

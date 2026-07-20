@@ -1619,7 +1619,11 @@ defmodule GameServer.Accounts do
 
       {user, token} ->
         Repo.delete!(token)
-        GameServer.Async.run(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_user_logged_in, [user])
+        end)
+
         {:ok, {user, []}}
 
       nil ->
@@ -1635,7 +1639,10 @@ defmodule GameServer.Accounts do
 
     case result do
       {:ok, {user, _tokens}} = ok ->
-        GameServer.Async.run(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_user_logged_in, [user])
+        end)
+
         ok
 
       other ->

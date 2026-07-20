@@ -17,9 +17,9 @@ defmodule GameServer.NotificationTypesTest do
   test "every code emitted by core is registered" do
     # The 17 codes core actually sends; a new emission without a registry entry
     # fails here before it can reach a client.
-    for code <- ~w(friend_request friend_accepted friend_declined
+    for code <- ~w(friend_request friend_accepted friend_rejected
                    group_invite group_invite_accepted group_invite_declined
-                   group_join_request group_join_approved group_join_declined
+                   group_join_request group_join_request_approved group_join_request_rejected
                    group_kicked group_promoted group_demoted
                    party_invite party_invite_accepted party_invite_declined party_kicked
                    lobby_kicked) do

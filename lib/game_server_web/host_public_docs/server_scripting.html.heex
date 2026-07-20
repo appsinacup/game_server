@@ -140,7 +140,7 @@ end</code></pre>
               "At registration time, before_user_register/2 receives the tentative user and the registration attrs (including the generated username) on every signup path — email, device, and OAuth — and may adjust the attrs or abort."
             )}
             {doc_text(
-              "Tournaments have their own hook family (before/after_tournament_register, before_tournament_leave, tournament_match_ready, tournament_match_expired, before_tournament_result, after_tournament_match, after_tournament_finished) — see the Tournaments guide for the match resolution contract."
+              "Tournaments have their own hook family (before/after_tournament_register, before_tournament_leave, tournament_match_ready, tournament_match_expired, before_tournament_result, after_tournament_match_resolved, after_tournament_finished) — see the Tournaments guide for the match resolution contract."
             )}
             {doc_text(
               "Matchmaking has its own family too (before_matchmaking_join, after_matchmaking_join, after_matchmaking_cancel, matchmaking_form_matches, after_matchmaking_matched) — see the Matchmaking guide. matchmaking_form_matches/2 is the one hook that replaces built-in logic rather than gating it: it hands you a whole queue bucket and lets you group it yourself."

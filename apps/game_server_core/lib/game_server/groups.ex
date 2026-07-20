@@ -522,7 +522,7 @@ defmodule GameServer.Groups do
         |> case do
           {:ok, updated} ->
             GameServer.Async.run(fn ->
-              GameServer.Hooks.internal_call(:after_group_update, [updated])
+              GameServer.Hooks.internal_call(:after_group_updated, [updated])
             end)
 
             _ = invalidate_group_cache(updated.id)
@@ -591,7 +591,7 @@ defmodule GameServer.Groups do
         broadcast_groups({:group_deleted, deleted.id})
 
         GameServer.Async.run(fn ->
-          GameServer.Hooks.internal_call(:after_group_delete, [deleted])
+          GameServer.Hooks.internal_call(:after_group_deleted, [deleted])
         end)
 
         {:ok, deleted}
@@ -813,7 +813,7 @@ defmodule GameServer.Groups do
           broadcast_groups({:group_deleted, group_id})
 
           GameServer.Async.run(fn ->
-            GameServer.Hooks.internal_call(:after_group_delete, [group])
+            GameServer.Hooks.internal_call(:after_group_deleted, [group])
           end)
       end
     end
@@ -1102,7 +1102,7 @@ defmodule GameServer.Groups do
         Phoenix.PubSub.broadcast(
           GameServer.PubSub,
           "notifications:user:#{recipient_id}",
-          {:new_notification, notification}
+          {:notification_created, notification}
         )
 
         {:ok, notification}

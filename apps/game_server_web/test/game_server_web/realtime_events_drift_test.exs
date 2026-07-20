@@ -13,7 +13,8 @@ defmodule GameServerWeb.RealtimeEventsDriftTest do
   # Events forwarded with a variable event name (the literal lives in core or
   # in a constants module rather than at the push site).
   @indirect ~w(
-    matchmaking_found
+    match_found
+    user_online user_offline
     tournament_updated tournament_finished tournament_match_ready tournament_match_resolved
   )
 

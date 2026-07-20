@@ -199,8 +199,8 @@ message HostChanged {
   string display_name = 2;
 }
 
-// "group_invite_accepted", "group_invite_cancelled", "group_join_approved",
-// "group_join_rejected".
+// "group_invite_accepted", "group_invite_cancelled", "group_join_request_approved",
+// "group_join_request_rejected".
 message GroupInviteEvent {
   string group_id = 1;
 }
@@ -236,7 +236,7 @@ message TournamentMatchEvent {
 
 // ── Matchmaking ──────────────────────────────────────────────────────────
 
-// "matchmaking_found" on user:<id> channels: a match formed and the user is
+// "match_found" on user:<id> channels: a match formed and the user is
 // already seated in the lobby.
 message MatchmakingFound {
   string lobby_id = 1;

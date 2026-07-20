@@ -849,7 +849,7 @@ defmodule GameServer.Lobbies do
         case result do
           {:ok, updated} ->
             GameServer.Async.run(fn ->
-              GameServer.Hooks.internal_call(:after_lobby_update, [updated])
+              GameServer.Hooks.internal_call(:after_lobby_updated, [updated])
             end)
 
             _ = invalidate_lobby_cache(updated.id)
@@ -881,7 +881,7 @@ defmodule GameServer.Lobbies do
           {:ok, {deleted, member_ids}} ->
             GameServer.Async.run(fn ->
               GameServer.Chat.cleanup_chat("lobby", deleted.id)
-              GameServer.Hooks.internal_call(:after_lobby_delete, [deleted])
+              GameServer.Hooks.internal_call(:after_lobby_deleted, [deleted])
             end)
 
             Enum.each(member_ids, &invalidate_accounts_user_cache/1)
@@ -1207,7 +1207,7 @@ defmodule GameServer.Lobbies do
   defp do_kick_membership(membership, host_id, lobby) do
     host_user = Accounts.get_user(host_id) || %GameServer.Accounts.User{id: host_id}
 
-    case GameServer.Hooks.internal_call(:before_user_kicked, [
+    case GameServer.Hooks.internal_call(:before_lobby_kick, [
            host_user,
            membership,
            lobby
@@ -1223,7 +1223,7 @@ defmodule GameServer.Lobbies do
             _ = Accounts.broadcast_member_update(updated)
 
             GameServer.Async.run(fn ->
-              GameServer.Hooks.internal_call(:after_user_kicked, [
+              GameServer.Hooks.internal_call(:after_lobby_kick, [
                 host_user,
                 membership,
                 lobby

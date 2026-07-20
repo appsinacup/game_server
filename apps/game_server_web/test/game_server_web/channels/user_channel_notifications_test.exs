@@ -44,10 +44,10 @@ defmodule GameServerWeb.UserChannelNotificationsTest do
     assert_push "updated", _user_payload
 
     # Then should receive both notifications in order
-    assert_push "notification", n1_payload
+    assert_push "notification_created", n1_payload
     assert n1_payload.title == "First"
 
-    assert_push "notification", n2_payload
+    assert_push "notification_created", n2_payload
     assert n2_payload.title == "Second"
   end
 
@@ -64,7 +64,7 @@ defmodule GameServerWeb.UserChannelNotificationsTest do
     # Now send a notification while b is connected
     {:ok, _n} = Notifications.send_notification(a.id, %{"user_id" => b.id, "title" => "Live!"})
 
-    assert_push "notification", payload
+    assert_push "notification_created", payload
     assert payload.title == "Live!"
     assert payload.sender_id == a.id
     assert Map.has_key?(payload, :sender_name)
@@ -82,7 +82,7 @@ defmodule GameServerWeb.UserChannelNotificationsTest do
     {:ok, _, socket1} = subscribe_and_join(socket1, "user:#{b.id}", %{})
 
     assert_push "updated", _
-    assert_push "notification", %{title: "Persist"}
+    assert_push "notification_created", %{title: "Persist"}
 
     # Leave the channel (simulating disconnect)
     Process.unlink(socket1.channel_pid)
@@ -93,7 +93,7 @@ defmodule GameServerWeb.UserChannelNotificationsTest do
     {:ok, _, _socket2} = subscribe_and_join(socket2, "user:#{b.id}", %{})
 
     assert_push "updated", _
-    assert_push "notification", %{title: "Persist"}
+    assert_push "notification_created", %{title: "Persist"}
   end
 
   test "deleted notifications are not pushed on reconnect" do
@@ -112,6 +112,6 @@ defmodule GameServerWeb.UserChannelNotificationsTest do
     assert_push "updated", _
 
     # Should not receive any notification
-    refute_push "notification", _, 200
+    refute_push "notification_created", _, 200
   end
 end

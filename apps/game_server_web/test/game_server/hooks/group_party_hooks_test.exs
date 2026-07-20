@@ -37,7 +37,7 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     @impl true
     def after_user_register(_user), do: :ok
     @impl true
-    def after_user_login(_user), do: :ok
+    def after_user_logged_in(_user), do: :ok
     @impl true
     def after_user_updated(_user), do: :ok
     @impl true
@@ -85,15 +85,15 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     @impl true
     def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
     @impl true
-    def after_lobby_update(_lobby), do: :ok
+    def after_lobby_updated(_lobby), do: :ok
     @impl true
     def before_lobby_delete(lobby), do: {:ok, lobby}
     @impl true
-    def after_lobby_delete(_lobby), do: :ok
+    def after_lobby_deleted(_lobby), do: :ok
     @impl true
-    def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+    def before_lobby_kick(host, target, lobby), do: {:ok, {host, target, lobby}}
     @impl true
-    def after_user_kicked(_host, _target, _lobby), do: :ok
+    def after_lobby_kick(_host, _target, _lobby), do: :ok
     @impl true
     def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 
@@ -107,7 +107,7 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     @impl true
     def before_group_update(_group, attrs), do: {:ok, attrs}
     @impl true
-    def after_group_update(_group), do: :ok
+    def after_group_updated(_group), do: :ok
 
     @impl true
     def after_group_join(user_id, group) do
@@ -120,8 +120,8 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     end
 
     @impl true
-    def after_group_delete(group) do
-      notify({:after_group_delete, group})
+    def after_group_deleted(group) do
+      notify({:after_group_deleted, group})
     end
 
     @impl true
@@ -142,8 +142,8 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     def before_party_update(_party, attrs), do: {:ok, attrs}
 
     @impl true
-    def after_party_update(party) do
-      notify({:after_party_update, party})
+    def after_party_updated(party) do
+      notify({:after_party_updated, party})
     end
 
     @impl true
@@ -280,14 +280,14 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     end
   end
 
-  describe "after_group_delete hook" do
+  describe "after_group_deleted hook" do
     test "fires with correct group on admin delete", %{owner: owner} do
       {:ok, group} =
         Groups.create_group(owner.id, %{"title" => "CaptureDel", "type" => "public"})
 
       {:ok, _} = Groups.admin_delete_group(group.id)
 
-      assert_receive {:after_group_delete, g}, 500
+      assert_receive {:after_group_deleted, g}, 500
       assert g.id == group.id
     end
 
@@ -299,7 +299,7 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
 
       {:ok, _} = Groups.leave_group(owner.id, group.id)
 
-      assert_receive {:after_group_delete, g}, 500
+      assert_receive {:after_group_deleted, g}, 500
       assert g.id == group.id
     end
   end
@@ -318,12 +318,12 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     end
   end
 
-  describe "after_party_update hook" do
+  describe "after_party_updated hook" do
     test "fires with the updated party", %{owner: owner} do
       {:ok, _party} = Parties.create_party(owner, %{max_size: 4})
       {:ok, updated} = Parties.update_party(owner, %{"max_size" => 6})
 
-      assert_receive {:after_party_update, p}, 500
+      assert_receive {:after_party_updated, p}, 500
       assert p.id == updated.id
       assert p.max_size == 6
     end

@@ -16,12 +16,12 @@ defmodule GameServerWeb.LobbyChannel do
   - `"user_joined"` - A user joined the lobby. Payload: `%{user_id: integer}`
   - `"user_left"` - A user left the lobby. Payload: `%{user_id: integer}`
   - `"user_kicked"` - A user was kicked from the lobby. Payload: `%{user_id: integer}`
-  - `"member_online"` - A lobby member came online. Payload: user brief object
-  - `"member_offline"` - A lobby member went offline. Payload: user brief object
-  - `"member_updated"` - A lobby member was updated. Payload: user brief object
+  - `"user_online"` - A lobby user came online. Payload: user brief object
+  - `"user_offline"` - A lobby user went offline. Payload: user brief object
+  - `"user_updated"` - A lobby user was updated. Payload: user brief object
   - `"updated"` - The lobby settings were updated. Payload: lobby object
   - `"host_changed"` - The host changed. Payload: `%{new_host_id: integer}`
-  - `"new_chat_message"` - A new chat message. Payload: chat message object
+  - `"chat_message_created"` - A new chat message. Payload: chat message object
   - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
   - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
   """
@@ -167,8 +167,8 @@ defmodule GameServerWeb.LobbyChannel do
   end
 
   @impl true
-  def handle_info({:new_chat_message, message}, socket) do
-    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+  def handle_info({:chat_message_created, message}, socket) do
+    push_event(socket, "chat_message_created", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
@@ -187,7 +187,9 @@ defmodule GameServerWeb.LobbyChannel do
   @impl true
   def handle_info({event, user_id}, socket) when event in [:member_online, :member_offline] do
     user = Accounts.get_user(user_id)
-    ws_event = if event == :member_online, do: "member_online", else: "member_offline"
+    # Internal atom is shared with group/party; on the lobby topic occupants are
+    # "users", so the wire event is user_online/user_offline.
+    ws_event = if event == :member_online, do: "user_online", else: "user_offline"
 
     payload =
       if user do
@@ -206,7 +208,7 @@ defmodule GameServerWeb.LobbyChannel do
 
     if user do
       payload = User.serialize_brief(user) |> Map.put(:user_id, user_id)
-      {:noreply, ChannelUpdates.push(socket, "member_updated", user_id, payload)}
+      {:noreply, ChannelUpdates.push(socket, "user_updated", user_id, payload)}
     else
       {:noreply, socket}
     end

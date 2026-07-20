@@ -215,7 +215,7 @@ defmodule GameServer.Groups.JoinRequests do
                 "title" => "Approved to join #{group.title}",
                 "content" => "",
                 "metadata" => %{
-                  "type" => "group_join_approved",
+                  "type" => "group_join_request_approved",
                   "group_id" => group_id,
                   "group_name" => group.title,
                   "admin_id" => admin_id,
@@ -227,7 +227,7 @@ defmodule GameServer.Groups.JoinRequests do
             Phoenix.PubSub.broadcast(
               GameServer.PubSub,
               "user:#{user_id}",
-              {:group_join_approved, %{group_id: group_id}}
+              {:group_join_request_approved, %{group_id: group_id}}
             )
 
             GameServer.Async.run(fn ->
@@ -280,7 +280,7 @@ defmodule GameServer.Groups.JoinRequests do
                   "title" => "Declined from #{group_title}",
                   "content" => "",
                   "metadata" => %{
-                    "type" => "group_join_declined",
+                    "type" => "group_join_request_rejected",
                     "group_id" => group_id,
                     "group_name" => group_title
                   }
@@ -290,7 +290,7 @@ defmodule GameServer.Groups.JoinRequests do
               Phoenix.PubSub.broadcast(
                 GameServer.PubSub,
                 "user:#{updated.user_id}",
-                {:group_join_rejected, %{group_id: group_id}}
+                {:group_join_request_rejected, %{group_id: group_id}}
               )
 
               {:ok, updated}

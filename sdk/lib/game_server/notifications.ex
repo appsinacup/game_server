@@ -12,7 +12,7 @@ defmodule GameServer.Notifications do
   
   This module broadcasts to the `"notifications:user:<user_id>"` topic:
   
-  - `{:new_notification, notification}` – a new notification was created
+  - `{:notification_created, notification}` – a new notification was created
   
   ## Usage
   

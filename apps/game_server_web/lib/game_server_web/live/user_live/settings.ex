@@ -208,8 +208,8 @@ defmodule GameServerWeb.UserLive.Settings do
              :group_deleted,
              :group_invite_accepted,
              :group_invite_cancelled,
-             :group_join_approved,
-             :group_join_rejected,
+             :group_join_request_approved,
+             :group_join_request_rejected,
              :party_invite_accepted,
              :party_invite_declined,
              :party_invite_cancelled,
@@ -224,8 +224,8 @@ defmodule GameServerWeb.UserLive.Settings do
     {:noreply, GroupsTab.reload_groups(socket)}
   end
 
-  # Catch-all: ignore unhandled PubSub messages (e.g. :new_chat_message,
-  # :new_notification) so the LiveView doesn't crash.
+  # Catch-all: ignore unhandled PubSub messages (e.g. :chat_message_created,
+  # :notification_created) so the LiveView doesn't crash.
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   @impl true

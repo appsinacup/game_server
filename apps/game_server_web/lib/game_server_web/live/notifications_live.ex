@@ -176,7 +176,7 @@ defmodule GameServerWeb.NotificationsLive do
   end
 
   @impl true
-  def handle_info({:new_notification, _notification}, socket) do
+  def handle_info({:notification_created, _notification}, socket) do
     user = socket.assigns.current_scope.user
     # Auto-mark new notifications as read since the user is viewing the page
     Notifications.mark_all_notifications_read(user.id)

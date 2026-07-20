@@ -89,7 +89,7 @@
 
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "Debouncing applies to the state events only — updated, member_updated, lobby_updated, group_updated, friend_updated. One-shot events (member_joined, notification, chat, invites) are never delayed."
+          "Debouncing applies to the state events only — updated, member_updated, user_updated, lobby_updated, group_updated, friend_updated. One-shot events (member_joined, notification, chat, invites) are never delayed."
         )}
       </p>
 
@@ -110,7 +110,7 @@
             </tr>
             <tr>
               <td class="font-mono" phx-no-curly-interpolation>lobby:{lobby_id}</td>
-              <td class="font-mono">updated, member_updated</td>
+              <td class="font-mono">updated, user_updated</td>
             </tr>
             <tr>
               <td class="font-mono" phx-no-curly-interpolation>party:{party_id}</td>

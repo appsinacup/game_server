@@ -12,7 +12,7 @@ defmodule GameServer.Notifications do
 
   This module broadcasts to the `"notifications:user:<user_id>"` topic:
 
-  - `{:new_notification, notification}` – a new notification was created
+  - `{:notification_created, notification}` – a new notification was created
 
   ## Usage
 
@@ -479,7 +479,7 @@ defmodule GameServer.Notifications do
       {:ok, notification} ->
         invalidate_notifications_cache(recipient_id)
         invalidate_notifications_cache(sender_id)
-        broadcast_user(recipient_id, {:new_notification, notification})
+        broadcast_user(recipient_id, {:notification_created, notification})
         {:ok, notification}
 
       error ->
@@ -526,7 +526,7 @@ defmodule GameServer.Notifications do
       {:ok, notification} ->
         invalidate_notifications_cache(recipient_id)
         invalidate_notifications_cache(sender_id)
-        broadcast_user(recipient_id, {:new_notification, notification})
+        broadcast_user(recipient_id, {:notification_created, notification})
         {:ok, notification}
 
       error ->

@@ -55,28 +55,33 @@ defmodule GameServerWeb.RuntimeIntrospection do
                     {name, spec |> String.replace(~r/\s+/, " ") |> String.trim()}
                   end)
 
-  # Section comment (`# Xxx callbacks`) each callback sits under, by position.
-  @sdk_sections Regex.scan(~r/^  # ([A-Z][^\n]*)$/m, @sdk_source, return: :index)
-                |> Enum.map(fn [_full, {index, length}] ->
-                  {index, @sdk_source |> binary_part(index, length) |> String.trim()}
-                end)
+  # Order categories appear in, grouped views included. A hook maps to the first
+  # match, so specific keywords come before generic ones.
+  @hook_group_order ~w(Lifecycle User Lobby Group Party Chat Achievement Leaderboard Tournament Matchmaking Payments KV Other)
 
-  @sdk_callback_sections Regex.scan(~r/@callback\s+([a-z_0-9!?]+)\(/, @sdk_source, return: :index)
-                         |> Enum.map(fn [{index, _}, {name_index, name_length}] ->
-                           name = binary_part(@sdk_source, name_index, name_length)
+  @doc "Category a hook belongs to, derived from its name (not source position)."
+  @spec hook_group(String.t()) :: String.t()
+  def hook_group(name) do
+    cond do
+      name in ~w(after_startup before_stop on_custom_hook) -> "Lifecycle"
+      String.contains?(name, "kv") -> "KV"
+      String.contains?(name, "chat") -> "Chat"
+      String.contains?(name, "achievement") -> "Achievement"
+      String.contains?(name, "score") -> "Leaderboard"
+      String.contains?(name, "matchmaking") -> "Matchmaking"
+      String.contains?(name, "tournament") -> "Tournament"
+      String.contains?(name, "purchase") or String.contains?(name, "entitlement") -> "Payments"
+      String.contains?(name, "party") -> "Party"
+      String.contains?(name, "group") -> "Group"
+      String.contains?(name, "lobby") -> "Lobby"
+      String.contains?(name, "user") -> "User"
+      true -> "Other"
+    end
+  end
 
-                           section =
-                             @sdk_sections
-                             |> Enum.filter(fn {section_index, _} -> section_index < index end)
-                             |> List.last()
-                             |> case do
-                               {_, title} -> title
-                               nil -> ""
-                             end
-
-                           {name, section}
-                         end)
-                         |> Map.new()
+  @doc "Category order for grouped rendering."
+  @spec hook_group_order() :: [String.t()]
+  def hook_group_order, do: @hook_group_order
 
   # Parsed .env.example rows: {name, default, description, section}.
 
@@ -134,7 +139,7 @@ defmodule GameServerWeb.RuntimeIntrospection do
       key = to_string(name)
       doc = Map.get(@sdk_docs, key, "")
       signature = Map.get(@sdk_signatures, key, "#{name}/#{arity}")
-      section = Map.get(@sdk_callback_sections, key, "")
+      section = hook_group(key)
 
       implementers =
         for {plugin, mod} <- plugin_mods,

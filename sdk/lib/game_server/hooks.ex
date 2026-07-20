@@ -24,7 +24,7 @@ defmodule GameServer.Hooks do
         end
 
         @impl true
-        def after_user_login(user) do
+        def after_user_logged_in(user) do
           # Log login
           :ok
         end
@@ -98,7 +98,7 @@ defmodule GameServer.Hooks do
         end
 
         @impl true
-        def after_lobby_update(_lobby), do: :ok
+        def after_lobby_updated(_lobby), do: :ok
 
         @impl true
         def before_lobby_delete(lobby) do
@@ -106,15 +106,15 @@ defmodule GameServer.Hooks do
         end
 
         @impl true
-        def after_lobby_delete(_lobby), do: :ok
+        def after_lobby_deleted(_lobby), do: :ok
 
         @impl true
-        def before_user_kicked(host, target, lobby) do
+        def before_lobby_kick(host, target, lobby) do
           {:ok, {host, target, lobby}}
         end
 
         @impl true
-        def after_user_kicked(_host, _target, _lobby), do: :ok
+        def after_lobby_kick(_host, _target, _lobby), do: :ok
 
         @impl true
         def after_lobby_host_change(_lobby, _new_host_id), do: :ok
@@ -134,7 +134,7 @@ defmodule GameServer.Hooks do
   ### User Lifecycle Hooks
 
   - `after_user_register/1` - Called after a new user registers
-  - `after_user_login/1` - Called after a user logs in
+  - `after_user_logged_in/1` - Called after a user logs in
   - `after_user_updated/1` - Called after a user is updated (fire-and-forget)
   - `after_user_online/1` - Called after a user comes online (fire-and-forget)
   - `after_user_offline/1` - Called after a user goes offline (fire-and-forget)
@@ -152,15 +152,15 @@ defmodule GameServer.Hooks do
   - `after_group_create/1` - After group is created (fire-and-forget)
   - `before_group_join/3` - Before user is accepted into a group (public join, invite accept, or request approval)
   - `before_group_update/2` - Before group update, receives `(group, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
-  - `after_group_update/1` - After group is updated (fire-and-forget)
+  - `after_group_updated/1` - After group is updated (fire-and-forget)
   - `after_group_join/2` - After a user joins a group (fire-and-forget), receives `(user_id, group)`
   - `after_group_leave/2` - After a user leaves a group (fire-and-forget), receives `(user_id, group_id)`
-  - `after_group_delete/1` - After a group is deleted (fire-and-forget), receives `(group)`
+  - `after_group_deleted/1` - After a group is deleted (fire-and-forget), receives `(group)`
   - `after_group_kick/3` - After a member is kicked from a group (fire-and-forget), receives `(admin_id, target_id, group_id)`
   - `before_party_create/2` - Before party creation, receives `(user, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
   - `after_party_create/1` - After party is created (fire-and-forget)
   - `before_party_update/2` - Before party update, receives `(party, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
-  - `after_party_update/1` - After party is updated (fire-and-forget)
+  - `after_party_updated/1` - After party is updated (fire-and-forget)
   - `after_party_join/2` - After a user joins a party via invite accept (fire-and-forget), receives `(user, party)`
   - `after_party_leave/2` - After a user leaves a party (fire-and-forget), receives `(user, party_id)`
   - `after_party_kick/3` - After a member is kicked from a party (fire-and-forget), receives `(target, leader, party)`
@@ -171,11 +171,11 @@ defmodule GameServer.Hooks do
   - `before_lobby_leave/2` - Before user leaves lobby
   - `after_lobby_leave/2` - After user leaves lobby
   - `before_lobby_update/2` - Before lobby is updated
-  - `after_lobby_update/1` - After lobby is updated
+  - `after_lobby_updated/1` - After lobby is updated
   - `before_lobby_delete/1` - Before lobby is deleted
-  - `after_lobby_delete/1` - After lobby is deleted
-  - `before_user_kicked/3` - Before user is kicked from lobby
-  - `after_user_kicked/3` - After user is kicked from lobby
+  - `after_lobby_deleted/1` - After lobby is deleted
+  - `before_lobby_kick/3` - Before user is kicked from lobby
+  - `after_lobby_kick/3` - After user is kicked from lobby
   - `after_lobby_host_change/2` - After lobby host changes
   - `before_kv_get/2` - Called before a client KV `get` to return a KV access decision such as `:public`, `:owner_only`, or `:server_only`
 
@@ -292,7 +292,7 @@ defmodule GameServer.Hooks do
 
   @callback before_user_update(user(), attrs :: map()) :: hook_result(map())
   @callback after_user_register(user()) :: any()
-  @callback after_user_login(user()) :: any()
+  @callback after_user_logged_in(user()) :: any()
   @callback after_user_updated(user()) :: any()
   @callback after_user_online(user()) :: any()
   @callback after_user_offline(user()) :: any()
@@ -313,12 +313,12 @@ defmodule GameServer.Hooks do
               hook_result({user(), group(), map()})
 
   @callback before_group_update(group(), map()) :: hook_result(map())
-  @callback after_group_update(group()) :: any()
+  @callback after_group_updated(group()) :: any()
 
   # Group after-hooks (fire-and-forget)
   @callback after_group_join(integer(), group()) :: any()
   @callback after_group_leave(integer(), integer()) :: any()
-  @callback after_group_delete(group()) :: any()
+  @callback after_group_deleted(group()) :: any()
   @callback after_group_kick(integer(), integer(), integer()) :: any()
 
   # Party lifecycle callbacks
@@ -326,7 +326,7 @@ defmodule GameServer.Hooks do
   @callback after_party_create(party()) :: any()
 
   @callback before_party_update(party(), map()) :: hook_result(map())
-  @callback after_party_update(party()) :: any()
+  @callback after_party_updated(party()) :: any()
 
   @callback after_party_join(user(), party()) :: any()
   @callback after_party_leave(user(), integer()) :: any()
@@ -378,7 +378,7 @@ defmodule GameServer.Hooks do
   @callback tournament_match_ready(match :: struct()) :: any()
   @callback tournament_match_expired(match :: struct()) :: any()
   @callback before_tournament_result(match :: struct(), winner :: term()) :: hook_result(term())
-  @callback after_tournament_match(match :: struct()) :: any()
+  @callback after_tournament_match_resolved(match :: struct()) :: any()
   @callback after_tournament_finished(tournament :: struct(), standings :: map()) :: any()
   @optional_callbacks before_matchmaking_join: 2,
                       after_matchmaking_join: 2,
@@ -391,7 +391,7 @@ defmodule GameServer.Hooks do
                       tournament_match_ready: 1,
                       tournament_match_expired: 1,
                       before_tournament_result: 2,
-                      after_tournament_match: 1,
+                      after_tournament_match_resolved: 1,
                       after_tournament_finished: 2
 
   @callback before_chat_message(user(), attrs :: map()) :: hook_result(map())
@@ -401,29 +401,29 @@ defmodule GameServer.Hooks do
   @callback after_lobby_leave(user(), lobby()) :: any()
 
   @callback before_lobby_update(lobby(), attrs :: map()) :: hook_result(map())
-  @callback after_lobby_update(lobby()) :: any()
+  @callback after_lobby_updated(lobby()) :: any()
 
   @callback before_lobby_delete(lobby()) :: hook_result(lobby())
-  @callback after_lobby_delete(lobby()) :: any()
+  @callback after_lobby_deleted(lobby()) :: any()
 
-  @callback before_user_kicked(host :: user(), target :: user(), lobby()) ::
+  @callback before_lobby_kick(host :: user(), target :: user(), lobby()) ::
               hook_result({user(), user(), lobby()})
-  @callback after_user_kicked(host :: user(), target :: user(), lobby()) :: any()
+  @callback after_lobby_kick(host :: user(), target :: user(), lobby()) :: any()
 
   @optional_callbacks before_group_create: 2,
                       after_group_create: 1,
                       before_group_join: 3,
                       before_group_update: 2,
-                      after_group_update: 1,
+                      after_group_updated: 1,
                       before_user_update: 2,
                       after_group_join: 2,
                       after_group_leave: 2,
-                      after_group_delete: 1,
+                      after_group_deleted: 1,
                       after_group_kick: 3,
                       before_party_create: 2,
                       after_party_create: 1,
                       before_party_update: 2,
-                      after_party_update: 1,
+                      after_party_updated: 1,
                       after_party_join: 2,
                       after_party_leave: 2,
                       after_party_kick: 3,
@@ -487,7 +487,7 @@ defmodule GameServer.Hooks do
       def after_user_register(_user), do: :ok
 
       @impl true
-      def after_user_login(_user), do: :ok
+      def after_user_logged_in(_user), do: :ok
 
       @impl true
       def after_user_updated(_user), do: :ok
@@ -526,7 +526,7 @@ defmodule GameServer.Hooks do
       def before_group_update(_group, attrs), do: {:ok, attrs}
 
       @impl true
-      def after_group_update(_group), do: :ok
+      def after_group_updated(_group), do: :ok
 
       @impl true
       def after_group_join(_user_id, _group), do: :ok
@@ -535,7 +535,7 @@ defmodule GameServer.Hooks do
       def after_group_leave(_user_id, _group_id), do: :ok
 
       @impl true
-      def after_group_delete(_group), do: :ok
+      def after_group_deleted(_group), do: :ok
 
       @impl true
       def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
@@ -550,7 +550,7 @@ defmodule GameServer.Hooks do
       def before_party_update(_party, attrs), do: {:ok, attrs}
 
       @impl true
-      def after_party_update(_party), do: :ok
+      def after_party_updated(_party), do: :ok
 
       @impl true
       def after_party_join(_user, _party), do: :ok
@@ -586,19 +586,19 @@ defmodule GameServer.Hooks do
       def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
 
       @impl true
-      def after_lobby_update(_lobby), do: :ok
+      def after_lobby_updated(_lobby), do: :ok
 
       @impl true
       def before_lobby_delete(lobby), do: {:ok, lobby}
 
       @impl true
-      def after_lobby_delete(_lobby), do: :ok
+      def after_lobby_deleted(_lobby), do: :ok
 
       @impl true
-      def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+      def before_lobby_kick(host, target, lobby), do: {:ok, {host, target, lobby}}
 
       @impl true
-      def after_user_kicked(_host, _target, _lobby), do: :ok
+      def after_lobby_kick(_host, _target, _lobby), do: :ok
 
       @impl true
       def after_lobby_host_change(_lobby, _new_host_id), do: :ok
@@ -640,7 +640,7 @@ defmodule GameServer.Hooks do
       def before_tournament_result(_match, winner), do: {:ok, winner}
 
       @impl true
-      def after_tournament_match(_match), do: :ok
+      def after_tournament_match_resolved(_match), do: :ok
 
       @impl true
       def after_tournament_finished(_tournament, _standings), do: :ok
@@ -649,7 +649,7 @@ defmodule GameServer.Hooks do
                      before_stop: 0,
                      before_user_register: 2,
                      after_user_register: 1,
-                     after_user_login: 1,
+                     after_user_logged_in: 1,
                      after_user_updated: 1,
                      after_user_online: 1,
                      after_user_offline: 1,
@@ -661,15 +661,15 @@ defmodule GameServer.Hooks do
                      before_group_create: 2,
                      after_group_create: 1,
                      before_group_update: 2,
-                     after_group_update: 1,
+                     after_group_updated: 1,
                      after_group_join: 2,
                      after_group_leave: 2,
-                     after_group_delete: 1,
+                     after_group_deleted: 1,
                      after_group_kick: 3,
                      before_party_create: 2,
                      after_party_create: 1,
                      before_party_update: 2,
-                     after_party_update: 1,
+                     after_party_updated: 1,
                      after_party_join: 2,
                      after_party_leave: 2,
                      after_party_kick: 3,
@@ -682,11 +682,11 @@ defmodule GameServer.Hooks do
                      before_lobby_leave: 2,
                      after_lobby_leave: 2,
                      before_lobby_update: 2,
-                     after_lobby_update: 1,
+                     after_lobby_updated: 1,
                      before_lobby_delete: 1,
-                     after_lobby_delete: 1,
-                     before_user_kicked: 3,
-                     after_user_kicked: 3,
+                     after_lobby_deleted: 1,
+                     before_lobby_kick: 3,
+                     after_lobby_kick: 3,
                      after_lobby_host_change: 2,
                      before_kv_get: 2,
                      before_matchmaking_join: 2,
@@ -700,7 +700,7 @@ defmodule GameServer.Hooks do
                      tournament_match_ready: 1,
                      tournament_match_expired: 1,
                      before_tournament_result: 2,
-                     after_tournament_match: 1,
+                     after_tournament_match_resolved: 1,
                      after_tournament_finished: 2
     end
   end
