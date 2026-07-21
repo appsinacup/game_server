@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1050">
+
+
+    <title>GameServer.Matchmaking — game_server_core v1.0.1050</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1050
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Matchmaking</span> 
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+
+    </h1>
+
+<a href="GameServer.Matchmaking.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Public API for the built-in matchmaking system.</p><p>Matchmaking is ticket-based. Each call to <a href="#join/4"><code class="inline">join/4</code></a> creates a ticket in the
+database. The periodic <a href="GameServer.Matchmaking.Worker.html"><code class="inline">GameServer.Matchmaking.Worker</code></a> groups queued tickets
+that share the same <code class="inline">match_params</code> and creates a hidden lobby for each match.</p><p>Tickets are the source of truth; there is no cached queue. The sweep reads
+them directly through the <code class="inline">(status, queued_at)</code> index, and the worker
+serializes the sweep cluster-wide so only one instance forms matches at a
+time.</p><h2 id="module-liveness" class="section-heading"><a href="#module-liveness" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Liveness</span></h2><p>A queued ticket only means something while its owner can still be pulled
+into a lobby. Two things keep the queue honest:</p><ul><li><code class="inline">UserChannel.terminate/2</code> cancels the user's tickets when their socket
+closes, and</li><li><a href="#prune_offline/0"><code class="inline">prune_offline/0</code></a> sweeps tickets whose owner the database no longer
+considers online — the safety net for tickets created over HTTP by a
+client that never opened a socket.</li></ul>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#assign_lobby/2" data-no-tooltip="" translate="no">assign_lobby(tickets, lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Associates already-claimed tickets with their created lobby.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel/1" data-no-tooltip="" translate="no">cancel(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancels the user's queued tickets. Returns how many were cancelled.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_ticket/1" data-no-tooltip="" translate="no">cancel_ticket(ticket_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancels one ticket by id, whoever owns it — for admins clearing a stuck
+ticket. Returns <code class="inline">{:error, :not_found}</code> for an unknown, malformed or
+already-resolved id.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#claim/1" data-no-tooltip="" translate="no">claim(tickets)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Atomically claims a formed match: flips its tickets from queued to matched.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_tickets/1" data-no-tooltip="" translate="no">count_tickets(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Counts tickets matching the same filters as <a href="#list_tickets/1"><code class="inline">list_tickets/1</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#current_ticket/1" data-no-tooltip="" translate="no">current_ticket(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The user's current queued ticket, or nil.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#discard/1" data-no-tooltip="" translate="no">discard(tickets)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancels claimed tickets whose owner could not be seated in the lobby.
+Unlike <a href="#requeue/1"><code class="inline">requeue/1</code></a> these do not go back in the queue — a user who cannot
+join a lobby (banned, already in one) would fail again on every tick.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_ticket/1" data-no-tooltip="" translate="no">get_ticket(ticket_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Fetches a ticket by id, or nil when the id is unknown or malformed.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#join/4" data-no-tooltip="" translate="no">join(user, match_params, min_players \\ nil, max_players \\ nil)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Adds a user — or their whole party — to the matchmaking queue.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_queued_by_params/0" data-no-tooltip="" translate="no">list_queued_by_params()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>All queued tickets grouped by <code class="inline">match_params</code>, oldest first within a group.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_tickets/1" data-no-tooltip="" translate="no">list_tickets(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Lists tickets for the admin views, newest first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#prune_offline/0" data-no-tooltip="" translate="no">prune_offline()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancels queued tickets whose owner has been offline past the grace period.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#requeue/1" data-no-tooltip="" translate="no">requeue(tickets)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns claimed tickets to the queue (lobby creation failed).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#stats/0" data-no-tooltip="" translate="no">stats()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Queue statistics for the admin dashboard and the public stats endpoint:
+counts by status, plus the depth of each distinct queued <code class="inline">match_params</code>.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="assign_lobby/2">
+
+  <div class="detail-header">
+    <a href="#assign_lobby/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">assign_lobby(tickets, lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L338" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> assign_lobby([GameServer.Matchmaking.Ticket.t()], <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Associates already-claimed tickets with their created lobby.</p>
+  </section>
+</section>
+<section class="detail" id="cancel/1">
+
+  <div class="detail-header">
+    <a href="#cancel/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L183" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Cancels the user's queued tickets. Returns how many were cancelled.</p><p>A party queues as a unit, so it leaves as one: cancelling any member's ticket
+cancels the whole party's. Any member may do this — only the leader can queue,
+but nobody should be stuck in a queue they cannot leave.</p>
+  </section>
+</section>
+<section class="detail" id="cancel_ticket/1">
+
+  <div class="detail-header">
+    <a href="#cancel_ticket/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_ticket(ticket_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L204" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel_ticket(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, GameServer.Matchmaking.Ticket.t()} | {:error, :not_found}</pre>
+
+      </div>
+
+<p>Cancels one ticket by id, whoever owns it — for admins clearing a stuck
+ticket. Returns <code class="inline">{:error, :not_found}</code> for an unknown, malformed or
+already-resolved id.</p>
+  </section>
+</section>
+<section class="detail" id="claim/1">
+
+  <div class="detail-header">
+    <a href="#claim/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">claim(tickets)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L280" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> claim([GameServer.Matchmaking.Ticket.t()]) :: :ok | :conflict</pre>
+
+      </div>
+
+<p>Atomically claims a formed match: flips its tickets from queued to matched.</p><p>Runs inside the sweep's cluster lock, before any lobby exists (the lobby is
+created outside the lock because <code class="inline">Lobbies</code> fires hooks and broadcasts, which
+must not run inside a transaction). The <code class="inline">status == queued</code> guard makes the
+claim atomic: if any ticket was cancelled since it was read, nothing is
+claimed and <code class="inline">:conflict</code> is returned.</p>
+  </section>
+</section>
+<section class="detail" id="count_tickets/1">
+
+    <span id="count_tickets/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_tickets/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_tickets(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L251" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_tickets(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Counts tickets matching the same filters as <a href="#list_tickets/1"><code class="inline">list_tickets/1</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="current_ticket/1">
+
+  <div class="detail-header">
+    <a href="#current_ticket/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">current_ticket(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L217" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> current_ticket(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: GameServer.Matchmaking.Ticket.t() | nil</pre>
+
+      </div>
+
+<p>The user's current queued ticket, or nil.</p>
+  </section>
+</section>
+<section class="detail" id="discard/1">
+
+  <div class="detail-header">
+    <a href="#discard/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">discard(tickets)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L325" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> discard([GameServer.Matchmaking.Ticket.t()]) :: :ok</pre>
+
+      </div>
+
+<p>Cancels claimed tickets whose owner could not be seated in the lobby.
+Unlike <a href="#requeue/1"><code class="inline">requeue/1</code></a> these do not go back in the queue — a user who cannot
+join a lobby (banned, already in one) would fail again on every tick.</p>
+  </section>
+</section>
+<section class="detail" id="get_ticket/1">
+
+  <div class="detail-header">
+    <a href="#get_ticket/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_ticket(ticket_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L227" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_ticket(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: GameServer.Matchmaking.Ticket.t() | nil</pre>
+
+      </div>
+
+<p>Fetches a ticket by id, or nil when the id is unknown or malformed.</p>
+  </section>
+</section>
+<section class="detail" id="join/4">
+
+    <span id="join/2"></span>
+
+    <span id="join/3"></span>
+
+  <div class="detail-header">
+    <a href="#join/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">join(user, match_params, min_players \\ nil, max_players \\ nil)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L63" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> join(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>() | nil,
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>() | nil
+) ::
+  {:ok, GameServer.Matchmaking.Ticket.t()}
+  | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Adds a user — or their whole party — to the matchmaking queue.</p><p><code class="inline">match_params</code> is a map of arbitrary string keys and values, for example
+<code class="inline">%{&quot;mode&quot; =&gt; &quot;deathmatch&quot;, &quot;map&quot; =&gt; &quot;dust2&quot;}</code>. Only tickets with exactly the
+same parameters are matched together.</p><p><code class="inline">min_players</code> and <code class="inline">max_players</code> can be passed to override the defaults.</p><h2 id="join/4-parties" class="section-heading"><a href="#join/4-parties" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parties</span></h2><p>A user in a party cannot queue alone: only the leader may queue, and doing so
+creates one ticket per member sharing the party's id. Those tickets are
+matched as an indivisible unit. Because only the leader queues, every member's
+ticket carries the same limits by construction — there is no way for members
+to disagree about <code class="inline">min_players</code>/<code class="inline">max_players</code>.</p><p>Returns the caller's own ticket. Fails with:</p><ul><li><code class="inline">{:error, :not_party_leader}</code> — a member tried to queue</li><li><code class="inline">{:error, :party_too_large}</code> — the party cannot fit in <code class="inline">max_players</code></li><li><code class="inline">{:error, :party_has_blocked_pair}</code> — two members have blocked each other</li><li><code class="inline">{:error, :already_queued}</code> — the caller or a party member is queued</li></ul>
+  </section>
+</section>
+<section class="detail" id="list_queued_by_params/0">
+
+  <div class="detail-header">
+    <a href="#list_queued_by_params/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_queued_by_params()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L262" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_queued_by_params() :: %{
+  required(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) =&gt; [GameServer.Matchmaking.Ticket.t()]
+}</pre>
+
+      </div>
+
+<p>All queued tickets grouped by <code class="inline">match_params</code>, oldest first within a group.</p><p>Read straight from the database: the queue changes on every join and the
+sweep runs seconds apart, so caching here would only ever serve stale rows.</p>
+  </section>
+</section>
+<section class="detail" id="list_tickets/1">
+
+    <span id="list_tickets/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_tickets/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_tickets(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L240" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_tickets(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [GameServer.Matchmaking.Ticket.t()]</pre>
+
+      </div>
+
+<p>Lists tickets for the admin views, newest first.</p><p>Options: <code class="inline">:status</code>, <code class="inline">:user_id</code>, <code class="inline">:page</code>, <code class="inline">:page_size</code>.</p>
+  </section>
+</section>
+<section class="detail" id="prune_offline/0">
+
+  <div class="detail-header">
+    <a href="#prune_offline/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">prune_offline()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L363" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> prune_offline() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Cancels queued tickets whose owner has been offline past the grace period.</p><p>Reads <code class="inline">users.is_online</code> — the flag the user channel maintains — instead of
+taking a caller-supplied id list, so it stays correct on any node. Going
+offline is not enough on its own: the player must have been gone longer than
+<code class="inline">matchmaking_offline_grace_ms</code>, so a brief disconnect does not cost a queue
+position. A player who queued over HTTP and never opened a socket has no
+<code class="inline">last_seen_at</code>, so their <code class="inline">queued_at</code> starts the same grace period.</p><p>A party is matched as a unit, so it is pruned as one: if any member times
+out, the whole party leaves the queue. Returns how many tickets were
+cancelled.</p>
+  </section>
+</section>
+<section class="detail" id="requeue/1">
+
+  <div class="detail-header">
+    <a href="#requeue/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">requeue(tickets)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L302" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> requeue([GameServer.Matchmaking.Ticket.t()]) :: :ok</pre>
+
+      </div>
+
+<p>Returns claimed tickets to the queue (lobby creation failed).</p>
+  </section>
+</section>
+<section class="detail" id="stats/0">
+
+  <div class="detail-header">
+    <a href="#stats/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">stats()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/matchmaking.ex#L403" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> stats() :: %{
+  queued: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
+  matched: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
+  cancelled: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
+  queues: [%{params: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), waiting: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}]
+}</pre>
+
+      </div>
+
+<p>Queue statistics for the admin dashboard and the public stats endpoint:
+counts by status, plus the depth of each distinct queued <code class="inline">match_params</code>.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

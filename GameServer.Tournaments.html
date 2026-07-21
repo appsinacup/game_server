@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1050">
+
+
+    <title>GameServer.Tournaments — game_server_core v1.0.1050</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1050
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Tournaments</span> 
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+
+    </h1>
+
+<a href="GameServer.Tournaments.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Bracket tournaments: registration → seeded single-elimination draw → timed
+rounds → champions. See TOURNAMENT_DESIGN.md.</p><p>Core owns the structure (registration, seeding, rounds, deadlines,
+advancement, recurrence). Gameplay and judgment belong to the game: when a
+match becomes playable the <code class="inline">tournament_match_ready</code> hook fires, the game
+plays it however it wants (a lobby, solo runs, anything) and reports the
+verdict with <a href="#resolve_match/2"><code class="inline">resolve_match/2</code></a>. Unresolved matches past their deadline fire
+<code class="inline">tournament_match_expired</code> for the game to adjudicate; the tournament's
+<code class="inline">deadline_policy</code> applies only if it doesn't.</p><p>Realtime: entry leaders receive <code class="inline">{:tournament_event, event, payload}</code> on the
+<code class="inline">&quot;tournaments:user:&lt;user_id&gt;&quot;</code> PubSub topic (forwarded by the user channel
+as <code class="inline">tournament_*</code> events).</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#advance_lifecycle/2" data-no-tooltip="" translate="no">advance_lifecycle(tournament, now \\ DateTime.utc_now())</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Applies any due state transition to one tournament and returns the current
+row. Called lazily from API paths and periodically from <a href="#tick/0"><code class="inline">tick/0</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#bracket_rounds/1" data-no-tooltip="" translate="no">bracket_rounds(size)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Rounds needed to win a bracket of <code class="inline">size</code> slots (2→1, 4→2, 8→3).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#bracket_size_for/2" data-no-tooltip="" translate="no">bracket_size_for(n, max)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Smallest power of two seating <code class="inline">n</code> entries, min 2, capped at <code class="inline">max</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_tournament/1" data-no-tooltip="" translate="no">cancel_tournament(tournament)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancels a tournament (terminal, no hooks fired, no recurrence spawn).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#change_tournament/2" data-no-tooltip="" translate="no">change_tournament(tournament, attrs \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_brackets/1" data-no-tooltip="" translate="no">count_brackets(tournament_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_entries/2" data-no-tooltip="" translate="no">count_entries(tournament_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Counts entries. Accepts the same <code class="inline">:state</code> and <code class="inline">:search</code> options as the listing.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_tournament_groups/0" data-no-tooltip="" translate="no">count_tournament_groups()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Counts distinct tournament slugs.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_tournaments/1" data-no-tooltip="" translate="no">count_tournaments(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_tournament/1" data-no-tooltip="" translate="no">create_tournament(attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_tournament/1" data-no-tooltip="" translate="no">delete_tournament(tournament)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#entries_by_id/2" data-no-tooltip="" translate="no">entries_by_id(tournament_id, entry_ids)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Entries by id, for rendering a bracket without loading the whole field.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_bracket/2" data-no-tooltip="" translate="no">get_bracket(tournament_id, index)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_entry/2" data-no-tooltip="" translate="no">get_entry(tournament_id, leader_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_match/1" data-no-tooltip="" translate="no">get_match(match_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_tournament/1" data-no-tooltip="" translate="no">get_tournament(id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_tournament!/1" data-no-tooltip="" translate="no">get_tournament!(id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_tournament_by_slug/1" data-no-tooltip="" translate="no">get_tournament_by_slug(slug)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The current occurrence for a slug: the latest one that is not finished or
+cancelled, falling back to the most recent row.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#join_tournament/2" data-no-tooltip="" translate="no">join_tournament(user, tournament)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Registers <code class="inline">user</code> as an entry leader. Runs the <code class="inline">before_tournament_register</code>
+pipeline (games gate/charge entry there) and fires
+<code class="inline">after_tournament_register</code> on success.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#leave_tournament/2" data-no-tooltip="" translate="no">leave_tournament(user, tournament)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Withdraws <code class="inline">user</code>'s entry. Only before the draw; <code class="inline">before_tournament_leave</code> can veto.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_brackets/2" data-no-tooltip="" translate="no">list_brackets(tournament_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Brackets for a tournament. Options: <code class="inline">:page</code>, <code class="inline">:page_size</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_entries/2" data-no-tooltip="" translate="no">list_entries(tournament_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Entries for a tournament, oldest first (registration order = seed rank).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_matches/2" data-no-tooltip="" translate="no">list_matches(tournament_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Matches for a tournament, bracket-major order.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_occurrences/1" data-no-tooltip="" translate="no">list_occurrences(slug)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Every occurrence of a slug, newest first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_tournament_groups/1" data-no-tooltip="" translate="no">list_tournament_groups(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Tournaments grouped by slug — one entry per tournament <em>type</em>, the way
+leaderboard seasons are grouped.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_tournaments/1" data-no-tooltip="" translate="no">list_tournaments(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#match_index/2" data-no-tooltip="" translate="no">match_index(slot, round)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The match a slot reaches in <code class="inline">round</code> (standard folding).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#match_payload/2" data-no-tooltip="" translate="no">match_payload(tournament, match)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The match struct with tournament and both entries preloaded (hook payload).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#my_match/2" data-no-tooltip="" translate="no">my_match(tournament, user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The caller's current unresolved match (their entry filled in a slot), if any.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reopen_tournament/1" data-no-tooltip="" translate="no">reopen_tournament(tournament)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Reopens a cancelled tournament.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#resolve_match/2" data-no-tooltip="" translate="no">resolve_match(match_id, winner)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Records the verdict for a match: the winning entry's id, or <code class="inline">:no_winner</code>
+(double forfeit — the next round's seat stays empty and cascades as a bye).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#round_deadline/2" data-no-tooltip="" translate="no">round_deadline(tournament, round)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unix-independent deadline for <code class="inline">round</code>, anchored to <code class="inline">starts_at</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#round_matches/2" data-no-tooltip="" translate="no">round_matches(size, round)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Matches in <code class="inline">round</code> of a bracket of <code class="inline">size</code> slots.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#round_opens_at/2" data-no-tooltip="" translate="no">round_opens_at(tournament, round)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>When <code class="inline">round</code> becomes playable (its window start).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#standard_seed_order/1" data-no-tooltip="" translate="no">standard_seed_order(size)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Standard single-elimination seeding order for a power-of-two <code class="inline">size</code>:
+slot <code class="inline">i</code> holds this seed rank (1-based); top seeds are spread apart.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#standings/1" data-no-tooltip="" translate="no">standings(tournament)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Final (or current) placements: champions first, then by wins.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#stats/0" data-no-tooltip="" translate="no">stats()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Aggregate counts for the admin dashboard.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#tick/1" data-no-tooltip="" translate="no">tick(now \\ DateTime.utc_now())</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Periodic driver, called by <a href="GameServer.Tournaments.Ticker.html"><code class="inline">GameServer.Tournaments.Ticker</code></a>. Runs every
+transition, match-ready firing, deadline sweep, and recurrence spawn that is
+due. Serialized cluster-wide so hooks fire once.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_match_metadata/2" data-no-tooltip="" translate="no">update_match_metadata(match_id, map)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Deep-merges <code class="inline">map</code> into the match's metadata (game scratch space).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_tournament/2" data-no-tooltip="" translate="no">update_tournament(tournament, attrs)</a>
+
+      </div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="advance_lifecycle/2">
+
+    <span id="advance_lifecycle/1"></span>
+
+  <div class="detail-header">
+    <a href="#advance_lifecycle/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">advance_lifecycle(tournament, now \\ DateTime.utc_now())</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L397" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> advance_lifecycle(GameServer.Tournaments.Tournament.t(), <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>()) ::
+  GameServer.Tournaments.Tournament.t()</pre>
+
+      </div>
+
+<p>Applies any due state transition to one tournament and returns the current
+row. Called lazily from API paths and periodically from <a href="#tick/0"><code class="inline">tick/0</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="bracket_rounds/1">
+
+  <div class="detail-header">
+    <a href="#bracket_rounds/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">bracket_rounds(size)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1190" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> bracket_rounds(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()</pre>
+
+      </div>
+
+<p>Rounds needed to win a bracket of <code class="inline">size</code> slots (2→1, 4→2, 8→3).</p>
+  </section>
+</section>
+<section class="detail" id="bracket_size_for/2">
+
+  <div class="detail-header">
+    <a href="#bracket_size_for/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">bracket_size_for(n, max)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1204" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> bracket_size_for(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()</pre>
+
+      </div>
+
+<p>Smallest power of two seating <code class="inline">n</code> entries, min 2, capped at <code class="inline">max</code>.</p>
+  </section>
+</section>
+<section class="detail" id="cancel_tournament/1">
+
+  <div class="detail-header">
+    <a href="#cancel_tournament/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_tournament(tournament)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L86" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel_tournament(GameServer.Tournaments.Tournament.t()) ::
+  {:ok, GameServer.Tournaments.Tournament.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Cancels a tournament (terminal, no hooks fired, no recurrence spawn).</p>
+  </section>
+</section>
+<section class="detail" id="change_tournament/2">
+
+    <span id="change_tournament/1"></span>
+
+  <div class="detail-header">
+    <a href="#change_tournament/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">change_tournament(tournament, attrs \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L113" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> change_tournament(GameServer.Tournaments.Tournament.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_brackets/1">
+
+  <div class="detail-header">
+    <a href="#count_brackets/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_brackets(tournament_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1122" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_brackets(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_entries/2">
+
+    <span id="count_entries/1"></span>
+
+  <div class="detail-header">
+    <a href="#count_entries/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_entries(tournament_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L384" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_entries(
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Counts entries. Accepts the same <code class="inline">:state</code> and <code class="inline">:search</code> options as the listing.</p>
+  </section>
+</section>
+<section class="detail" id="count_tournament_groups/0">
+
+  <div class="detail-header">
+    <a href="#count_tournament_groups/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_tournament_groups()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L207" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_tournament_groups() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Counts distinct tournament slugs.</p>
+  </section>
+</section>
+<section class="detail" id="count_tournaments/1">
+
+    <span id="count_tournaments/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_tournaments/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_tournaments(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L212" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_tournaments(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="create_tournament/1">
+
+  <div class="detail-header">
+    <a href="#create_tournament/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_tournament(attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L67" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_tournament(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, GameServer.Tournaments.Tournament.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="delete_tournament/1">
+
+  <div class="detail-header">
+    <a href="#delete_tournament/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_tournament(tournament)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L82" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> delete_tournament(GameServer.Tournaments.Tournament.t()) ::
+  {:ok, GameServer.Tournaments.Tournament.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="entries_by_id/2">
+
+  <div class="detail-header">
+    <a href="#entries_by_id/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">entries_by_id(tournament_id, entry_ids)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1156" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> entries_by_id(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), [<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]) :: %{
+  required(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) =&gt; GameServer.Tournaments.Entry.t()
+}</pre>
+
+      </div>
+
+<p>Entries by id, for rendering a bracket without loading the whole field.</p>
+  </section>
+</section>
+<section class="detail" id="get_bracket/2">
+
+  <div class="detail-header">
+    <a href="#get_bracket/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_bracket(tournament_id, index)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1127" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_bracket(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  GameServer.Tournaments.Bracket.t() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_entry/2">
+
+  <div class="detail-header">
+    <a href="#get_entry/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_entry(tournament_id, leader_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L300" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_entry(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  GameServer.Tournaments.Entry.t() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_match/1">
+
+  <div class="detail-header">
+    <a href="#get_match/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_match(match_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1111" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_match(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: GameServer.Tournaments.Match.t() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_tournament/1">
+
+  <div class="detail-header">
+    <a href="#get_tournament/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_tournament(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L117" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_tournament(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: GameServer.Tournaments.Tournament.t() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_tournament!/1">
+
+  <div class="detail-header">
+    <a href="#get_tournament!/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_tournament!(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L120" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_tournament!(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: GameServer.Tournaments.Tournament.t()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_tournament_by_slug/1">
+
+  <div class="detail-header">
+    <a href="#get_tournament_by_slug/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_tournament_by_slug(slug)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L127" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_tournament_by_slug(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+  GameServer.Tournaments.Tournament.t() | nil</pre>
+
+      </div>
+
+<p>The current occurrence for a slug: the latest one that is not finished or
+cancelled, falling back to the most recent row.</p>
+  </section>
+</section>
+<section class="detail" id="join_tournament/2">
+
+  <div class="detail-header">
+    <a href="#join_tournament/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">join_tournament(user, tournament)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L234" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> join_tournament(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  GameServer.Tournaments.Tournament.t()
+) ::
+  {:ok, GameServer.Tournaments.Entry.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Registers <code class="inline">user</code> as an entry leader. Runs the <code class="inline">before_tournament_register</code>
+pipeline (games gate/charge entry there) and fires
+<code class="inline">after_tournament_register</code> on success.</p>
+  </section>
+</section>
+<section class="detail" id="leave_tournament/2">
+
+  <div class="detail-header">
+    <a href="#leave_tournament/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">leave_tournament(user, tournament)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L278" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> leave_tournament(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  GameServer.Tournaments.Tournament.t()
+) ::
+  {:ok, GameServer.Tournaments.Tournament.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Withdraws <code class="inline">user</code>'s entry. Only before the draw; <code class="inline">before_tournament_leave</code> can veto.</p>
+  </section>
+</section>
+<section class="detail" id="list_brackets/2">
+
+    <span id="list_brackets/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_brackets/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_brackets(tournament_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1115" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_brackets(
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [GameServer.Tournaments.Bracket.t()]</pre>
+
+      </div>
+
+<p>Brackets for a tournament. Options: <code class="inline">:page</code>, <code class="inline">:page_size</code>.</p>
+  </section>
+</section>
+<section class="detail" id="list_entries/2">
+
+    <span id="list_entries/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_entries/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_entries(tournament_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L315" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_entries(
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [GameServer.Tournaments.Entry.t()]</pre>
+
+      </div>
+
+<p>Entries for a tournament, oldest first (registration order = seed rank).</p><p>Options: <code class="inline">:page</code>, <code class="inline">:page_size</code> (capped at 100), <code class="inline">:state</code>, plus</p><ul><li><code class="inline">:search</code> — filter by leader name (display name or username)</li><li><code class="inline">:preload_leader</code> — preload the leader, for callers that render names</li><li><code class="inline">:order</code> — <code class="inline">:bracket</code> groups drawn entries by bracket and seed instead</li></ul>
+  </section>
+</section>
+<section class="detail" id="list_matches/2">
+
+    <span id="list_matches/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_matches/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_matches(tournament_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1137" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_matches(
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [GameServer.Tournaments.Match.t()]</pre>
+
+      </div>
+
+<p>Matches for a tournament, bracket-major order.</p><p>Options: <code class="inline">:bracket_index</code> (single bracket), <code class="inline">:bracket_indexes</code> (several).</p>
+  </section>
+</section>
+<section class="detail" id="list_occurrences/1">
+
+  <div class="detail-header">
+    <a href="#list_occurrences/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_occurrences(slug)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L197" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_occurrences(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [GameServer.Tournaments.Tournament.t()]</pre>
+
+      </div>
+
+<p>Every occurrence of a slug, newest first.</p>
+  </section>
+</section>
+<section class="detail" id="list_tournament_groups/1">
+
+    <span id="list_tournament_groups/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_tournament_groups/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_tournament_groups(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L161" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_tournament_groups(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]</pre>
+
+      </div>
+
+<p>Tournaments grouped by slug — one entry per tournament <em>type</em>, the way
+leaderboard seasons are grouped.</p><p>Each group carries the newest occurrence's title/description, the id of the
+occurrence to open by default (the live one, else the newest), and how many
+editions exist.</p>
+  </section>
+</section>
+<section class="detail" id="list_tournaments/1">
+
+    <span id="list_tournaments/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_tournaments/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_tournaments(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L141" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_tournaments(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [GameServer.Tournaments.Tournament.t()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="match_index/2">
+
+  <div class="detail-header">
+    <a href="#match_index/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">match_index(slot, round)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1199" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> match_index(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>The match a slot reaches in <code class="inline">round</code> (standard folding).</p>
+  </section>
+</section>
+<section class="detail" id="match_payload/2">
+
+  <div class="detail-header">
+    <a href="#match_payload/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">match_payload(tournament, match)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1228" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> match_payload(
+  GameServer.Tournaments.Tournament.t(),
+  GameServer.Tournaments.Match.t()
+) ::
+  GameServer.Tournaments.Match.t()</pre>
+
+      </div>
+
+<p>The match struct with tournament and both entries preloaded (hook payload).</p>
+  </section>
+</section>
+<section class="detail" id="my_match/2">
+
+  <div class="detail-header">
+    <a href="#my_match/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">my_match(tournament, user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1169" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> my_match(GameServer.Tournaments.Tournament.t(), <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  GameServer.Tournaments.Match.t() | nil</pre>
+
+      </div>
+
+<p>The caller's current unresolved match (their entry filled in a slot), if any.</p>
+  </section>
+</section>
+<section class="detail" id="reopen_tournament/1">
+
+  <div class="detail-header">
+    <a href="#reopen_tournament/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reopen_tournament(tournament)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L101" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> reopen_tournament(GameServer.Tournaments.Tournament.t()) ::
+  {:ok, GameServer.Tournaments.Tournament.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Reopens a cancelled tournament.</p><p>A tournament that was never drawn goes back to <code class="inline">registration</code>; one that
+already has a bracket resumes at <code class="inline">running</code>, so an accidental cancel does not
+throw away the draw. Any due transition is applied immediately afterwards.</p>
+  </section>
+</section>
+<section class="detail" id="resolve_match/2">
+
+  <div class="detail-header">
+    <a href="#resolve_match/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">resolve_match(match_id, winner)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L655" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> resolve_match(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | :no_winner) ::
+  {:ok, GameServer.Tournaments.Match.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Records the verdict for a match: the winning entry's id, or <code class="inline">:no_winner</code>
+(double forfeit — the next round's seat stays empty and cascades as a bye).</p><p>First write wins; anything later returns <code class="inline">{:error, :already_resolved}</code>. The
+<code class="inline">before_tournament_result</code> pipeline can veto, leaving the match open.</p>
+  </section>
+</section>
+<section class="detail" id="round_deadline/2">
+
+  <div class="detail-header">
+    <a href="#round_deadline/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">round_deadline(tournament, round)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L596" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> round_deadline(GameServer.Tournaments.Tournament.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) ::
+  <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>()</pre>
+
+      </div>
+
+<p>Unix-independent deadline for <code class="inline">round</code>, anchored to <code class="inline">starts_at</code>.</p>
+  </section>
+</section>
+<section class="detail" id="round_matches/2">
+
+  <div class="detail-header">
+    <a href="#round_matches/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">round_matches(size, round)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1195" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> round_matches(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()</pre>
+
+      </div>
+
+<p>Matches in <code class="inline">round</code> of a bracket of <code class="inline">size</code> slots.</p>
+  </section>
+</section>
+<section class="detail" id="round_opens_at/2">
+
+  <div class="detail-header">
+    <a href="#round_opens_at/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">round_opens_at(tournament, round)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L602" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> round_opens_at(GameServer.Tournaments.Tournament.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) ::
+  <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>()</pre>
+
+      </div>
+
+<p>When <code class="inline">round</code> becomes playable (its window start).</p>
+  </section>
+</section>
+<section class="detail" id="standard_seed_order/1">
+
+  <div class="detail-header">
+    <a href="#standard_seed_order/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">standard_seed_order(size)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1216" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> standard_seed_order(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()]</pre>
+
+      </div>
+
+<p>Standard single-elimination seeding order for a power-of-two <code class="inline">size</code>:
+slot <code class="inline">i</code> holds this seed rank (1-based); top seeds are spread apart.</p>
+  </section>
+</section>
+<section class="detail" id="standings/1">
+
+  <div class="detail-header">
+    <a href="#standings/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">standings(tournament)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L955" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> standings(GameServer.Tournaments.Tournament.t()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+<p>Final (or current) placements: champions first, then by wins.</p>
+  </section>
+</section>
+<section class="detail" id="stats/0">
+
+  <div class="detail-header">
+    <a href="#stats/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">stats()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L1081" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> stats() :: %{
+  tournaments: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  entries: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  matches: %{
+    total: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
+    open: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
+    overdue: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()
+  }
+}</pre>
+
+      </div>
+
+<p>Aggregate counts for the admin dashboard.</p><p>Four grouped/filtered queries, all index-backed (<code class="inline">tournaments.state</code>,
+<code class="inline">tournament_entries.state</code>, and the partial <code class="inline">tournament_matches</code> index on
+open matches).</p>
+  </section>
+</section>
+<section class="detail" id="tick/1">
+
+    <span id="tick/0"></span>
+
+  <div class="detail-header">
+    <a href="#tick/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">tick(now \\ DateTime.utc_now())</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L458" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> tick(<a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Periodic driver, called by <a href="GameServer.Tournaments.Ticker.html"><code class="inline">GameServer.Tournaments.Ticker</code></a>. Runs every
+transition, match-ready firing, deadline sweep, and recurrence spawn that is
+due. Serialized cluster-wide so hooks fire once.</p>
+  </section>
+</section>
+<section class="detail" id="update_match_metadata/2">
+
+  <div class="detail-header">
+    <a href="#update_match_metadata/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_match_metadata(match_id, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L839" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> update_match_metadata(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, GameServer.Tournaments.Match.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Deep-merges <code class="inline">map</code> into the match's metadata (game scratch space).</p><p>Serialized per match and merged recursively so concurrent writers touching
+different nested keys (e.g. each player's run under <code class="inline">&quot;runs&quot;</code>) never clobber
+each other.</p>
+  </section>
+</section>
+<section class="detail" id="update_tournament/2">
+
+  <div class="detail-header">
+    <a href="#update_tournament/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_tournament(tournament, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/tournaments.ex#L75" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> update_tournament(GameServer.Tournaments.Tournament.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, GameServer.Tournaments.Tournament.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

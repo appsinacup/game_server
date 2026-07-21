@@ -1,0 +1,3446 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1050">
+
+
+    <title>GameServer.Hooks — game_server_core v1.0.1050</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1050
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-behaviour" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Hooks</span> <small>behaviour</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+
+    </h1>
+
+<a href="GameServer.Hooks.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Behaviour for application-level hooks / callbacks.</p><p>Implement this behaviour to receive lifecycle events from core flows
+(registration, login, provider linking, deletion) and run custom logic.</p><p>A module implementing this behaviour can be configured with</p><pre><code class="makeup elixir" translate="no"><span class="n">config</span><span class="w"> </span><span class="ss">:game_server_core</span><span class="p">,</span><span class="w"> </span><span class="ss">:hooks_module</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp.HooksImpl</span></code></pre><p>The default implementation is a no-op.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-lifecycle-hooks summary">
+  <h3>
+    <a href="#lifecycle-hooks">Lifecycle hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_startup/0" data-no-tooltip="" translate="no">after_startup()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_stop/0" data-no-tooltip="" translate="no">before_stop()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:on_custom_hook/2" data-no-tooltip="" translate="no">on_custom_hook(t, list)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Handle a dynamically-exported RPC function.</p></div>
+
+    </div>
+
+</div>
+<div class="summary-user-hooks summary">
+  <h3>
+    <a href="#user-hooks">User hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_user_deleted/1" data-no-tooltip="" translate="no">after_user_deleted(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_user_logged_in/1" data-no-tooltip="" translate="no">after_user_logged_in(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_user_offline/1" data-no-tooltip="" translate="no">after_user_offline(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_user_online/1" data-no-tooltip="" translate="no">after_user_online(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_user_register/1" data-no-tooltip="" translate="no">after_user_register(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_user_updated/1" data-no-tooltip="" translate="no">after_user_updated(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_user_register/2" data-no-tooltip="" translate="no">before_user_register(t, user_registration_hook_attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Called before a new user row is inserted, on every registration path:
+email, device, and all OAuth providers (which register mid-login).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_user_update/2" data-no-tooltip="" translate="no">before_user_update(t, map)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-lobby-hooks summary">
+  <h3>
+    <a href="#lobby-hooks">Lobby hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_lobby_create/1" data-no-tooltip="" translate="no">after_lobby_create(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_lobby_deleted/1" data-no-tooltip="" translate="no">after_lobby_deleted(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_lobby_host_change/2" data-no-tooltip="" translate="no">after_lobby_host_change(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_lobby_join/2" data-no-tooltip="" translate="no">after_lobby_join(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_lobby_kick/3" data-no-tooltip="" translate="no">after_lobby_kick(t, t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_lobby_leave/2" data-no-tooltip="" translate="no">after_lobby_leave(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_lobby_updated/1" data-no-tooltip="" translate="no">after_lobby_updated(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_lobby_create/1" data-no-tooltip="" translate="no">before_lobby_create(map)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_lobby_delete/1" data-no-tooltip="" translate="no">before_lobby_delete(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_lobby_join/3" data-no-tooltip="" translate="no">before_lobby_join(t, t, keyword)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_lobby_kick/3" data-no-tooltip="" translate="no">before_lobby_kick(t, t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_lobby_update/2" data-no-tooltip="" translate="no">before_lobby_update(t, map)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-group-hooks summary">
+  <h3>
+    <a href="#group-hooks">Group hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_group_create/1" data-no-tooltip="" translate="no">after_group_create(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_group_deleted/1" data-no-tooltip="" translate="no">after_group_deleted(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_group_join/2" data-no-tooltip="" translate="no">after_group_join(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_group_kick/3" data-no-tooltip="" translate="no">after_group_kick(t, t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_group_leave/2" data-no-tooltip="" translate="no">after_group_leave(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_group_updated/1" data-no-tooltip="" translate="no">after_group_updated(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_group_create/2" data-no-tooltip="" translate="no">before_group_create(t, map)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_group_delete/1" data-no-tooltip="" translate="no">before_group_delete(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_group_join/3" data-no-tooltip="" translate="no">before_group_join(t, t, map)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_group_kick/3" data-no-tooltip="" translate="no">before_group_kick(t, t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_group_update/2" data-no-tooltip="" translate="no">before_group_update(t, map)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-party-hooks summary">
+  <h3>
+    <a href="#party-hooks">Party hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_party_create/1" data-no-tooltip="" translate="no">after_party_create(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_party_disband/1" data-no-tooltip="" translate="no">after_party_disband(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_party_join/2" data-no-tooltip="" translate="no">after_party_join(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_party_kick/3" data-no-tooltip="" translate="no">after_party_kick(t, t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_party_leave/2" data-no-tooltip="" translate="no">after_party_leave(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_party_updated/1" data-no-tooltip="" translate="no">after_party_updated(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_party_create/2" data-no-tooltip="" translate="no">before_party_create(t, map)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_party_join/2" data-no-tooltip="" translate="no">before_party_join(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_party_kick/3" data-no-tooltip="" translate="no">before_party_kick(t, t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_party_update/2" data-no-tooltip="" translate="no">before_party_update(t, map)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-chat-hooks summary">
+  <h3>
+    <a href="#chat-hooks">Chat hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_chat_message/1" data-no-tooltip="" translate="no">after_chat_message(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_chat_message/2" data-no-tooltip="" translate="no">before_chat_message(t, map)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-achievement-hooks summary">
+  <h3>
+    <a href="#achievement-hooks">Achievement hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_achievement_unlocked/2" data-no-tooltip="" translate="no">after_achievement_unlocked(t, t)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-leaderboard-hooks summary">
+  <h3>
+    <a href="#leaderboard-hooks">Leaderboard hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_score_submitted/1" data-no-tooltip="" translate="no">after_score_submitted(t)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-tournament-hooks summary">
+  <h3>
+    <a href="#tournament-hooks">Tournament hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_tournament_finished/2" data-no-tooltip="" translate="no">after_tournament_finished(t, map)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_tournament_match_resolved/1" data-no-tooltip="" translate="no">after_tournament_match_resolved(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_tournament_register/2" data-no-tooltip="" translate="no">after_tournament_register(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_tournament_leave/2" data-no-tooltip="" translate="no">before_tournament_leave(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_tournament_register/2" data-no-tooltip="" translate="no">before_tournament_register(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_tournament_result/2" data-no-tooltip="" translate="no">before_tournament_result(t, term)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:tournament_match_expired/1" data-no-tooltip="" translate="no">tournament_match_expired(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:tournament_match_ready/1" data-no-tooltip="" translate="no">tournament_match_ready(t)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-matchmaking-hooks summary">
+  <h3>
+    <a href="#matchmaking-hooks">Matchmaking hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_matchmaking_cancel/2" data-no-tooltip="" translate="no">after_matchmaking_cancel(t, non_neg_integer)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_matchmaking_join/2" data-no-tooltip="" translate="no">after_matchmaking_join(t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_matchmaking_matched/2" data-no-tooltip="" translate="no">after_matchmaking_matched(list, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_matchmaking_join/2" data-no-tooltip="" translate="no">before_matchmaking_join(t, map)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:matchmaking_form_matches/2" data-no-tooltip="" translate="no">matchmaking_form_matches(map, list)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-payments-hooks summary">
+  <h3>
+    <a href="#payments-hooks">Payments hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_entitlement_changed/1" data-no-tooltip="" translate="no">after_entitlement_changed(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_purchase_fulfilled/1" data-no-tooltip="" translate="no">after_purchase_fulfilled(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_purchase_revoked/1" data-no-tooltip="" translate="no">after_purchase_revoked(t)</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-kv-hooks summary">
+  <h3>
+    <a href="#kv-hooks">KV hooks</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_kv_get/2" data-no-tooltip="" translate="no">before_kv_get(t, kv_opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Called before a KV <code class="inline">get/2</code> is performed. Implementations should return
+one of these client KV API access decisions</p></div>
+
+    </div>
+
+</div>
+<div class="summary-types summary">
+  <h3>
+    <a href="#types">Types</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:hook_result/1" data-no-tooltip="" translate="no">hook_result(attrs_or_user)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:kv_access/0" data-no-tooltip="" translate="no">kv_access()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:kv_access_result/0" data-no-tooltip="" translate="no">kv_access_result()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:kv_opts/0" data-no-tooltip="" translate="no">kv_opts()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Options passed to hooks that accept an options map/keyword list.</p></div>
+
+    </div>
+
+</div>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#call/3" data-no-tooltip="" translate="no">call(name, args \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Call an arbitrary function exported by the configured hooks module.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#caller/0" data-no-tooltip="" translate="no">caller()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>When a hooks function is executed via <a href="#call/3"><code class="inline">call/3</code></a> or <a href="#internal_call/3"><code class="inline">internal_call/3</code></a>, an
+optional <code class="inline">:caller</code> can be provided in the options. The caller will be
+injected into the spawned task's process dictionary and is accessible via
+<a href="#caller/0"><code class="inline">GameServer.Hooks.caller/0</code></a> (the raw value) or <a href="#caller_id/0"><code class="inline">caller_id/0</code></a> (the numeric id
+when the value is a user struct or map containing <code class="inline">:id</code>).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#caller_id/0" data-no-tooltip="" translate="no">caller_id()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#caller_user/0" data-no-tooltip="" translate="no">caller_user()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Return the user struct for the current caller when available. This will
+  attempt to resolve the caller via GameServer.Accounts.get_user!/1 when the
+  caller is a user id or a map containing an <code class="inline">:id</code> key. Returns nil when
+  no caller or user is found.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#exported_functions/1" data-no-tooltip="" translate="no">exported_functions(mod \\ module())</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Return a list of exported functions on the currently registered hooks module.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#internal_call/3" data-no-tooltip="" translate="no">internal_call(name, args \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Call an internal lifecycle callback. When a callback is missing this
+  returns a sensible default (eg. {:ok, attrs} for before callbacks) so
+  domain code doesn't need to handle missing hooks specially in most cases.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#internal_hooks/0" data-no-tooltip="" translate="no">internal_hooks()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the set of internal lifecycle hook names that are not callable
+  through the public RPC interface.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#invoke/2" data-no-tooltip="" translate="no">invoke(name, args \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Invoke a dynamic hook function by name.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#module/0" data-no-tooltip="" translate="no">module()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Return the configured module that implements the hooks behaviour.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#pipeline_hook?/2" data-no-tooltip="" translate="no">pipeline_hook?(name, arity)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>True when the hook transforms its input (a <code class="inline">before_*</code> pipeline hook) rather
+than fanning out notifications. Exposed for the admin runtime page.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="lifecycle-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#lifecycle-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Lifecycle hooks</span>
+    </h2>
+
+    <div class="lifecycle-hooks-list">
+<section class="detail" id="c:after_startup/0">
+
+  <div class="detail-header">
+    <a href="#c:after_startup/0" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_startup()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L56" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_startup() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_stop/0">
+
+  <div class="detail-header">
+    <a href="#c:before_stop/0" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_stop()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L58" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_stop() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:on_custom_hook/2">
+
+  <div class="detail-header">
+    <a href="#c:on_custom_hook/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">on_custom_hook(t, list)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L107" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> on_custom_hook(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">list</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+<p>Handle a dynamically-exported RPC function.</p><p>This callback is used for function names that were registered at runtime (eg.
+via a plugin's <code class="inline">after_startup/0</code> return value) and therefore may not exist as
+exported Elixir functions on the hooks module.</p><p>Receives the function name and the argument list.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="user-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#user-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">User hooks</span>
+    </h2>
+
+    <div class="user-hooks-list">
+<section class="detail" id="c:after_user_deleted/1">
+
+  <div class="detail-header">
+    <a href="#c:after_user_deleted/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_user_deleted(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L96" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_user_deleted(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_user_logged_in/1">
+
+  <div class="detail-header">
+    <a href="#c:after_user_logged_in/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_user_logged_in(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L89" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_user_logged_in(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_user_offline/1">
+
+  <div class="detail-header">
+    <a href="#c:after_user_offline/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_user_offline(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L95" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_user_offline(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_user_online/1">
+
+  <div class="detail-header">
+    <a href="#c:after_user_online/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_user_online(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L94" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_user_online(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_user_register/1">
+
+  <div class="detail-header">
+    <a href="#c:after_user_register/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_user_register(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L87" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_user_register(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_user_updated/1">
+
+  <div class="detail-header">
+    <a href="#c:after_user_updated/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_user_updated(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L92" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_user_updated(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_user_register/2">
+
+  <div class="detail-header">
+    <a href="#c:before_user_register/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_user_register(t, user_registration_hook_attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L84" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_user_register(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Types.html#t:user_registration_hook_attrs/0">GameServer.Types.user_registration_hook_attrs</a>()
+) :: <a href="#t:hook_result/1">hook_result</a>(<a href="GameServer.Types.html#t:user_registration_hook_attrs/0">GameServer.Types.user_registration_hook_attrs</a>())</pre>
+
+      </div>
+
+<p>Called before a new user row is inserted, on every registration path:
+email, device, and all OAuth providers (which register mid-login).</p><p>Receives the tentative user (not yet inserted, <code class="inline">id</code> is <code class="inline">nil</code>) and the
+registration attrs (string keys), which already contain the generated
+<code class="inline">&quot;username&quot;</code>. Return <code class="inline">{:ok, attrs}</code> — possibly with a different username
+or other changes — or <code class="inline">{:error, reason}</code> to abort the registration.</p><p>Core re-validates after all hooks ran: format and uniqueness are not
+overridable. A hook-supplied username that is invalid or already taken is
+replaced with a generated one (a plugin bug must never lock a player out
+of login). For strict policy on player-initiated changes — profanity or
+reserved names — use <a href="#c:before_user_update/2"><code class="inline">before_user_update/2</code></a>, where errors are returned
+to the player:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="8693462279-1">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8693462279-2">%{</span><span class="s">&quot;username&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">name</span><span class="p" data-group-id="8693462279-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="8693462279-1">)</span><span class="w"> </span><span class="k" data-group-id="8693462279-3">do</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="nc">MyGame.Profanity</span><span class="o">.</span><span class="n">allowed?</span><span class="p" data-group-id="8693462279-4">(</span><span class="n">name</span><span class="p" data-group-id="8693462279-4">)</span><span class="p">,</span><span class="w">
+    </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8693462279-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="8693462279-5">}</span><span class="p">,</span><span class="w">
+    </span><span class="ss">else</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8693462279-6">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:invalid_username</span><span class="p" data-group-id="8693462279-6">}</span><span class="w">
+</span><span class="k" data-group-id="8693462279-3">end</span><span class="w">
+
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="8693462279-7">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="8693462279-7">)</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8693462279-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="8693462279-8">}</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="c:before_user_update/2">
+
+  <div class="detail-header">
+    <a href="#c:before_user_update/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_user_update(t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L91" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_user_update(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="lobby-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#lobby-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Lobby hooks</span>
+    </h2>
+
+    <div class="lobby-hooks-list">
+<section class="detail" id="c:after_lobby_create/1">
+
+  <div class="detail-header">
+    <a href="#c:after_lobby_create/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_lobby_create(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L111" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_create(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_lobby_deleted/1">
+
+  <div class="detail-header">
+    <a href="#c:after_lobby_deleted/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_lobby_deleted(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L226" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_deleted(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_lobby_host_change/2">
+
+  <div class="detail-header">
+    <a href="#c:after_lobby_host_change/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_lobby_host_change(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L251" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_host_change(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_lobby_join/2">
+
+  <div class="detail-header">
+    <a href="#c:after_lobby_join/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_lobby_join(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L115" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_lobby_kick/3">
+
+  <div class="detail-header">
+    <a href="#c:after_lobby_kick/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_lobby_kick(t, t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L230" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_kick(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()
+) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_lobby_leave/2">
+
+  <div class="detail-header">
+    <a href="#c:after_lobby_leave/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_lobby_leave(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L220" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_leave(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_lobby_updated/1">
+
+  <div class="detail-header">
+    <a href="#c:after_lobby_updated/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_lobby_updated(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L223" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_updated(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_lobby_create/1">
+
+  <div class="detail-header">
+    <a href="#c:before_lobby_create/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_lobby_create(map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L110" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_create(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_lobby_delete/1">
+
+  <div class="detail-header">
+    <a href="#c:before_lobby_delete/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_lobby_delete(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L225" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_delete(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_lobby_join/3">
+
+  <div class="detail-header">
+    <a href="#c:before_lobby_join/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_lobby_join(t, t, keyword)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L113" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_join(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) ::
+  hook_result(
+    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()}
+  )</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_lobby_kick/3">
+
+  <div class="detail-header">
+    <a href="#c:before_lobby_kick/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_lobby_kick(t, t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L228" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_kick(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()
+) ::
+  hook_result(
+    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+     <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()}
+  )</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_lobby_update/2">
+
+  <div class="detail-header">
+    <a href="#c:before_lobby_update/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_lobby_update(t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L222" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_update(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="group-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#group-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Group hooks</span>
+    </h2>
+
+    <div class="group-hooks-list">
+<section class="detail" id="c:after_group_create/1">
+
+  <div class="detail-header">
+    <a href="#c:after_group_create/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_group_create(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L118" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_group_create(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_group_deleted/1">
+
+  <div class="detail-header">
+    <a href="#c:after_group_deleted/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_group_deleted(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L128" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_group_deleted(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_group_join/2">
+
+  <div class="detail-header">
+    <a href="#c:after_group_join/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_group_join(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L126" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_group_join(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_group_kick/3">
+
+  <div class="detail-header">
+    <a href="#c:after_group_kick/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_group_kick(t, t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L129" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_group_kick(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_group_leave/2">
+
+  <div class="detail-header">
+    <a href="#c:after_group_leave/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_group_leave(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L127" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_group_leave(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_group_updated/1">
+
+  <div class="detail-header">
+    <a href="#c:after_group_updated/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_group_updated(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L124" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_group_updated(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_group_create/2">
+
+  <div class="detail-header">
+    <a href="#c:before_group_create/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_group_create(t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L117" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_group_create(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_group_delete/1">
+
+  <div class="detail-header">
+    <a href="#c:before_group_delete/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_group_delete(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L131" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_group_delete(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_group_join/3">
+
+  <div class="detail-header">
+    <a href="#c:before_group_join/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_group_join(t, t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L120" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_group_join(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+) ::
+  hook_result(
+    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}
+  )</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_group_kick/3">
+
+  <div class="detail-header">
+    <a href="#c:before_group_kick/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_group_kick(t, t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L132" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_group_kick(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>({<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()})</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_group_update/2">
+
+  <div class="detail-header">
+    <a href="#c:before_group_update/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_group_update(t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L123" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_group_update(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="party-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#party-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Party hooks</span>
+    </h2>
+
+    <div class="party-hooks-list">
+<section class="detail" id="c:after_party_create/1">
+
+  <div class="detail-header">
+    <a href="#c:after_party_create/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_party_create(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L137" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_party_create(<a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_party_disband/1">
+
+  <div class="detail-header">
+    <a href="#c:after_party_disband/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_party_disband(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L145" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_party_disband(<a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_party_join/2">
+
+  <div class="detail-header">
+    <a href="#c:after_party_join/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_party_join(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L142" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_party_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_party_kick/3">
+
+  <div class="detail-header">
+    <a href="#c:after_party_kick/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_party_kick(t, t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L144" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_party_kick(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()
+) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_party_leave/2">
+
+  <div class="detail-header">
+    <a href="#c:after_party_leave/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_party_leave(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L143" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_party_leave(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_party_updated/1">
+
+  <div class="detail-header">
+    <a href="#c:after_party_updated/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_party_updated(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L140" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_party_updated(<a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_party_create/2">
+
+  <div class="detail-header">
+    <a href="#c:before_party_create/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_party_create(t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L136" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_party_create(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_party_join/2">
+
+  <div class="detail-header">
+    <a href="#c:before_party_join/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_party_join(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L147" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_party_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>({<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()})</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_party_kick/3">
+
+  <div class="detail-header">
+    <a href="#c:before_party_kick/3" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_party_kick(t, t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L148" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_party_kick(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()
+) ::
+  hook_result(
+    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+     <a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>()}
+  )</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_party_update/2">
+
+  <div class="detail-header">
+    <a href="#c:before_party_update/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_party_update(t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L139" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_party_update(<a href="GameServer.Parties.Party.html#t:t/0">GameServer.Parties.Party.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="chat-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#chat-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Chat hooks</span>
+    </h2>
+
+    <div class="chat-hooks-list">
+<section class="detail" id="c:after_chat_message/1">
+
+  <div class="detail-header">
+    <a href="#c:after_chat_message/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_chat_message(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L218" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_chat_message(<a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_chat_message/2">
+
+  <div class="detail-header">
+    <a href="#c:before_chat_message/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_chat_message(t, map)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L217" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_chat_message(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="achievement-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#achievement-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Achievement hooks</span>
+    </h2>
+
+    <div class="achievement-hooks-list">
+<section class="detail" id="c:after_achievement_unlocked/2">
+
+  <div class="detail-header">
+    <a href="#c:after_achievement_unlocked/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_achievement_unlocked(t, t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L152" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_achievement_unlocked(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="GameServer.Achievements.Achievement.html#t:t/0">GameServer.Achievements.Achievement.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="leaderboard-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#leaderboard-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Leaderboard hooks</span>
+    </h2>
+
+    <div class="leaderboard-hooks-list">
+<section class="detail" id="c:after_score_submitted/1">
+
+  <div class="detail-header">
+    <a href="#c:after_score_submitted/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_score_submitted(t)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L155" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_score_submitted(<a href="GameServer.Leaderboards.Record.html#t:t/0">GameServer.Leaderboards.Record.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="tournament-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#tournament-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Tournament hooks</span>
+    </h2>
+
+    <div class="tournament-hooks-list">
+<section class="detail" id="c:after_tournament_finished/2">
+
+  <div class="detail-header">
+    <a href="#c:after_tournament_finished/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_tournament_finished(t, map)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L174" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_tournament_finished(GameServer.Tournaments.Tournament.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_tournament_match_resolved/1">
+
+  <div class="detail-header">
+    <a href="#c:after_tournament_match_resolved/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_tournament_match_resolved(t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L173" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_tournament_match_resolved(GameServer.Tournaments.Match.t()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_tournament_register/2">
+
+  <div class="detail-header">
+    <a href="#c:after_tournament_register/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_tournament_register(t, t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L166" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_tournament_register(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  GameServer.Tournaments.Tournament.t()
+) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_tournament_leave/2">
+
+  <div class="detail-header">
+    <a href="#c:before_tournament_leave/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_tournament_leave(t, t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L167" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_tournament_leave(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  GameServer.Tournaments.Tournament.t()
+) ::
+  <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_tournament_register/2">
+
+  <div class="detail-header">
+    <a href="#c:before_tournament_register/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_tournament_register(t, t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L164" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_tournament_register(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  GameServer.Tournaments.Tournament.t()
+) ::
+  <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_tournament_result/2">
+
+  <div class="detail-header">
+    <a href="#c:before_tournament_result/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_tournament_result(t, term)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L171" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_tournament_result(GameServer.Tournaments.Match.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:tournament_match_expired/1">
+
+  <div class="detail-header">
+    <a href="#c:tournament_match_expired/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">tournament_match_expired(t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L170" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> tournament_match_expired(GameServer.Tournaments.Match.t()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:tournament_match_ready/1">
+
+  <div class="detail-header">
+    <a href="#c:tournament_match_ready/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">tournament_match_ready(t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L169" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> tournament_match_ready(GameServer.Tournaments.Match.t()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="matchmaking-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#matchmaking-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Matchmaking hooks</span>
+    </h2>
+
+    <div class="matchmaking-hooks-list">
+<section class="detail" id="c:after_matchmaking_cancel/2">
+
+  <div class="detail-header">
+    <a href="#c:after_matchmaking_cancel/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_matchmaking_cancel(t, non_neg_integer)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L190" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_matchmaking_cancel(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_matchmaking_join/2">
+
+  <div class="detail-header">
+    <a href="#c:after_matchmaking_join/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_matchmaking_join(t, t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L189" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_matchmaking_join(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  GameServer.Matchmaking.Ticket.t()
+) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_matchmaking_matched/2">
+
+  <div class="detail-header">
+    <a href="#c:after_matchmaking_matched/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_matchmaking_matched(list, t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L193" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_matchmaking_matched([GameServer.Matchmaking.Ticket.t()], <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_matchmaking_join/2">
+
+  <div class="detail-header">
+    <a href="#c:before_matchmaking_join/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_matchmaking_join(t, map)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L188" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_matchmaking_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:matchmaking_form_matches/2">
+
+  <div class="detail-header">
+    <a href="#c:matchmaking_form_matches/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">matchmaking_form_matches(map, list)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L191" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> matchmaking_form_matches(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), [GameServer.Matchmaking.Ticket.t()]) ::
+  [[GameServer.Matchmaking.Ticket.t()]] | :default</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="payments-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#payments-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Payments hooks</span>
+    </h2>
+
+    <div class="payments-hooks-list">
+<section class="detail" id="c:after_entitlement_changed/1">
+
+  <div class="detail-header">
+    <a href="#c:after_entitlement_changed/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_entitlement_changed(t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L212" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_entitlement_changed(<a href="GameServer.Payments.Entitlement.html#t:t/0">GameServer.Payments.Entitlement.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_purchase_fulfilled/1">
+
+  <div class="detail-header">
+    <a href="#c:after_purchase_fulfilled/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_purchase_fulfilled(t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L210" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_purchase_fulfilled(<a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_purchase_revoked/1">
+
+  <div class="detail-header">
+    <a href="#c:after_purchase_revoked/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_purchase_revoked(t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L211" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_purchase_revoked(<a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="kv-hooks" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#kv-hooks">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">KV hooks</span>
+    </h2>
+
+    <div class="kv-hooks-list">
+<section class="detail" id="c:before_kv_get/2">
+
+  <div class="detail-header">
+    <a href="#c:before_kv_get/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_kv_get(t, kv_opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L249" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_kv_get(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="#t:kv_opts/0">kv_opts</a>()) :: <a href="#t:kv_access_result/0">kv_access_result</a>()</pre>
+
+      </div>
+
+<p>Called before a KV <code class="inline">get/2</code> is performed. Implementations should return
+one of these client KV API access decisions:</p><ul><li><code class="inline">:public</code> — any authenticated client can read.</li><li><code class="inline">:owner_only</code> — only the caller matching the requested <code class="inline">user_id</code> can read.</li><li><code class="inline">:lobby_members_only</code> — only callers in the requested <code class="inline">lobby_id</code> can read.</li><li><code class="inline">:owner_or_lobby_member</code> — caller may match either requested <code class="inline">user_id</code> or <code class="inline">lobby_id</code>.</li><li><code class="inline">:admin_only</code> — only admins can read through the client KV API.</li><li><code class="inline">:server_only</code> — no client KV reads.</li></ul><p>Server-side <a href="GameServer.KV.html#get/2"><code class="inline">GameServer.KV.get/2</code></a> calls are unaffected.</p><p>Receives the <code class="inline">key</code> and an <code class="inline">opts</code> map/keyword (see <a href="#t:kv_opts/0"><code class="inline">kv_opts/0</code></a>). Return
+either the bare atom (e.g. <code class="inline">:public</code>) or <code class="inline">{:ok, :public}</code>; return <code class="inline">{:error, reason}</code>
+to block the read.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="types" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h2>
+
+    <div class="types-list">
+<section class="detail" id="t:hook_result/1">
+
+  <div class="detail-header">
+    <a href="#t:hook_result/1" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">hook_result(attrs_or_user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L27" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:kv_access/0">
+
+  <div class="detail-header">
+    <a href="#t:kv_access/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">kv_access()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L29" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> kv_access() ::
+  :public
+  | :owner_only
+  | :lobby_members_only
+  | :owner_or_lobby_member
+  | :admin_only
+  | :server_only</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:kv_access_result/0">
+
+  <div class="detail-header">
+    <a href="#t:kv_access_result/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">kv_access_result()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L37" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> kv_access_result() :: <a href="#t:kv_access/0">kv_access</a>() | {:ok, <a href="#t:kv_access/0">kv_access</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:kv_opts/0">
+
+  <div class="detail-header">
+    <a href="#t:kv_opts/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">kv_opts()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L54" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> kv_opts() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()</pre>
+
+      </div>
+
+<p>Options passed to hooks that accept an options map/keyword list.</p><p>Common keys include <code class="inline">:user_id</code>, <code class="inline">:lobby_id</code>, and other domain-specific options.
+Hooks may accept either a map or keyword list for convenience.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="call/3">
+
+    <span id="call/1"></span>
+
+    <span id="call/2"></span>
+
+  <div class="detail-header">
+    <a href="#call/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">call(name, args \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L274" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Call an arbitrary function exported by the configured hooks module.</p><p>This is a safe wrapper that checks function existence, enforces an allow-list
+if configured and runs the call inside a short Task with a configurable
+timeout to avoid long-running user code.</p><p>Returns {:ok, result} | {:error, reason}</p>
+  </section>
+</section>
+<section class="detail" id="caller/0">
+
+  <div class="detail-header">
+    <a href="#caller/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">caller()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1188" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> caller() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>() | nil</pre>
+
+      </div>
+
+<p>When a hooks function is executed via <a href="#call/3"><code class="inline">call/3</code></a> or <a href="#internal_call/3"><code class="inline">internal_call/3</code></a>, an
+optional <code class="inline">:caller</code> can be provided in the options. The caller will be
+injected into the spawned task's process dictionary and is accessible via
+<a href="#caller/0"><code class="inline">GameServer.Hooks.caller/0</code></a> (the raw value) or <a href="#caller_id/0"><code class="inline">caller_id/0</code></a> (the numeric id
+when the value is a user struct or map containing <code class="inline">:id</code>).</p>
+  </section>
+</section>
+<section class="detail" id="caller_id/0">
+
+  <div class="detail-header">
+    <a href="#caller_id/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">caller_id()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1193" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> caller_id() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="caller_user/0">
+
+  <div class="detail-header">
+    <a href="#caller_user/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">caller_user()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1207" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> caller_user() :: <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>() | nil</pre>
+
+      </div>
+
+<p>Return the user struct for the current caller when available. This will
+  attempt to resolve the caller via GameServer.Accounts.get_user!/1 when the
+  caller is a user id or a map containing an <code class="inline">:id</code> key. Returns nil when
+  no caller or user is found.</p>
+  </section>
+</section>
+<section class="detail" id="exported_functions/1">
+
+    <span id="exported_functions/0"></span>
+
+  <div class="detail-header">
+    <a href="#exported_functions/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">exported_functions(mod \\ module())</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1106" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Return a list of exported functions on the currently registered hooks module.</p><p>The result is a list of maps like: [%{name: &quot;start_game&quot;, arities: [2,3]}, ...]
+This is useful for tooling and admin UI to display what RPCs are available.</p>
+  </section>
+</section>
+<section class="detail" id="internal_call/3">
+
+    <span id="internal_call/1"></span>
+
+    <span id="internal_call/2"></span>
+
+  <div class="detail-header">
+    <a href="#internal_call/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">internal_call(name, args \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L363" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Call an internal lifecycle callback. When a callback is missing this
+  returns a sensible default (eg. {:ok, attrs} for before callbacks) so
+  domain code doesn't need to handle missing hooks specially in most cases.</p>
+  </section>
+</section>
+<section class="detail" id="internal_hooks/0">
+
+  <div class="detail-header">
+    <a href="#internal_hooks/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">internal_hooks()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L422" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> internal_hooks() :: <a href="https://hexdocs.pm/elixir/MapSet.html#t:t/1">MapSet.t</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>())</pre>
+
+      </div>
+
+<p>Returns the set of internal lifecycle hook names that are not callable
+  through the public RPC interface.</p>
+  </section>
+</section>
+<section class="detail" id="invoke/2">
+
+    <span id="invoke/1"></span>
+
+  <div class="detail-header">
+    <a href="#invoke/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">invoke(name, args \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L398" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Invoke a dynamic hook function by name.</p><p>This is used by <a href="GameServer.Schedule.html"><code class="inline">GameServer.Schedule</code></a> to call scheduled job callbacks.
+Unlike <a href="#internal_call/3"><code class="inline">internal_call/3</code></a>, this is designed for user-defined functions
+that are not part of the core lifecycle callbacks.</p><p>Returns <code class="inline">:ok</code> on success, <code class="inline">{:error, reason}</code> on failure or if the
+function doesn't exist.</p>
+  </section>
+</section>
+<section class="detail" id="module/0">
+
+  <div class="detail-header">
+    <a href="#module/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">module()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L254" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Return the configured module that implements the hooks behaviour.</p>
+  </section>
+</section>
+<section class="detail" id="pipeline_hook?/2">
+
+  <div class="detail-header">
+    <a href="#pipeline_hook?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">pipeline_hook?(name, arity)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L516" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>True when the hook transforms its input (a <code class="inline">before_*</code> pipeline hook) rather
+than fanning out notifications. Exposed for the admin runtime page.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

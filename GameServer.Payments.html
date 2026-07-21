@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1050">
+
+
+    <title>GameServer.Payments — game_server_core v1.0.1050</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1050
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Payments</span> 
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+
+    </h1>
+
+<a href="GameServer.Payments.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Payment catalog, purchase ledger, and entitlements.</p><p>Provider-specific integrations validate or create transactions, but this
+context remains the source of truth for what a user owns inside the game.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#admin_stats/0" data-no-tooltip="" translate="no">admin_stats()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_stripe_subscription_at_period_end/2" data-no-tooltip="" translate="no">cancel_stripe_subscription_at_period_end(user, entitlement_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_entitlements/1" data-no-tooltip="" translate="no">count_entitlements(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_products/1" data-no-tooltip="" translate="no">count_products(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_provider_events/1" data-no-tooltip="" translate="no">count_provider_events(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_provider_products/1" data-no-tooltip="" translate="no">count_provider_products(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_purchases/1" data-no-tooltip="" translate="no">count_purchases(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_reconciliation_cursors/1" data-no-tooltip="" translate="no">count_reconciliation_cursors(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_product/1" data-no-tooltip="" translate="no">create_product(attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_provider_product/1" data-no-tooltip="" translate="no">create_provider_product(attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_purchase/3" data-no-tooltip="" translate="no">create_purchase(user, provider_product, attrs \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_steam_checkout/2" data-no-tooltip="" translate="no">create_steam_checkout(user, attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_stripe_checkout/2" data-no-tooltip="" translate="no">create_stripe_checkout(user, attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#finalize_steam_purchase/2" data-no-tooltip="" translate="no">finalize_steam_purchase(user, attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fulfill_purchase/2" data-no-tooltip="" translate="no">fulfill_purchase(purchase, provider_payload \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_product/1" data-no-tooltip="" translate="no">get_product(id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_product_by_sku/1" data-no-tooltip="" translate="no">get_product_by_sku(sku)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_provider_product/1" data-no-tooltip="" translate="no">get_provider_product(id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_provider_product/2" data-no-tooltip="" translate="no">get_provider_product(provider, external_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_purchase/1" data-no-tooltip="" translate="no">get_purchase(id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_purchase_by_order_id/1" data-no-tooltip="" translate="no">get_purchase_by_order_id(order_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_purchase_by_provider_original_transaction/2" data-no-tooltip="" translate="no">get_purchase_by_provider_original_transaction(provider, transaction_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_purchase_by_provider_transaction/2" data-no-tooltip="" translate="no">get_purchase_by_provider_transaction(provider, transaction_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#handle_apple_webhook/1" data-no-tooltip="" translate="no">handle_apple_webhook(raw_body)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#handle_google_webhook/2" data-no-tooltip="" translate="no">handle_google_webhook(raw_body, authorization_header)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#handle_stripe_webhook/2" data-no-tooltip="" translate="no">handle_stripe_webhook(raw_body, signature)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#has_entitlement?/2" data-no-tooltip="" translate="no">has_entitlement?(user_id, key)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_admin_entitlements/1" data-no-tooltip="" translate="no">list_admin_entitlements(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_admin_products/1" data-no-tooltip="" translate="no">list_admin_products(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_admin_provider_products/1" data-no-tooltip="" translate="no">list_admin_provider_products(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_admin_purchases/1" data-no-tooltip="" translate="no">list_admin_purchases(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_catalog/1" data-no-tooltip="" translate="no">list_catalog(provider \\ nil)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_products/1" data-no-tooltip="" translate="no">list_products(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_provider_events/1" data-no-tooltip="" translate="no">list_provider_events(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_reconciliation_cursors/1" data-no-tooltip="" translate="no">list_reconciliation_cursors(opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_user_entitlements/2" data-no-tooltip="" translate="no">list_user_entitlements(user_id, opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_user_purchases/2" data-no-tooltip="" translate="no">list_user_purchases(user_id, opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#product_entitlement_key/1" data-no-tooltip="" translate="no">product_entitlement_key(product)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#provider_adapter_statuses/0" data-no-tooltip="" translate="no">provider_adapter_statuses()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reconcile_stripe_purchase/1" data-no-tooltip="" translate="no">reconcile_stripe_purchase(purchase)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#record_provider_event/5" data-no-tooltip="" translate="no">record_provider_event(provider, event_id, event_type, payload, metadata \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#revoke_purchase/2" data-no-tooltip="" translate="no">revoke_purchase(purchase, attrs \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#stripe_config_status/0" data-no-tooltip="" translate="no">stripe_config_status()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_product/2" data-no-tooltip="" translate="no">update_product(product, attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_provider_product/2" data-no-tooltip="" translate="no">update_provider_product(provider_product, attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#validate_store_purchase/3" data-no-tooltip="" translate="no">validate_store_purchase(user, provider, attrs)</a>
+
+      </div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="admin_stats/0">
+
+  <div class="detail-header">
+    <a href="#admin_stats/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">admin_stats()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L559" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> admin_stats() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="cancel_stripe_subscription_at_period_end/2">
+
+  <div class="detail-header">
+    <a href="#cancel_stripe_subscription_at_period_end/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_stripe_subscription_at_period_end(user, entitlement_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L376" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel_stripe_subscription_at_period_end(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()
+) ::
+  {:ok,
+   %{
+     purchase: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>(),
+     entitlement: <a href="GameServer.Payments.Entitlement.html#t:t/0">GameServer.Payments.Entitlement.t</a>(),
+     stripe_subscription: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+   }}
+  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_entitlements/1">
+
+    <span id="count_entitlements/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_entitlements/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_entitlements(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L706" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_entitlements(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_products/1">
+
+    <span id="count_products/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_products/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_products(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L644" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_products(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_provider_events/1">
+
+    <span id="count_provider_events/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_provider_events/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_provider_events(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L727" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_provider_events(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_provider_products/1">
+
+    <span id="count_provider_products/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_provider_products/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_provider_products(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L664" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_provider_products(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_purchases/1">
+
+    <span id="count_purchases/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_purchases/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_purchases(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L684" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_purchases(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_reconciliation_cursors/1">
+
+    <span id="count_reconciliation_cursors/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_reconciliation_cursors/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_reconciliation_cursors(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L748" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_reconciliation_cursors(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="create_product/1">
+
+  <div class="detail-header">
+    <a href="#create_product/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_product(attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L39" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_product(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="create_provider_product/1">
+
+  <div class="detail-header">
+    <a href="#create_provider_product/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_provider_product(attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L70" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_provider_product(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="create_purchase/3">
+
+    <span id="create_purchase/2"></span>
+
+  <div class="detail-header">
+    <a href="#create_purchase/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_purchase(user, provider_product, attrs \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L125" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_purchase(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+) ::
+  {:ok, <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="create_steam_checkout/2">
+
+  <div class="detail-header">
+    <a href="#create_steam_checkout/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_steam_checkout(user, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L426" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_steam_checkout(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok,
+   %{
+     purchase: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>(),
+     provider_transaction_id: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil,
+     steam_url: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil
+   }}
+  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="create_stripe_checkout/2">
+
+  <div class="detail-header">
+    <a href="#create_stripe_checkout/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_stripe_checkout(user, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L308" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_stripe_checkout(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok,
+   %{
+     purchase: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>(),
+     checkout_url: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+     provider_session_id: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
+   }}
+  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="finalize_steam_purchase/2">
+
+  <div class="detail-header">
+    <a href="#finalize_steam_purchase/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">finalize_steam_purchase(user, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L459" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> finalize_steam_purchase(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, %{purchase: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()}} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="fulfill_purchase/2">
+
+    <span id="fulfill_purchase/1"></span>
+
+  <div class="detail-header">
+    <a href="#fulfill_purchase/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fulfill_purchase(purchase, provider_payload \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L193" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> fulfill_purchase(<a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_product/1">
+
+  <div class="detail-header">
+    <a href="#get_product/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_product(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L53" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_product(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_product_by_sku/1">
+
+  <div class="detail-header">
+    <a href="#get_product_by_sku/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_product_by_sku(sku)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L56" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_product_by_sku(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_provider_product/1">
+
+  <div class="detail-header">
+    <a href="#get_provider_product/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_provider_product(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L86" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_provider_product(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  <a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_provider_product/2">
+
+  <div class="detail-header">
+    <a href="#get_provider_product/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_provider_product(provider, external_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L93" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_provider_product(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+  <a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_purchase/1">
+
+  <div class="detail-header">
+    <a href="#get_purchase/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_purchase(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L153" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_purchase(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_purchase_by_order_id/1">
+
+  <div class="detail-header">
+    <a href="#get_purchase_by_order_id/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_purchase_by_order_id(order_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L156" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_purchase_by_order_id(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_purchase_by_provider_original_transaction/2">
+
+  <div class="detail-header">
+    <a href="#get_purchase_by_provider_original_transaction/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_purchase_by_provider_original_transaction(provider, transaction_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L172" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_purchase_by_provider_original_transaction(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+  <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get_purchase_by_provider_transaction/2">
+
+  <div class="detail-header">
+    <a href="#get_purchase_by_provider_transaction/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_purchase_by_provider_transaction(provider, transaction_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L163" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_purchase_by_provider_transaction(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+  <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="handle_apple_webhook/1">
+
+  <div class="detail-header">
+    <a href="#handle_apple_webhook/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">handle_apple_webhook(raw_body)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L496" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> handle_apple_webhook(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="handle_google_webhook/2">
+
+  <div class="detail-header">
+    <a href="#handle_google_webhook/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">handle_google_webhook(raw_body, authorization_header)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L482" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> handle_google_webhook(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | nil) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="handle_stripe_webhook/2">
+
+  <div class="detail-header">
+    <a href="#handle_stripe_webhook/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">handle_stripe_webhook(raw_body, signature)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L335" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> handle_stripe_webhook(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | nil) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="has_entitlement?/2">
+
+  <div class="detail-header">
+    <a href="#has_entitlement?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">has_entitlement?(user_id, key)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L539" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> has_entitlement?(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_admin_entitlements/1">
+
+    <span id="list_admin_entitlements/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_admin_entitlements/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_admin_entitlements(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L691" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_admin_entitlements(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Payments.Entitlement.html#t:t/0">GameServer.Payments.Entitlement.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_admin_products/1">
+
+    <span id="list_admin_products/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_admin_products/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_admin_products(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L630" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_admin_products(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_admin_provider_products/1">
+
+    <span id="list_admin_provider_products/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_admin_provider_products/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_admin_provider_products(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L649" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_admin_provider_products(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [
+  <a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>()
+]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_admin_purchases/1">
+
+    <span id="list_admin_purchases/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_admin_purchases/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_admin_purchases(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L669" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_admin_purchases(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_catalog/1">
+
+    <span id="list_catalog/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_catalog/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_catalog(provider \\ nil)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L101" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_catalog(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil) :: [<a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_products/1">
+
+    <span id="list_products/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_products/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_products(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L59" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_products(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_provider_events/1">
+
+    <span id="list_provider_events/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_provider_events/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_provider_events(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L713" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_provider_events(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Payments.ProviderEvent.html#t:t/0">GameServer.Payments.ProviderEvent.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_reconciliation_cursors/1">
+
+    <span id="list_reconciliation_cursors/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_reconciliation_cursors/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_reconciliation_cursors(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L734" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_reconciliation_cursors(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [
+  <a href="GameServer.Payments.ReconciliationCursor.html#t:t/0">GameServer.Payments.ReconciliationCursor.t</a>()
+]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_user_entitlements/2">
+
+    <span id="list_user_entitlements/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_user_entitlements/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_user_entitlements(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L515" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_user_entitlements(
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Payments.Entitlement.html#t:t/0">GameServer.Payments.Entitlement.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_user_purchases/2">
+
+    <span id="list_user_purchases/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_user_purchases/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_user_purchases(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L180" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_user_purchases(
+  <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="product_entitlement_key/1">
+
+  <div class="detail-header">
+    <a href="#product_entitlement_key/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">product_entitlement_key(product)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L553" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> product_entitlement_key(<a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="provider_adapter_statuses/0">
+
+  <div class="detail-header">
+    <a href="#provider_adapter_statuses/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">provider_adapter_statuses()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L597" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> provider_adapter_statuses() :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="reconcile_stripe_purchase/1">
+
+  <div class="detail-header">
+    <a href="#reconcile_stripe_purchase/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reconcile_stripe_purchase(purchase)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L352" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> reconcile_stripe_purchase(<a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()) ::
+  {:ok,
+   %{
+     purchase: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>(),
+     result: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(),
+     stripe_session: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+   }}
+  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="record_provider_event/5">
+
+    <span id="record_provider_event/4"></span>
+
+  <div class="detail-header">
+    <a href="#record_provider_event/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">record_provider_event(provider, event_id, event_type, payload, metadata \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L754" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> record_provider_event(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Payments.ProviderEvent.html#t:t/0">GameServer.Payments.ProviderEvent.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()}
+  | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="revoke_purchase/2">
+
+    <span id="revoke_purchase/1"></span>
+
+  <div class="detail-header">
+    <a href="#revoke_purchase/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">revoke_purchase(purchase, attrs \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L233" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> revoke_purchase(<a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="stripe_config_status/0">
+
+  <div class="detail-header">
+    <a href="#stripe_config_status/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">stripe_config_status()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L572" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> stripe_config_status() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="update_product/2">
+
+  <div class="detail-header">
+    <a href="#update_product/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_product(product, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L46" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> update_product(<a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Payments.Product.html#t:t/0">GameServer.Payments.Product.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="update_provider_product/2">
+
+  <div class="detail-header">
+    <a href="#update_provider_product/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_provider_product(provider_product, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L78" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> update_provider_product(<a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Payments.ProviderProduct.html#t:t/0">GameServer.Payments.ProviderProduct.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="validate_store_purchase/3">
+
+  <div class="detail-header">
+    <a href="#validate_store_purchase/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">validate_store_purchase(user, provider, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/payments.ex#L275" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> validate_store_purchase(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, %{purchase: <a href="GameServer.Payments.Purchase.html#t:t/0">GameServer.Payments.Purchase.t</a>(), seen_before: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()}}
+  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1050">
+
+
+    <title>GameServer.LobbySnapshots — game_server_core v1.0.1050</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1050
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>LobbySnapshots</span> 
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+
+    </h1>
+
+<a href="GameServer.LobbySnapshots.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Durable record of how a lobby's state evolved during a run.</p><p>A lobby <em>is</em> a run — each level quick-joins a fresh lobby — so <code class="inline">lobby_id</code> is
+the correlation key and needs no separate id. A timeline reads
+<code class="inline">snapshot N -&gt; [events] -&gt; snapshot N+1</code>: snapshots record <em>what</em> changed,
+events record <em>why</em>.</p><p>Two entry points, both cheap for callers:</p><ul><li><a href="#capture_lobby/3"><code class="inline">capture_lobby/3</code></a> at a mutation entry point (hook completion, game-loop
+message, lobby teardown).</li><li><a href="#record_event/4"><code class="inline">record_event/4</code></a> where a decision is worth explaining.</li></ul><p>Both enqueue into <a href="GameServer.LobbySnapshots.Writer.html"><code class="inline">GameServer.LobbySnapshots.Writer</code></a> rather than writing
+inline — call sites live in the serialized game loop, where a DB round trip
+shows up as gameplay stutter.</p><p>Disabled by default; see <a href="#enabled?/0"><code class="inline">enabled?/0</code></a>.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#capture_hook/3" data-no-tooltip="" translate="no">capture_hook(name, caller, result)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Capture after a hook completed, attributing it to the hook's caller.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#capture_lobby/3" data-no-tooltip="" translate="no">capture_lobby(lobby_id, trigger, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Capture the current state of a lobby, attributing it to <code class="inline">trigger</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#coverage_gap?/1" data-no-tooltip="" translate="no">coverage_gap?(kind)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Whether an event kind marks a coverage gap rather than a game decision.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#diff/2" data-no-tooltip="" translate="no">diff(from, to)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Field-level differences between two snapshots' state.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#enabled?/0" data-no-tooltip="" translate="no">enabled?()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Whether capture is currently on.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#gather_sections/1" data-no-tooltip="" translate="no">gather_sections(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Read every section of a lobby's current state, as raw (unhashed) content.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_coverage_gaps/1" data-no-tooltip="" translate="no">list_coverage_gaps(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Coverage gaps across all lobbies, newest first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_events/1" data-no-tooltip="" translate="no">list_events(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Events for a lobby, oldest first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_lobbies/1" data-no-tooltip="" translate="no">list_lobbies(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Distinct lobbies that have snapshots, newest first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_snapshots/1" data-no-tooltip="" translate="no">list_snapshots(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Snapshots for a lobby, oldest first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#load_blobs/1" data-no-tooltip="" translate="no">load_blobs(hashes)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Load blob content for a list of hashes, as a hash =&gt; content map.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#record_coverage_gap/3" data-no-tooltip="" translate="no">record_coverage_gap(lobby_id, source, details \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Record that a mutation happened somewhere capture cannot see.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#record_event/4" data-no-tooltip="" translate="no">record_event(lobby_id, kind, payload \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Record a decision that happened within the current snapshot interval.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#resolved_config/2" data-no-tooltip="" translate="no">resolved_config(key, default \\ nil)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The resolved value of a config key, for tests and diagnostics.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#state_at/1" data-no-tooltip="" translate="no">state_at(snapshot)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Reconstruct full state as of a given snapshot.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#timeline/1" data-no-tooltip="" translate="no">timeline(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A lobby's snapshots in order, each with the events that followed it.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="capture_hook/3">
+
+  <div class="detail-header">
+    <a href="#capture_hook/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">capture_hook(name, caller, result)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L184" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> capture_hook(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Capture after a hook completed, attributing it to the hook's caller.</p><p>Core cannot read a lobby out of a hook's arguments — they are plugin-defined —
+and the only context it injects is the caller. So this resolves the caller's
+<em>current</em> lobby and captures against that, skipping entirely when the caller
+is absent or not in one. A hook that mutates lobby state on behalf of someone
+outside it is invisible here and needs <a href="#capture_lobby/3"><code class="inline">capture_lobby/3</code></a> at its own chokepoint.</p><p>Everything including the caller lookup happens off the hook's process, so a
+hook call pays one <code class="inline">Application.get_env</code> when capture is disabled and one task
+spawn when it is on.</p>
+  </section>
+</section>
+<section class="detail" id="capture_lobby/3">
+
+    <span id="capture_lobby/2"></span>
+
+  <div class="detail-header">
+    <a href="#capture_lobby/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">capture_lobby(lobby_id, trigger, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L55" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> capture_lobby(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Capture the current state of a lobby, attributing it to <code class="inline">trigger</code>.</p><p><code class="inline">trigger</code> names what caused the mutation — <code class="inline">&quot;hook:finish_boat_game&quot;</code>,
+<code class="inline">&quot;timer:scheduled_collision&quot;</code>, <code class="inline">&quot;lobby:deleted&quot;</code>. Options:</p><ul><li><code class="inline">:sync</code> — gather inline instead of off the caller's process. Required when
+the state is about to disappear (lobby teardown), where an async gather
+would race the delete and capture nothing.</li><li><code class="inline">:flagged</code> — mark the run as anomalous, exempting it from the default
+retention sweep. Set this when the mutation errored.</li><li><code class="inline">:user_id</code> — attribution for the mutation.</li></ul><p>Returns <code class="inline">:ok</code> regardless; capture must never fail a caller's real work.</p>
+  </section>
+</section>
+<section class="detail" id="coverage_gap?/1">
+
+  <div class="detail-header">
+    <a href="#coverage_gap?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">coverage_gap?(kind)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L167" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> coverage_gap?(<a href="GameServer.LobbySnapshots.Event.html#t:t/0">GameServer.LobbySnapshots.Event.t</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Whether an event kind marks a coverage gap rather than a game decision.</p>
+  </section>
+</section>
+<section class="detail" id="diff/2">
+
+  <div class="detail-header">
+    <a href="#diff/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">diff(from, to)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L456" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> diff(
+  <a href="GameServer.LobbySnapshots.Snapshot.html#t:t/0">GameServer.LobbySnapshots.Snapshot.t</a>(),
+  <a href="GameServer.LobbySnapshots.Snapshot.html#t:t/0">GameServer.LobbySnapshots.Snapshot.t</a>()
+) :: %{
+  required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]
+}</pre>
+
+      </div>
+
+<p>Field-level differences between two snapshots' state.</p><p>Returns <code class="inline">%{section =&gt; [%{path: [&quot;a&quot;, &quot;b&quot;], from: term, to: term}]}</code>, with
+unchanged sections omitted entirely. Paths are flattened, so a field buried in
+nested maps reads as <code class="inline">[&quot;boat_adventure&quot;, &quot;effects&quot;, &quot;speed_reduced&quot;]</code> rather
+than requiring the reader to walk two nested objects to spot it.</p><p>This is the point of the whole system: a value that reverts between snapshots
+should be visible at a glance rather than reconstructed by hand.</p>
+  </section>
+</section>
+<section class="detail" id="enabled?/0">
+
+  <div class="detail-header">
+    <a href="#enabled?/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">enabled?()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L37" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> enabled?() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Whether capture is currently on.</p><p>Checked before any gathering work, so leaving call sites in hot paths costs a
+single <code class="inline">Application.get_env</code> when off.</p>
+  </section>
+</section>
+<section class="detail" id="gather_sections/1">
+
+  <div class="detail-header">
+    <a href="#gather_sections/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">gather_sections(lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L267" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> gather_sections(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">list</a>()}</pre>
+
+      </div>
+
+<p>Read every section of a lobby's current state, as raw (unhashed) content.</p><p>Public so plugins can reuse the same view of a lobby that capture records.</p>
+  </section>
+</section>
+<section class="detail" id="list_coverage_gaps/1">
+
+    <span id="list_coverage_gaps/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_coverage_gaps/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_coverage_gaps(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L153" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_coverage_gaps(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.LobbySnapshots.Event.html#t:t/0">GameServer.LobbySnapshots.Event.t</a>()]</pre>
+
+      </div>
+
+<p>Coverage gaps across all lobbies, newest first.</p>
+  </section>
+</section>
+<section class="detail" id="list_events/1">
+
+  <div class="detail-header">
+    <a href="#list_events/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_events(lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L526" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_events(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [<a href="GameServer.LobbySnapshots.Event.html#t:t/0">GameServer.LobbySnapshots.Event.t</a>()]</pre>
+
+      </div>
+
+<p>Events for a lobby, oldest first.</p>
+  </section>
+</section>
+<section class="detail" id="list_lobbies/1">
+
+    <span id="list_lobbies/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_lobbies/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_lobbies(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L541" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_lobbies(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]</pre>
+
+      </div>
+
+<p>Distinct lobbies that have snapshots, newest first.</p><p>The lobby row is usually gone by the time anyone reads this, so the listing is
+built from the snapshots themselves rather than joined against <code class="inline">lobbies</code>.</p>
+  </section>
+</section>
+<section class="detail" id="list_snapshots/1">
+
+  <div class="detail-header">
+    <a href="#list_snapshots/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_snapshots(lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L516" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_snapshots(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [<a href="GameServer.LobbySnapshots.Snapshot.html#t:t/0">GameServer.LobbySnapshots.Snapshot.t</a>()]</pre>
+
+      </div>
+
+<p>Snapshots for a lobby, oldest first.</p>
+  </section>
+</section>
+<section class="detail" id="load_blobs/1">
+
+  <div class="detail-header">
+    <a href="#load_blobs/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">load_blobs(hashes)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L435" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> load_blobs([<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]) :: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">list</a>()}</pre>
+
+      </div>
+
+<p>Load blob content for a list of hashes, as a hash =&gt; content map.</p>
+  </section>
+</section>
+<section class="detail" id="record_coverage_gap/3">
+
+    <span id="record_coverage_gap/2"></span>
+
+  <div class="detail-header">
+    <a href="#record_coverage_gap/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">record_coverage_gap(lobby_id, source, details \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L142" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> record_coverage_gap(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Record that a mutation happened somewhere capture cannot see.</p><p>A plugin calls this from a tripwire that detects state being written outside
+the chokepoints capture hangs off — polyglot's <code class="inline">warn_if_unserialized_write/1</code>
+is the first. Such a write is <em>by definition</em> a mutation missing from the
+snapshots, so this is the system reporting its own blind spots.</p><p>Stored as an ordinary event, deliberately: a gap is most useful read in the
+timeline where it happened, next to the snapshots that are consequently
+incomplete. The admin view also lists them across lobbies.</p>
+  </section>
+</section>
+<section class="detail" id="record_event/4">
+
+    <span id="record_event/2"></span>
+
+    <span id="record_event/3"></span>
+
+  <div class="detail-header">
+    <a href="#record_event/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">record_event(lobby_id, kind, payload \\ %{}, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L81" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> record_event(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Record a decision that happened within the current snapshot interval.</p><p><code class="inline">payload</code> carries the fields that explain the decision — a snapshot can show
+<code class="inline">speed: 100 -&gt; 50</code>, but only an event carries the <code class="inline">gap</code> that caused it.</p>
+  </section>
+</section>
+<section class="detail" id="resolved_config/2">
+
+    <span id="resolved_config/1"></span>
+
+  <div class="detail-header">
+    <a href="#resolved_config/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">resolved_config(key, default \\ nil)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L579" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> resolved_config(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()</pre>
+
+      </div>
+
+<p>The resolved value of a config key, for tests and diagnostics.</p><p>Exposed so the resolution order (app env, then environment) can be asserted
+against the real code path rather than a copy of it.</p>
+  </section>
+</section>
+<section class="detail" id="state_at/1">
+
+  <div class="detail-header">
+    <a href="#state_at/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">state_at(snapshot)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L371" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> state_at(<a href="GameServer.LobbySnapshots.Snapshot.html#t:t/0">GameServer.LobbySnapshots.Snapshot.t</a>()) :: %{
+  required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
+}</pre>
+
+      </div>
+
+<p>Reconstruct full state as of a given snapshot.</p><p>For each section, take the latest occurrence at or before that snapshot.
+Sections are stored whole, so this is a lookup — never a merge.</p>
+  </section>
+</section>
+<section class="detail" id="timeline/1">
+
+  <div class="detail-header">
+    <a href="#timeline/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">timeline(lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobby_snapshots.ex#L398" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> timeline(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: %{
+  prologue: [<a href="GameServer.LobbySnapshots.Event.html#t:t/0">GameServer.LobbySnapshots.Event.t</a>()],
+  intervals: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]
+}</pre>
+
+      </div>
+
+<p>A lobby's snapshots in order, each with the events that followed it.</p><p>Reads as <code class="inline">snapshot -&gt; [events] -&gt; snapshot -&gt; [events]</code>. An event belongs to
+the interval opened by the latest snapshot at or before it; events preceding
+the first snapshot land in <code class="inline">:prologue</code>.</p><p><code class="inline">index</code> is a 1-based display number derived here rather than stored — nothing
+has to hand out sequence numbers at write time for this to be stable.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1050">
+
+
+    <title>GameServer.Friends — game_server_core v1.0.1050</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1050
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Friends</span> 
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+
+    </h1>
+
+<a href="GameServer.Friends.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Friends context - handles friend requests and relationships.</p><p>Basic semantics:</p><ul><li>A single <code class="inline">friendships</code> row represents a directed request from requester -&gt; target.</li><li><p>status: &quot;pending&quot; | &quot;accepted&quot; | &quot;rejected&quot; | &quot;blocked&quot;</p></li><li>When a user accepts a pending incoming request, that request becomes <code class="inline">accepted</code>.
+If a reverse pending request exists, it will be removed to avoid duplicate rows.</li><li>Listing friends returns the other user from rows with status <code class="inline">accepted</code> in either
+direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a friend request (requester -&gt; target)</span><span class="w">
+</span><span class="p" data-group-id="9249217627-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">friendship</span><span class="p" data-group-id="9249217627-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">create_request</span><span class="p" data-group-id="9249217627-2">(</span><span class="n">requester_id</span><span class="p">,</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="9249217627-2">)</span><span class="w">
+
+</span><span class="c1"># Accept a pending incoming request (performed by the target)</span><span class="w">
+</span><span class="p" data-group-id="9249217627-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">accepted</span><span class="p" data-group-id="9249217627-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">accept_friend_request</span><span class="p" data-group-id="9249217627-4">(</span><span class="n">friendship</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9249217627-5">%</span><span class="nc" data-group-id="9249217627-5">GameServer.Accounts.User</span><span class="p" data-group-id="9249217627-5">{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="9249217627-5">}</span><span class="p" data-group-id="9249217627-4">)</span><span class="w">
+
+</span><span class="c1"># List accepted friends for a user (paginated)</span><span class="w">
+</span><span class="n">friends</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">list_friends_for_user</span><span class="p" data-group-id="9249217627-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="9249217627-6">)</span><span class="w">
+
+</span><span class="c1"># Count accepted friends for a user</span><span class="w">
+</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">count_friends_for_user</span><span class="p" data-group-id="9249217627-7">(</span><span class="n">user_id</span><span class="p" data-group-id="9249217627-7">)</span><span class="w">
+
+</span><span class="c1"># Remove a friendship (either direction)</span><span class="w">
+</span><span class="p" data-group-id="9249217627-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="9249217627-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">remove_friend</span><span class="p" data-group-id="9249217627-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">friend_id</span><span class="p" data-group-id="9249217627-9">)</span></code></pre>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-types summary">
+  <h3>
+    <a href="#types">Types</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:user_id/0" data-no-tooltip="" translate="no">user_id()</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#accept_friend_request/2" data-no-tooltip="" translate="no">accept_friend_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Accept a friend request (only the target may accept). Returns {:ok, friendship}.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#any_blocked?/2" data-no-tooltip="" translate="no">any_blocked?(user_id, other_ids)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns true if <code class="inline">user_id</code> is on a block with any of <code class="inline">other_ids</code>, in either
+direction. One query, regardless of how many others are checked.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#block_friend_request/2" data-no-tooltip="" translate="no">block_friend_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Block an incoming request (only the target may block). Returns {:ok, friendship} with status &quot;blocked&quot;.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#block_user/2" data-no-tooltip="" translate="no">block_user(user, blocked_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Block an arbitrary user, with or without any prior friendship between them.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#blocked?/2" data-no-tooltip="" translate="no">blocked?(requester_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Check if either user has blocked the other.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#blocked_pairs/1" data-no-tooltip="" translate="no">blocked_pairs(user_ids)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the set of blocked pairs among <code class="inline">user_ids</code>, as a <a href="https://hexdocs.pm/elixir/MapSet.html"><code class="inline">MapSet</code></a> of
+<code class="inline">{lower_id, higher_id}</code> tuples.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_request/2" data-no-tooltip="" translate="no">cancel_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancel an outgoing friend request (only the requester may cancel).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all_blocks/1" data-no-tooltip="" translate="no">count_all_blocks(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count every block across all users, honouring the same filters as <a href="#list_all_blocks/1"><code class="inline">list_all_blocks/1</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_blocked_for_user/1" data-no-tooltip="" translate="no">count_blocked_for_user(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count blocked friendships for a user (number of blocked rows where user is target).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_blocked_users/1" data-no-tooltip="" translate="no">count_blocked_users(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count the users <code class="inline">user_id</code> has blocked.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_friends_for_user/1" data-no-tooltip="" translate="no">count_friends_for_user(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count accepted friends for a given user (distinct other user ids).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_incoming_requests/1" data-no-tooltip="" translate="no">count_incoming_requests(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count incoming pending friend requests for a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_outgoing_requests/1" data-no-tooltip="" translate="no">count_outgoing_requests(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count outgoing pending friend requests for a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_request/2" data-no-tooltip="" translate="no">create_request(requester_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Create a friend request from requester -&gt; target.
+  If a reverse pending request exists (target -&gt; requester) it will be accepted instead.
+  Returns {:ok, friendship} on success or {:error, reason}.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_block/1" data-no-tooltip="" translate="no">delete_block(friendship_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Remove a block by its friendship id, regardless of who created it.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#friend_ids/1" data-no-tooltip="" translate="no">friend_ids(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Return a list of user IDs that are accepted friends of the given user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#friends?/2" data-no-tooltip="" translate="no">friends?(user_a_id, user_b_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Check whether two users are friends (accepted friendship in either direction).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_by_pair/2" data-no-tooltip="" translate="no">get_by_pair(requester_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get friendship between two users (ordered requester-&gt;target) if exists</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_friendship/1" data-no-tooltip="" translate="no">get_friendship(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get friendship by id (returns nil when not found)</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_friendship!/1" data-no-tooltip="" translate="no">get_friendship!(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get friendship by id</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_all_blocks/1" data-no-tooltip="" translate="no">list_all_blocks(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List every block across all users, newest first, for admin views.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_blocked_for_user/2" data-no-tooltip="" translate="no">list_blocked_for_user(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List blocked friendships for a user (Friendship structs where the user is the blocker / target).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_blocked_users/2" data-no-tooltip="" translate="no">list_blocked_users(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List the users <code class="inline">user_id</code> has blocked, as <code class="inline">User</code> structs.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_friends_for_user/2" data-no-tooltip="" translate="no">list_friends_for_user(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List accepted friends for a given user id - returns list of User structs.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_friends_with_friendship/2" data-no-tooltip="" translate="no">list_friends_with_friendship(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List accepted friendships for a user along with the other user and friendship id.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_incoming_requests/2" data-no-tooltip="" translate="no">list_incoming_requests(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List incoming pending friend requests for a user (Friendship structs).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_outgoing_requests/2" data-no-tooltip="" translate="no">list_outgoing_requests(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List outgoing pending friend requests for a user (Friendship structs).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#pair_key/2" data-no-tooltip="" translate="no">pair_key(a, b)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Normalizes a user pair into the order-independent key used by <a href="#blocked_pairs/1"><code class="inline">blocked_pairs/1</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reject_friend_request/2" data-no-tooltip="" translate="no">reject_friend_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Reject a friend request (only the target may reject). Returns {:ok, friendship}.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#remove_friend/2" data-no-tooltip="" translate="no">remove_friend(user_id, friend_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Remove a friendship (either direction) - only participating users may call this.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_user/1" data-no-tooltip="" translate="no">subscribe_user(user_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unblock_friendship/2" data-no-tooltip="" translate="no">unblock_friendship(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unblock_user/2" data-no-tooltip="" translate="no">unblock_user(user, blocked_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unblock a user previously blocked via <a href="#block_user/2"><code class="inline">block_user/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_user/1" data-no-tooltip="" translate="no">unsubscribe_user(user_id)</a>
+
+      </div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="types" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h2>
+
+    <div class="types-list">
+<section class="detail" id="t:user_id/0">
+
+  <div class="detail-header">
+    <a href="#t:user_id/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">user_id()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L44" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="accept_friend_request/2">
+
+  <div class="detail-header">
+    <a href="#accept_friend_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">accept_friend_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L365" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> accept_friend_request(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Accept a friend request (only the target may accept). Returns {:ok, friendship}.</p>
+  </section>
+</section>
+<section class="detail" id="any_blocked?/2">
+
+  <div class="detail-header">
+    <a href="#any_blocked?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">any_blocked?(user_id, other_ids)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L720" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> any_blocked?(<a href="#t:user_id/0">user_id</a>(), [<a href="#t:user_id/0">user_id</a>()]) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Returns true if <code class="inline">user_id</code> is on a block with any of <code class="inline">other_ids</code>, in either
+direction. One query, regardless of how many others are checked.</p>
+  </section>
+</section>
+<section class="detail" id="block_friend_request/2">
+
+  <div class="detail-header">
+    <a href="#block_friend_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">block_friend_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L485" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> block_friend_request(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Block an incoming request (only the target may block). Returns {:ok, friendship} with status &quot;blocked&quot;.</p>
+  </section>
+</section>
+<section class="detail" id="block_user/2">
+
+  <div class="detail-header">
+    <a href="#block_user/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">block_user(user, blocked_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L516" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> block_user(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="#t:user_id/0">user_id</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Block an arbitrary user, with or without any prior friendship between them.</p><p>Blocked rows are stored in a canonical direction — <code class="inline">target_id</code> is the
+blocker, <code class="inline">requester_id</code> is the blocked user — so <a href="#list_blocked_for_user/2"><code class="inline">list_blocked_for_user/2</code></a>
+stays correct. Any existing row between the pair (in either direction) is
+replaced, so blocking supersedes a pending request or an active friendship.</p><p>Returns <code class="inline">{:ok, friendship}</code>, or <code class="inline">{:error, :cannot_block_self}</code>.</p>
+  </section>
+</section>
+<section class="detail" id="blocked?/2">
+
+  <div class="detail-header">
+    <a href="#blocked?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">blocked?(requester_id, target_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L323" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> blocked?(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Check if either user has blocked the other.</p><p>Returns <code class="inline">true</code> if a friendship row with status <code class="inline">&quot;blocked&quot;</code> exists in either
+direction between the two user IDs.</p>
+  </section>
+</section>
+<section class="detail" id="blocked_pairs/1">
+
+  <div class="detail-header">
+    <a href="#blocked_pairs/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">blocked_pairs(user_ids)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L599" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> blocked_pairs([<a href="#t:user_id/0">user_id</a>()]) :: <a href="https://hexdocs.pm/elixir/MapSet.html#t:t/1">MapSet.t</a>({<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()})</pre>
+
+      </div>
+
+<p>Returns the set of blocked pairs among <code class="inline">user_ids</code>, as a <a href="https://hexdocs.pm/elixir/MapSet.html"><code class="inline">MapSet</code></a> of
+<code class="inline">{lower_id, higher_id}</code> tuples.</p><p>Order-independent by construction, so callers can test a pair without
+knowing who blocked whom. Resolves an entire candidate group in one query,
+which is what makes per-pair filtering cheap in matchmaking.</p>
+  </section>
+</section>
+<section class="detail" id="cancel_request/2">
+
+  <div class="detail-header">
+    <a href="#cancel_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L426" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel_request(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, :cancelled} | {:error, :not_found | :not_authorized | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Cancel an outgoing friend request (only the requester may cancel).</p>
+  </section>
+</section>
+<section class="detail" id="count_all_blocks/1">
+
+    <span id="count_all_blocks/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_all_blocks/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all_blocks(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L669" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_all_blocks(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count every block across all users, honouring the same filters as <a href="#list_all_blocks/1"><code class="inline">list_all_blocks/1</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="count_blocked_for_user/1">
+
+  <div class="detail-header">
+    <a href="#count_blocked_for_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_blocked_for_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L765" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_blocked_for_user(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count blocked friendships for a user (number of blocked rows where user is target).</p>
+  </section>
+</section>
+<section class="detail" id="count_blocked_users/1">
+
+  <div class="detail-header">
+    <a href="#count_blocked_users/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_blocked_users(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L640" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_blocked_users(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count the users <code class="inline">user_id</code> has blocked.</p>
+  </section>
+</section>
+<section class="detail" id="count_friends_for_user/1">
+
+  <div class="detail-header">
+    <a href="#count_friends_for_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_friends_for_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L889" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_friends_for_user(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count accepted friends for a given user (distinct other user ids).</p>
+  </section>
+</section>
+<section class="detail" id="count_incoming_requests/1">
+
+  <div class="detail-header">
+    <a href="#count_incoming_requests/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_incoming_requests(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L942" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_incoming_requests(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count incoming pending friend requests for a user.</p>
+  </section>
+</section>
+<section class="detail" id="count_outgoing_requests/1">
+
+  <div class="detail-header">
+    <a href="#count_outgoing_requests/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_outgoing_requests(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L987" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_outgoing_requests(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count outgoing pending friend requests for a user.</p>
+  </section>
+</section>
+<section class="detail" id="create_request/2">
+
+  <div class="detail-header">
+    <a href="#create_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_request(requester_id, target_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L212" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_request(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>() | <a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()}
+  | {:error,
+     :cannot_friend_self
+     | :blocked
+     | :already_friends
+     | :already_requested
+     | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Create a friend request from requester -&gt; target.
+  If a reverse pending request exists (target -&gt; requester) it will be accepted instead.
+  Returns {:ok, friendship} on success or {:error, reason}.</p>
+  </section>
+</section>
+<section class="detail" id="delete_block/1">
+
+  <div class="detail-header">
+    <a href="#delete_block/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_block(friendship_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L696" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> delete_block(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: {:ok, :unblocked} | {:error, :not_found}</pre>
+
+      </div>
+
+<p>Remove a block by its friendship id, regardless of who created it.</p><p>For admin use — <a href="#unblock_user/2"><code class="inline">unblock_user/2</code></a> is the player-facing path and only lets the
+blocker lift their own block.</p>
+  </section>
+</section>
+<section class="detail" id="friend_ids/1">
+
+  <div class="detail-header">
+    <a href="#friend_ids/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">friend_ids(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L1029" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> friend_ids(<a href="#t:user_id/0">user_id</a>()) :: [<a href="#t:user_id/0">user_id</a>()]</pre>
+
+      </div>
+
+<p>Return a list of user IDs that are accepted friends of the given user.</p><p>This is used internally (e.g. for broadcasting online-status changes)
+and does <em>not</em> paginate – it returns all friend IDs.</p>
+  </section>
+</section>
+<section class="detail" id="friends?/2">
+
+  <div class="detail-header">
+    <a href="#friends?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">friends?(user_a_id, user_b_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L335" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> friends?(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Check whether two users are friends (accepted friendship in either direction).</p>
+  </section>
+</section>
+<section class="detail" id="get_by_pair/2">
+
+  <div class="detail-header">
+    <a href="#get_by_pair/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_by_pair(requester_id, target_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L1018" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_by_pair(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()) :: <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>() | nil</pre>
+
+      </div>
+
+<p>Get friendship between two users (ordered requester-&gt;target) if exists</p>
+  </section>
+</section>
+<section class="detail" id="get_friendship/1">
+
+  <div class="detail-header">
+    <a href="#get_friendship/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_friendship(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L1" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_friendship(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>() | nil</pre>
+
+      </div>
+
+<p>Get friendship by id (returns nil when not found)</p>
+  </section>
+</section>
+<section class="detail" id="get_friendship!/1">
+
+  <div class="detail-header">
+    <a href="#get_friendship!/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_friendship!(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L1" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_friendship!(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()</pre>
+
+      </div>
+
+<p>Get friendship by id</p>
+  </section>
+</section>
+<section class="detail" id="list_all_blocks/1">
+
+    <span id="list_all_blocks/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_all_blocks/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_all_blocks(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L653" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_all_blocks(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()]</pre>
+
+      </div>
+
+<p>List every block across all users, newest first, for admin views.</p><h2 id="list_all_blocks/1-options" class="section-heading"><a href="#list_all_blocks/1-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:user_id</code> - only blocks where this user is the blocker or the blocked</li><li><code class="inline">:page</code>, <code class="inline">:page_size</code> - see <a href="GameServer.Types.html#t:pagination_opts/0"><code class="inline">GameServer.Types.pagination_opts/0</code></a></li></ul>
+  </section>
+</section>
+<section class="detail" id="list_blocked_for_user/2">
+
+    <span id="list_blocked_for_user/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_blocked_for_user/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_blocked_for_user(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L741" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_blocked_for_user(<a href="#t:user_id/0">user_id</a>(), <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()) :: [
+  <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()
+]</pre>
+
+      </div>
+
+<p>List blocked friendships for a user (Friendship structs where the user is the blocker / target).</p>
+  </section>
+</section>
+<section class="detail" id="list_blocked_users/2">
+
+    <span id="list_blocked_users/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_blocked_users/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_blocked_users(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L622" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_blocked_users(<a href="#t:user_id/0">user_id</a>(), <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()) :: [
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()
+]</pre>
+
+      </div>
+
+<p>List the users <code class="inline">user_id</code> has blocked, as <code class="inline">User</code> structs.</p><p>The blacklist proper — unlike <a href="#list_blocked_for_user/2"><code class="inline">list_blocked_for_user/2</code></a>, which returns the
+underlying friendship rows.</p><p>See <a href="GameServer.Types.html#t:pagination_opts/0"><code class="inline">GameServer.Types.pagination_opts/0</code></a> for available options.</p>
+  </section>
+</section>
+<section class="detail" id="list_friends_for_user/2">
+
+    <span id="list_friends_for_user/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_friends_for_user/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_friends_for_user(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L809" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_friends_for_user(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()) :: [
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()
+]</pre>
+
+      </div>
+
+<p>List accepted friends for a given user id - returns list of User structs.</p><h2 id="list_friends_for_user/2-options" class="section-heading"><a href="#list_friends_for_user/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><p>See <a href="GameServer.Types.html#t:pagination_opts/0"><code class="inline">GameServer.Types.pagination_opts/0</code></a> for available options.</p>
+  </section>
+</section>
+<section class="detail" id="list_friends_with_friendship/2">
+
+    <span id="list_friends_with_friendship/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_friends_with_friendship/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_friends_with_friendship(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L857" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_friends_with_friendship(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()) ::
+  [
+    %{friendship_id: <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), user: <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()}
+  ]</pre>
+
+      </div>
+
+<p>List accepted friendships for a user along with the other user and friendship id.</p><p>Returns a list of maps: %{friendship_id: integer(), user: %User{}}</p>
+  </section>
+</section>
+<section class="detail" id="list_incoming_requests/2">
+
+    <span id="list_incoming_requests/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_incoming_requests/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_incoming_requests(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L918" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_incoming_requests(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()) :: [
+  <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()
+]</pre>
+
+      </div>
+
+<p>List incoming pending friend requests for a user (Friendship structs).</p><h2 id="list_incoming_requests/2-options" class="section-heading"><a href="#list_incoming_requests/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><p>See <a href="GameServer.Types.html#t:pagination_opts/0"><code class="inline">GameServer.Types.pagination_opts/0</code></a> for available options.</p>
+  </section>
+</section>
+<section class="detail" id="list_outgoing_requests/2">
+
+    <span id="list_outgoing_requests/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_outgoing_requests/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_outgoing_requests(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L963" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_outgoing_requests(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()) :: [
+  <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()
+]</pre>
+
+      </div>
+
+<p>List outgoing pending friend requests for a user (Friendship structs).</p><h2 id="list_outgoing_requests/2-options" class="section-heading"><a href="#list_outgoing_requests/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><p>See <a href="GameServer.Types.html#t:pagination_opts/0"><code class="inline">GameServer.Types.pagination_opts/0</code></a> for available options.</p>
+  </section>
+</section>
+<section class="detail" id="pair_key/2">
+
+  <div class="detail-header">
+    <a href="#pair_key/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">pair_key(a, b)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L735" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> pair_key(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()) :: {<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()}</pre>
+
+      </div>
+
+<p>Normalizes a user pair into the order-independent key used by <a href="#blocked_pairs/1"><code class="inline">blocked_pairs/1</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="reject_friend_request/2">
+
+  <div class="detail-header">
+    <a href="#reject_friend_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reject_friend_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L401" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> reject_friend_request(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Reject a friend request (only the target may reject). Returns {:ok, friendship}.</p>
+  </section>
+</section>
+<section class="detail" id="remove_friend/2">
+
+  <div class="detail-header">
+    <a href="#remove_friend/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">remove_friend(user_id, friend_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L449" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> remove_friend(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Remove a friendship (either direction) - only participating users may call this.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_user/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L86" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_user(<a href="#t:user_id/0">user_id</a>()) :: :ok</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="unblock_friendship/2">
+
+  <div class="detail-header">
+    <a href="#unblock_friendship/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unblock_friendship(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L779" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unblock_friendship(<a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, :unblocked} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.</p>
+  </section>
+</section>
+<section class="detail" id="unblock_user/2">
+
+  <div class="detail-header">
+    <a href="#unblock_user/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unblock_user(user, blocked_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L571" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unblock_user(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="#t:user_id/0">user_id</a>()) ::
+  {:ok, :unblocked} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Unblock a user previously blocked via <a href="#block_user/2"><code class="inline">block_user/2</code></a>.</p><p>Returns <code class="inline">{:ok, :unblocked}</code>, or <code class="inline">{:error, :not_found}</code> when no block exists.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_user/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/friends.ex#L91" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_user(<a href="#t:user_id/0">user_id</a>()) :: :ok</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>
