@@ -84,6 +84,7 @@ defmodule GameServerCore.MixProject do
   defp docs do
     [
       main: "readme",
+      source_url: @source_url,
       source_ref: "v#{@version}",
       extras: ["README.md"],
       # Group GameServer.Hooks callbacks by entity (User / Lobby / Group / …)

@@ -655,15 +655,21 @@ jobs:
           mix local.rebar --force
 
       - name: Install dependencies
+        working-directory: apps/game_server_core
         run: |
           mix deps.get
 
+      # Docs are generated from game_server_core: it holds the public API
+      # (GameServer.* domain modules, hooks). The root :game_server_host is a
+      # thin wrapper, so building docs there yields an almost-empty reference.
+      # Output to the repo-root ./doc so the publish step below finds it.
       - name: Generate docs
+        working-directory: apps/game_server_core
         env:
           APP_VERSION: ${{ env.APP_VERSION }}
         run: |
           echo "Using APP_VERSION=${APP_VERSION:-$(echo $APP_VERSION)}"
-          MIX_ENV=dev mix docs
+          MIX_ENV=dev mix docs -o ../../doc
 
       - name: Publish to gh-pages
         if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
