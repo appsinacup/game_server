@@ -298,6 +298,12 @@ defmodule GameServer.Hooks do
   @callback after_user_offline(user()) :: any()
   @callback after_user_deleted(user()) :: any()
 
+  # Economy lifecycle callbacks. The change map carries the user, the
+  # currency/item, the new balance/quantity, and the signed delta.
+  @callback after_wallet_changed(change :: map()) :: any()
+  @callback after_inventory_changed(change :: map()) :: any()
+  @optional_callbacks after_wallet_changed: 1, after_inventory_changed: 1
+
   # Lobby lifecycle callbacks
   @callback before_lobby_create(attrs :: map()) :: hook_result(map())
   @callback after_lobby_create(lobby()) :: any()
@@ -501,6 +507,9 @@ defmodule GameServer.Hooks do
       @impl true
       def after_user_deleted(_user), do: :ok
 
+      def after_wallet_changed(_change), do: :ok
+      def after_inventory_changed(_change), do: :ok
+
       @impl true
       def before_user_register(_user, attrs), do: {:ok, attrs}
 
@@ -654,6 +663,8 @@ defmodule GameServer.Hooks do
                      after_user_online: 1,
                      after_user_offline: 1,
                      after_user_deleted: 1,
+                     after_wallet_changed: 1,
+                     after_inventory_changed: 1,
                      before_user_update: 2,
                      on_custom_hook: 2,
                      before_lobby_create: 1,

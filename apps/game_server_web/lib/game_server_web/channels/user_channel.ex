@@ -292,6 +292,10 @@ defmodule GameServerWeb.UserChannel do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "tournaments:user:#{user.id}")
     Phoenix.PubSub.subscribe(GameServer.PubSub, "matchmaking:user:#{user.id}")
 
+    # Live wallet balance + inventory updates
+    GameServer.Economy.subscribe(user.id)
+    GameServer.Inventory.subscribe(user.id)
+
     socket = push_initial_friend_update(socket, user.id)
 
     # Push all existing (undeleted) notifications in chronological order
@@ -324,6 +328,16 @@ defmodule GameServerWeb.UserChannel do
 
   def handle_info({:matchmaking_event, event, payload}, socket) do
     push_event(socket, event, payload)
+    {:noreply, socket}
+  end
+
+  def handle_info({:wallet_updated, payload}, socket) do
+    push_event(socket, "wallet_updated", payload)
+    {:noreply, socket}
+  end
+
+  def handle_info({:inventory_updated, payload}, socket) do
+    push_event(socket, "inventory_updated", payload)
     {:noreply, socket}
   end
 

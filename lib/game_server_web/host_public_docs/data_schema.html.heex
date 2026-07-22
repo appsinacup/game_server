@@ -569,6 +569,48 @@
             "Key-value entries are scoped by the user_id/lobby_id pair: global (both null), per-user, per-lobby, or per-user-per-lobby — each scope has its own unique index on the key. Updates broadcast kv_updated events to subscribed sockets."
           )}
         </p>
+
+        <h4 class="font-semibold">{doc_text("Economy — wallets, ledger, inventory")}</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    wallets (
+      id          : uuid     (UUIDv7 string primary key)
+      user_id     : uuid     (FK → users.id)
+      currency    : string   (free-form code: "gold", "gems", ...)
+      balance     : integer  (>= 0)
+      inserted_at : datetime
+      updated_at  : datetime
+      unique (user_id, currency)
+    )
+
+    ledger_entries (            # append-only audit of every wallet change
+      id              : uuid
+      user_id         : uuid     (FK → users.id)
+      currency        : string
+      delta           : integer  (+grant / -spend)
+      balance_after   : integer
+      reason          : string
+      idempotency_key : string   (nullable, unique when set)
+      metadata        : map/json
+      inserted_at     : datetime
+    )
+
+    inventory_items (
+      id          : uuid
+      user_id     : uuid     (FK → users.id)
+      item        : string   (free-form item code)
+      quantity    : integer  (>= 0)
+      metadata    : map/json
+      inserted_at : datetime
+      updated_at  : datetime
+      unique (user_id, item)
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          {doc_text(
+            "Currency and item changes are atomic (grant = upsert-inc, spend/consume = conditional decrement), so concurrent spends can never overspend. The ledger records every wallet change; wallet_updated / inventory_updated events broadcast to subscribed sockets."
+          )}
+        </p>
       </div>
     </div>
   </div>

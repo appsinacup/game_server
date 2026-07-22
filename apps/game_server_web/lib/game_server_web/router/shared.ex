@@ -359,6 +359,9 @@ defmodule GameServerWeb.Router.Shared do
         post "/me/avatar/upload-url", MeController, :avatar_upload_url
         post "/me/avatar", MeController, :set_avatar
         put "/storage/upload", StorageController, :upload
+        get "/me/wallet", EconomyController, :wallet
+        get "/me/wallet/ledger", EconomyController, :ledger
+        get "/me/inventory", EconomyController, :inventory
         get "/payments/entitlements", PaymentController, :entitlements
         post "/payments/checkout/stripe", PaymentController, :stripe_checkout
         post "/payments/checkout/steam", PaymentController, :steam_checkout
@@ -528,6 +531,13 @@ defmodule GameServerWeb.Router.Shared do
         delete "/storage", StorageController, :delete
         put "/storage/object", StorageController, :upload
         get "/storage/object", StorageController, :download
+        get "/economy/wallets", EconomyController, :wallets
+        get "/economy/ledger", EconomyController, :ledger
+        post "/economy/grant", EconomyController, :grant
+        post "/economy/spend", EconomyController, :spend
+        get "/economy/items", EconomyController, :items
+        post "/economy/grant-item", EconomyController, :grant_item
+        post "/economy/consume-item", EconomyController, :consume_item
       end
     end
   end
@@ -649,6 +659,7 @@ defmodule GameServerWeb.Router.Shared do
           live "/admin/system", AdminLive.System, :index
           live "/admin/runtime", AdminLive.Runtime, :index
           live "/admin/storage", AdminLive.Storage, :index
+          live "/admin/economy", AdminLive.Economy, :index
         end
       end
     end

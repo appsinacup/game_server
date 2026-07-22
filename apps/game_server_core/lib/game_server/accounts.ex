@@ -2169,6 +2169,8 @@ defmodule GameServer.Accounts do
   Set the user's avatar URL (`profile_url`), typically after an upload confirmed
   by `GameServer.Storage`. Same cache/broadcast/hook path as other profile edits.
   """
+  @spec update_user_avatar(User.t(), String.t()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def update_user_avatar(%User{} = user, url) when is_binary(url) do
     case User.avatar_changeset(user, %{"profile_url" => url}) |> Repo.update() do
       {:ok, updated} = ok ->

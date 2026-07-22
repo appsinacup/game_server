@@ -288,3 +288,38 @@ Per CONTRIBUTING §Finish, plus the user's ask to reframe cron→jobs everywhere
       actually run a job, a scheduled tick, and an upload.
 - [ ] `mix format`, `mix credo --strict`, full `mix test` green; `mix gen.sdk`
       clean; example plugin compiles warning-free.
+
+---
+
+## Design specs (Phases 1–3)
+
+Phase 0 is specced inline above (shipped). Every planned item in Phases 1–3 has
+a full design spec under [docs/specs/](docs/specs/) — see the
+[index](docs/specs/README.md). Each carries goal, architecture grounded in the
+current codebase, and the CONTRIBUTING checklist.
+
+**Phase 1**
+- [Push — server delivery + token storage](docs/specs/push.md) — `push_tokens` +
+  `GameServer.Push` fan-out on the Oban `push` queue; FCM + APNs-direct behind
+  one behaviour, routed per token, **no push library**.
+- [Push — Godot client](docs/specs/push-godot-client.md) — Android (FCM) then iOS
+  (native APNs) behind one `GamendPush.gd`, registering to `/me/push-tokens`.
+- [Chat moderation](docs/specs/chat-moderation.md) — word filter + report queue +
+  mute, enforced in the existing `before_chat_message` pipeline.
+
+**Phase 2**
+- [Economy / inventory](docs/specs/economy-inventory.md) — generic currencies,
+  atomic wallet, idempotent ledger, inventory (reintroduces the removed
+  `wallet_ledger`, decoupled from payments).
+- [Cloud saves](docs/specs/cloud-saves.md) — versioned save-slots on Object
+  storage with lock-free optimistic conflict detection.
+- [Skill matchmaking](docs/specs/skill-matchmaking.md) — rating + wait-widening
+  bands in the existing pure matcher; override hook intact.
+
+**Phase 3**
+- [Quests / progression](docs/specs/quests-progression.md) — one event-driven
+  engine; achievements fold in; rewards pay into the economy exactly-once.
+- [Webhooks + remote config](docs/specs/webhooks-remote-config.md) — signed,
+  retried webhooks on the Oban `webhooks` queue; client-read-only live config.
+- [Event-tracking API](docs/specs/event-tracking.md) — batched, enriched,
+  auto-pruned `events` capture in Postgres.

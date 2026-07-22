@@ -100,7 +100,7 @@ defmodule GameServerCore.MixProject do
     ]
   end
 
-  @hook_groups ~w(Lifecycle User Lobby Group Party Chat Achievement Leaderboard Tournament Matchmaking Payments KV)
+  @hook_groups ~w(Lifecycle User Lobby Group Party Chat Achievement Leaderboard Tournament Matchmaking Payments Economy KV)
 
   defp hook_doc_groups do
     for group <- @hook_groups do
@@ -119,6 +119,7 @@ defmodule GameServerCore.MixProject do
       String.contains?(name, "matchmaking") -> "Matchmaking"
       String.contains?(name, "tournament") -> "Tournament"
       String.contains?(name, "purchase") or String.contains?(name, "entitlement") -> "Payments"
+      String.contains?(name, "wallet") or String.contains?(name, "inventory") -> "Economy"
       String.contains?(name, "party") -> "Party"
       String.contains?(name, "group") -> "Group"
       String.contains?(name, "lobby") -> "Lobby"

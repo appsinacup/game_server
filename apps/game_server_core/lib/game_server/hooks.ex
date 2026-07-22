@@ -214,6 +214,13 @@ defmodule GameServer.Hooks do
                       after_purchase_revoked: 1,
                       after_entitlement_changed: 1
 
+  # Economy lifecycle hooks. The change map carries the user, the currency/item,
+  # the new balance/quantity, and the signed delta (+grant / -spend).
+  @callback after_wallet_changed(map()) :: any()
+  @callback after_inventory_changed(map()) :: any()
+  @optional_callbacks after_wallet_changed: 1,
+                      after_inventory_changed: 1
+
   @callback before_chat_message(User.t(), map()) :: hook_result(map())
   @callback after_chat_message(Message.t()) :: any()
 
@@ -430,6 +437,8 @@ defmodule GameServer.Hooks do
       :after_user_online,
       :after_user_offline,
       :after_user_deleted,
+      :after_wallet_changed,
+      :after_inventory_changed,
       :before_user_update,
       :before_lobby_create,
       :after_lobby_create,
@@ -1248,6 +1257,12 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_user_updated(_user), do: :ok
+
+  @impl true
+  def after_wallet_changed(_change), do: :ok
+
+  @impl true
+  def after_inventory_changed(_change), do: :ok
 
   @impl true
   def after_user_online(_user), do: :ok

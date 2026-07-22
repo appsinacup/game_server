@@ -248,6 +248,10 @@ defmodule GameServerWeb.ApiSpec do
           description: "Store catalog, checkout, receipts, purchases, and entitlements"
         },
         %Tag{name: "KV", description: "Per-user key-value storage"},
+        %Tag{
+          name: "Economy",
+          description: "Currency wallets and item inventory (read-only for clients)"
+        },
         %Tag{name: "Hooks", description: "Server scripting hooks"},
         %Tag{name: "Health", description: "Server health check"},
         # --- Admin API ---
@@ -261,7 +265,12 @@ defmodule GameServerWeb.ApiSpec do
         %Tag{name: "Admin – Leaderboards", description: "Admin leaderboard management"},
         %Tag{name: "Admin – Tournaments", description: "Admin tournament management"},
         %Tag{name: "Admin – Matchmaking", description: "Admin matchmaking queue management"},
-        %Tag{name: "Admin – KV", description: "Admin key-value storage management"}
+        %Tag{name: "Admin – KV", description: "Admin key-value storage management"},
+        %Tag{
+          name: "Admin – Economy",
+          description: "Admin currency & inventory grant/spend and browse"
+        },
+        %Tag{name: "Admin – Storage", description: "Admin object storage management"}
       ],
       components: %Components{
         securitySchemes: %{

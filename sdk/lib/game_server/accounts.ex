@@ -1658,6 +1658,24 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Set the user's avatar URL (`profile_url`), typically after an upload confirmed
+    by `GameServer.Storage`. Same cache/broadcast/hook path as other profile edits.
+    
+  """
+  @spec update_user_avatar(GameServer.Accounts.User.t(), String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
+  def update_user_avatar(_user, _url) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Accounts.update_user_avatar/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Updates the user's display name and broadcasts the change.
     
   """

@@ -24,6 +24,7 @@ Game + Backend = Gamend
 - **Key-Value Store** — Server-side key-value storage with access control hooks
 - **Server Scripting** — Elixir hooks on server events (login, lobby created, achievement unlocked, etc.)
 - **Background Jobs** — Durable, retryable background and scheduled (cron) jobs from server hooks, on Postgres or SQLite
+- **Economy & Inventory** — Virtual-currency wallets (`gold`, `gems`, …) with an atomic, auditable ledger, plus item stacks (`health_potion`, …); server-authoritative grant/spend/consume with live balance updates
 - **Object Storage** — Avatar/UGC uploads with a pluggable backend: local disk or any S3-compatible service (AWS S3, Cloudflare R2, MinIO, …)
 - **Admin Portal** — Built-in web dashboard for managing all resources
 

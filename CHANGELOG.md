@@ -1,5 +1,8 @@
 # July 2026
 
+- [added] **Economy** — `GameServer.Economy`: generic-currency wallets with an atomic, idempotent, race-safe ledger; client wallet read + admin grant/spend.
+- [added] **Inventory** — `GameServer.Inventory`: atomic item stacks (grant/consume) alongside the economy.
+- [added] Live `wallet_updated` / `inventory_updated` socket events.
 - [added] **Object storage** — with local-disk and S3/R2 backends; presigned avatar uploads.
 - [added] Admin **Oban Web** dashboard at `/admin/oban` + jobs/storage.
 - [added] **Lobby snapshots** — durable per-run record of lobby state, opt-in via `LOBBY_SNAPSHOTS_ENABLED`.

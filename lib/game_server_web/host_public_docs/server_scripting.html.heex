@@ -299,6 +299,53 @@ end</code></pre>
       </div>
 
       <div class="step">
+        <h4 class="font-semibold">{doc_text("Virtual economy (wallets)")}</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            {doc_text(
+              "Grant and spend virtual currency from hooks. Currencies are free-form codes; every change is atomic and recorded in a ledger, so two concurrent spends can never overspend:"
+            )}
+          </p>
+
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation># On match win, reward the player
+GameServer.Economy.grant(user_id, "gold", 100, reason: "match_reward")
+
+# Charge for a store item — refuses to go negative
+case GameServer.Economy.spend(user_id, "gold", 30, reason: "store_purchase") do
+  {:ok, balance} -> {:ok, %{"gold" => balance}}
+  {:error, :insufficient_funds} -> {:error, "not enough gold"}
+end
+
+GameServer.Economy.balances(user_id)   # => %{"gold" => 70}
+
+# Items work the same way, via GameServer.Inventory
+GameServer.Inventory.grant_item(user_id, "health_potion", 3)
+GameServer.Inventory.consume_item(user_id, "health_potion", 1)  # {:error, :insufficient_items} if empty</code></pre>
+          </div>
+
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Pass idempotency_key: so an at-least-once job or a client retry can't double-apply. These are server-authoritative — clients only read their wallet (GET /me/wallet)."
+            )}
+          </p>
+
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "React to changes made anywhere (admin, jobs, another plugin) with the after_wallet_changed / after_inventory_changed hooks:"
+            )}
+          </p>
+
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>def after_wallet_changed(%{user_id: id, currency: cur, balance: bal, delta: d}) do
+  # e.g. sync a Discord role when coins cross a threshold
+  :ok
+end</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
         <h4 class="font-semibold">{doc_text("Best practices & pitfalls")}</h4>
         <div class="ml-6 mt-2 space-y-2 text-sm text-base-content/80">
           <ul class="list-disc pl-5">

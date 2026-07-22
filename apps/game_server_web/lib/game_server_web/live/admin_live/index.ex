@@ -102,6 +102,9 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/storage"} class="btn btn-outline">
             Storage ({@storage_info.adapter})
           </.link>
+          <.link navigate={~p"/admin/economy"} class="btn btn-outline">
+            Economy ({@economy_stats.wallets})
+          </.link>
         </div>
 
         <div class="card bg-base-200">
@@ -601,6 +604,26 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
+              <%!-- 20. Economy --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Economy</div>
+                  <.link navigate={~p"/admin/economy"} class="link link-primary text-xs">
+                    Manage →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">
+                  {@economy_stats.wallets}
+                  <span class="text-sm font-normal text-base-content/60 ml-1">wallets</span>
+                </div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div class="flex justify-between">
+                    <span>Ledger entries</span>
+                    <span class="font-mono">{@economy_stats.ledger}</span>
+                  </div>
+                </div>
+              </div>
+
               <%!-- 12. Payments --%>
               <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
@@ -714,7 +737,8 @@ defmodule GameServerWeb.AdminLive.Index do
       users_active_7d: Task.async(fn -> Accounts.count_users_active_since(7) end),
       users_active_30d: Task.async(fn -> Accounts.count_users_active_since(30) end),
       users_unactivated: Task.async(fn -> Accounts.count_unactivated_users() end),
-      oban_stats: Task.async(fn -> safe_oban_stats() end)
+      oban_stats: Task.async(fn -> safe_oban_stats() end),
+      economy_stats: Task.async(fn -> safe_economy_stats() end)
     }
 
     # Await all tasks (the DB pool handles concurrency)
@@ -796,6 +820,7 @@ defmodule GameServerWeb.AdminLive.Index do
        users_active_30d: r.users_active_30d,
        users_unactivated: r.users_unactivated,
        oban_stats: r.oban_stats,
+       economy_stats: r.economy_stats,
        storage_info: safe_storage_info(),
        cache_stats: GameServer.Cache.Stats.snapshot(),
        dev_routes?: @dev_routes?
@@ -966,6 +991,12 @@ defmodule GameServerWeb.AdminLive.Index do
     GameServerWeb.AdminLogBuffer.count_recent_errors(3600)
   rescue
     _ -> 0
+  end
+
+  defp safe_economy_stats do
+    %{wallets: GameServer.Economy.count_wallets(), ledger: GameServer.Economy.count_ledger()}
+  rescue
+    _ -> %{wallets: 0, ledger: 0}
   end
 
   defp safe_storage_info do
