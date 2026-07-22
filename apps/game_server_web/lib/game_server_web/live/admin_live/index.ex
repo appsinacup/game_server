@@ -99,6 +99,9 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link href={~p"/admin/oban"} class="btn btn-outline">
             Jobs ({@oban_stats.total})
           </.link>
+          <.link navigate={~p"/admin/storage"} class="btn btn-outline">
+            Storage ({@storage_info.adapter})
+          </.link>
         </div>
 
         <div class="card bg-base-200">
@@ -581,6 +584,23 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
+              <%!-- 19. Storage --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Storage</div>
+                  <.link navigate={~p"/admin/storage"} class="link link-primary text-xs">
+                    Manage →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@storage_info.adapter}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div class="flex justify-between">
+                    <span>Target</span>
+                    <span class="font-mono truncate ml-2">{@storage_info.detail}</span>
+                  </div>
+                </div>
+              </div>
+
               <%!-- 12. Payments --%>
               <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
@@ -776,6 +796,7 @@ defmodule GameServerWeb.AdminLive.Index do
        users_active_30d: r.users_active_30d,
        users_unactivated: r.users_unactivated,
        oban_stats: r.oban_stats,
+       storage_info: safe_storage_info(),
        cache_stats: GameServer.Cache.Stats.snapshot(),
        dev_routes?: @dev_routes?
      )}
@@ -945,6 +966,20 @@ defmodule GameServerWeb.AdminLive.Index do
     GameServerWeb.AdminLogBuffer.count_recent_errors(3600)
   rescue
     _ -> 0
+  end
+
+  defp safe_storage_info do
+    case GameServer.Storage.adapter() do
+      GameServer.Storage.S3 ->
+        cfg = Application.get_env(:game_server_core, GameServer.Storage.S3, [])
+        %{adapter: "S3", detail: cfg[:bucket] || "—"}
+
+      _ ->
+        cfg = Application.get_env(:game_server_core, GameServer.Storage.Local, [])
+        %{adapter: "Local disk", detail: cfg[:dir] || "priv/storage"}
+    end
+  rescue
+    _ -> %{adapter: "—", detail: "—"}
   end
 
   defp safe_oban_stats do

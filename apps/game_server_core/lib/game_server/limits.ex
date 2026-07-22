@@ -33,6 +33,8 @@ defmodule GameServer.Limits do
     # ── Global ──────────────────────────────────────────────
     max_metadata_size: 16_384,
     max_page_size: 100,
+    # Max size of a single uploaded object (avatars/UGC). 5 MiB.
+    max_upload_bytes: 5_242_880,
 
     # ── User ────────────────────────────────────────────────
     max_display_name: 80,

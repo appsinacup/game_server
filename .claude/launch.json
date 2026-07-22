@@ -2,11 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "game_server",
+      "name": "gamend-dev",
       "runtimeExecutable": "mix",
       "runtimeArgs": ["phx.server"],
-      "port": 4000,
-      "autoPort": true
+      "port": 4000
     }
   ]
 }

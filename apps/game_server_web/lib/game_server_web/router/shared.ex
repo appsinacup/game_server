@@ -149,6 +149,14 @@ defmodule GameServerWeb.Router.Shared do
         get "/data-deletion", PageController, :data_deletion
         get "/terms", PageController, :terms
       end
+
+      # Serve stored objects (local backend). With S3 the object URL points at the
+      # bucket and this route is unused.
+      scope "/", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through :browser
+
+        get "/storage/*key", StorageController, :show
+      end
     end
   end
 
@@ -348,6 +356,9 @@ defmodule GameServerWeb.Router.Shared do
         patch "/me/password", MeController, :update_password
         patch "/me/display_name", MeController, :update_display_name
         patch "/me/username", MeController, :update_username
+        post "/me/avatar/upload-url", MeController, :avatar_upload_url
+        post "/me/avatar", MeController, :set_avatar
+        put "/storage/upload", StorageController, :upload
         get "/payments/entitlements", PaymentController, :entitlements
         post "/payments/checkout/stripe", PaymentController, :stripe_checkout
         post "/payments/checkout/steam", PaymentController, :steam_checkout
@@ -513,6 +524,10 @@ defmodule GameServerWeb.Router.Shared do
         get "/sessions", SessionController, :index
         delete "/sessions/:id", SessionController, :delete
         delete "/users/:id/sessions", SessionController, :delete_user_sessions
+        get "/storage", StorageController, :index
+        delete "/storage", StorageController, :delete
+        put "/storage/object", StorageController, :upload
+        get "/storage/object", StorageController, :download
       end
     end
   end
@@ -633,6 +648,7 @@ defmodule GameServerWeb.Router.Shared do
           live "/admin/geo", AdminLive.Geo, :index
           live "/admin/system", AdminLive.System, :index
           live "/admin/runtime", AdminLive.Runtime, :index
+          live "/admin/storage", AdminLive.Storage, :index
         end
       end
     end

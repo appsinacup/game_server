@@ -33,7 +33,8 @@ defmodule GameServerWeb.AdminPagesRenderTest do
     {"/admin/achievements", "Achievements"},
     {"/admin/payments", "Payments"},
     {"/admin/translations", "Translation"},
-    {"/admin/lobby-snapshots", "Lobby snapshots"}
+    {"/admin/lobby-snapshots", "Lobby snapshots"},
+    {"/admin/storage", "Storage"}
   ]
 
   defp create_admin(_context) do

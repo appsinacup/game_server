@@ -390,6 +390,13 @@ defmodule GameServer.Accounts.User do
     |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
   end
 
+  @doc "Changeset for setting the avatar URL (`profile_url`) from an upload."
+  def avatar_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:profile_url])
+    |> validate_length(:profile_url, max: GameServer.Limits.get(:max_profile_url))
+  end
+
   @doc """
   Verifies the password.
 

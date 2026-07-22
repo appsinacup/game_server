@@ -263,6 +263,42 @@ GameServer.Lobbies.join_lobby(user, lobby_id, %{bypass_lock: true})</code></pre>
       </div>
 
       <div class="step">
+        <h4 class="font-semibold">{doc_text("Background jobs & scheduling")}</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            {doc_text(
+              "For work that must survive a restart, retry on failure, or run later, enqueue a hook as a durable background job instead of doing it inline. Args are stored as JSON, so callbacks receive a string-keyed map:"
+            )}
+          </p>
+
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation># Run now, retried with backoff on failure
+GameServer.Jobs.enqueue_hook(:on_welcome_email, %{"user_id" => user.id})
+
+# Run in 24 hours
+GameServer.Jobs.enqueue_in(24 * 60 * 60, :on_trial_reminder, %{"user_id" => user.id})
+
+def on_welcome_email(%{"user_id" => user_id}), do: :ok</code></pre>
+          </div>
+
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "For recurring work, register cron-like schedules from your after_startup hook. These are durable and distributed-safe — exactly one instance runs each job per period:"
+            )}
+          </p>
+
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>def after_startup do
+  GameServer.Schedule.hourly(:on_hourly)
+  GameServer.Schedule.daily(:on_morning_report, hour: 9)
+  GameServer.Schedule.cron(:sweep, "*/15 * * * *", :on_every_15m)
+  :ok
+end</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
         <h4 class="font-semibold">{doc_text("Best practices & pitfalls")}</h4>
         <div class="ml-6 mt-2 space-y-2 text-sm text-base-content/80">
           <ul class="list-disc pl-5">

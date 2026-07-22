@@ -254,6 +254,95 @@ defmodule GameServerWeb.Api.V1.MeController do
     end
   end
 
+  operation(:avatar_upload_url,
+    operation_id: "create_current_user_avatar_upload_url",
+    summary: "Request an avatar upload ticket",
+    description:
+      "Returns an upload ticket. Upload the image bytes to `url` with `method`/`headers`, " <>
+        "then confirm with `POST /me/avatar` using the returned `key`.",
+    request_body: {
+      "Upload metadata",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          content_type: %Schema{type: :string, example: "image/png"},
+          filename: %Schema{type: :string, example: "avatar.png"}
+        },
+        required: [:content_type]
+      }
+    },
+    security: [%{"authorization" => []}],
+    responses: [
+      ok: {"Upload ticket", "application/json", %Schema{type: :object}},
+      bad_request: {"Invalid content type or size", "application/json", @error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
+    ]
+  )
+
+  def avatar_upload_url(conn, params) do
+    user = Scope.user(conn.assigns.current_scope)
+    content_type = params["content_type"] || ""
+
+    case GameServer.Storage.validate_upload(content_type, 0) do
+      :ok ->
+        filename = "avatar" <> ext_for(content_type)
+        key = GameServer.Storage.build_key("avatars", user.id, filename)
+        {:ok, ticket} = GameServer.Storage.presigned_upload(key, content_type: content_type)
+        json(conn, ticket)
+
+      {:error, reason} ->
+        conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+    end
+  end
+
+  operation(:set_avatar,
+    operation_id: "set_current_user_avatar",
+    summary: "Confirm an uploaded avatar",
+    description: "Records a previously uploaded object (`key`) as the user's avatar.",
+    request_body: {
+      "Uploaded object key",
+      "application/json",
+      %Schema{type: :object, properties: %{key: %Schema{type: :string}}, required: [:key]}
+    },
+    security: [%{"authorization" => []}],
+    responses: [
+      ok: {"Avatar updated", "application/json", %Schema{type: :object}},
+      bad_request: {"Object not found", "application/json", @error_schema},
+      forbidden: {"Key not owned by user", "application/json", @error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
+    ]
+  )
+
+  def set_avatar(conn, %{"key" => key}) when is_binary(key) do
+    user = Scope.user(conn.assigns.current_scope)
+
+    cond do
+      not String.starts_with?(key, "avatars/#{user.id}/") ->
+        conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+      not GameServer.Storage.exists?(key) ->
+        conn |> put_status(:bad_request) |> json(%{error: "object_not_found"})
+
+      true ->
+        url = GameServer.Storage.url(key)
+
+        case GameServer.Accounts.update_user_avatar(user, url) do
+          {:ok, updated} -> json(conn, %{ok: true, profile_url: updated.profile_url})
+          {:error, _} -> conn |> put_status(:bad_request) |> json(%{error: "invalid_data"})
+        end
+    end
+  end
+
+  def set_avatar(conn, _), do: conn |> put_status(:bad_request) |> json(%{error: "missing_key"})
+
+  # Extension for the object key, derived from the declared content type.
+  defp ext_for("image/png"), do: ".png"
+  defp ext_for("image/jpeg"), do: ".jpg"
+  defp ext_for("image/webp"), do: ".webp"
+  defp ext_for("image/gif"), do: ".gif"
+  defp ext_for(_), do: ""
+
   operation(:delete,
     operation_id: "delete_current_user",
     summary: "Delete current user",

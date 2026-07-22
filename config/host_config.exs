@@ -75,6 +75,12 @@ config :game_server_core, Oban,
     {Oban.Plugins.Cron, crontab: [{"* * * * *", GameServer.Schedule.TickWorker}]}
   ]
 
+# Object storage (GameServer.Storage). Defaults to local disk; STORAGE_ADAPTER
+# and the STORAGE_* vars (see config/host_runtime.exs) select and configure a
+# backend at runtime.
+config :game_server_core, GameServer.Storage, adapter: GameServer.Storage.Local
+config :ex_aws, json_codec: Jason
+
 host_root = Path.expand("..", __DIR__)
 host_theme_root = Path.join(host_root, "theme")
 web_dep_root = Mix.Project.deps_paths()[:game_server_web]

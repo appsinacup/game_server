@@ -2166,6 +2166,29 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Set the user's avatar URL (`profile_url`), typically after an upload confirmed
+  by `GameServer.Storage`. Same cache/broadcast/hook path as other profile edits.
+  """
+  def update_user_avatar(%User{} = user, url) when is_binary(url) do
+    case User.avatar_changeset(user, %{"profile_url" => url}) |> Repo.update() do
+      {:ok, updated} = ok ->
+        invalidate_user_cache_sync(user)
+        invalidate_user_cache_sync(updated)
+        broadcast_user_update(updated)
+        broadcast_member_update(updated)
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_user_updated, [updated])
+        end)
+
+        ok
+
+      err ->
+        err
+    end
+  end
+
+  @doc """
   Updates the user's display name and broadcasts the change.
   """
   @spec update_user_display_name(User.t(), map()) ::

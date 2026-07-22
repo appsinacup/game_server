@@ -63,6 +63,34 @@ _limit_overrides =
     overrides -> config :game_server_core, GameServer.Limits, overrides
   end)
 
+# ── Object storage ──────────────────────────────────────────────────────────
+# STORAGE_ADAPTER selects the backend (local | s3). local (default) needs no
+# further config; s3 uses the STORAGE_S3_* vars and works with AWS S3,
+# Cloudflare R2, Backblaze B2, MinIO, and DigitalOcean Spaces.
+case System.get_env("STORAGE_ADAPTER") do
+  adapter when adapter in ["s3", "S3"] ->
+    config :game_server_core, GameServer.Storage, adapter: GameServer.Storage.S3
+
+    config :game_server_core, GameServer.Storage.S3,
+      bucket: System.get_env("STORAGE_S3_BUCKET"),
+      region: System.get_env("STORAGE_S3_REGION") || "auto",
+      endpoint: System.get_env("STORAGE_S3_ENDPOINT"),
+      access_key_id: System.get_env("STORAGE_S3_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("STORAGE_S3_SECRET_ACCESS_KEY"),
+      public_base_url: System.get_env("STORAGE_PUBLIC_URL")
+
+  _ ->
+    config :game_server_core, GameServer.Storage, adapter: GameServer.Storage.Local
+end
+
+if dir = System.get_env("STORAGE_LOCAL_DIR") do
+  config :game_server_core, GameServer.Storage.Local, dir: dir
+end
+
+if base = System.get_env("STORAGE_PUBLIC_URL") do
+  config :game_server_core, GameServer.Storage.Local, base_url: base
+end
+
 # ── Account activation ──────────────────────────────────────────────────────
 # Read REQUIRE_ACCOUNT_ACTIVATION once at boot so the function only hits the
 # fast Application.get_env path at runtime.
