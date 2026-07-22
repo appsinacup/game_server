@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1053">
+
+
+    <title>GameServer.Storage — game_server_core v1.0.1053</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1053
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Storage</span> 
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1053)</small>
+
+    </h1>
+
+<a href="GameServer.Storage.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Object storage for user uploads (avatars, and future user-generated content).</p><p>A thin facade over a configured backend so game code never depends on where
+bytes live:</p><ul><li><a href="GameServer.Storage.Local.html"><code class="inline">GameServer.Storage.Local</code></a> — local disk, the default (great for dev and
+single-node deploys).</li><li><a href="GameServer.Storage.S3.html"><code class="inline">GameServer.Storage.S3</code></a> — any S3-compatible service (AWS S3, Cloudflare
+R2, Backblaze B2, MinIO, DigitalOcean Spaces).</li></ul><p>Select the backend with <code class="inline">STORAGE_ADAPTER</code> (<code class="inline">local</code> | <code class="inline">s3</code>); see the deployment
+docs for the full <code class="inline">STORAGE_*</code> variable list.</p><h2 id="module-direct-uploads" class="section-heading"><a href="#module-direct-uploads" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Direct uploads</span></h2><p>Clients never stream bytes through the app. The server issues an upload ticket
+and the client uploads straight to the backend:</p><pre><code class="makeup elixir" translate="no"><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">build_key</span><span class="p" data-group-id="3095124695-1">(</span><span class="s">&quot;avatars&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;me.png&quot;</span><span class="p" data-group-id="3095124695-1">)</span><span class="w">
+</span><span class="p" data-group-id="3095124695-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ticket</span><span class="p" data-group-id="3095124695-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">presigned_upload</span><span class="p" data-group-id="3095124695-3">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="ss">content_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;image/png&quot;</span><span class="p" data-group-id="3095124695-3">)</span><span class="w">
+</span><span class="c1"># -&gt; client PUTs the file to ticket.url, then tells the server `key` is ready</span></code></pre><p>The ticket shape is identical for local disk and S3, so the client code does
+not change between environments.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#adapter/0" data-no-tooltip="" translate="no">adapter()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The configured backend module (defaults to <a href="GameServer.Storage.Local.html"><code class="inline">GameServer.Storage.Local</code></a>).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#build_key/3" data-no-tooltip="" translate="no">build_key(namespace, owner_id, filename)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Build a collision-resistant object key: <code class="inline">&lt;namespace&gt;/&lt;owner_id&gt;/&lt;random&gt;&lt;ext&gt;</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete/1" data-no-tooltip="" translate="no">delete(key)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#exists?/1" data-no-tooltip="" translate="no">exists?(key)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get/1" data-no-tooltip="" translate="no">get(key)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_objects/1" data-no-tooltip="" translate="no">list_objects(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>One page of stored objects. Opts: <code class="inline">:prefix</code>, <code class="inline">:offset</code>, <code class="inline">:limit</code> (admin use).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#presigned_upload/2" data-no-tooltip="" translate="no">presigned_upload(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>An upload ticket for the client (see the module doc).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put/3" data-no-tooltip="" translate="no">put(key, data, opts \\ [])</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#url/2" data-no-tooltip="" translate="no">url(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A readable URL for <code class="inline">key</code> (public or signed, backend-dependent).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#usage/1" data-no-tooltip="" translate="no">usage(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Total object count and byte size. Opts: <code class="inline">:prefix</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#validate_upload/3" data-no-tooltip="" translate="no">validate_upload(content_type, size, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Validate an upload's content type and size before issuing a ticket.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="adapter/0">
+
+  <div class="detail-header">
+    <a href="#adapter/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">adapter()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L36" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> adapter() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()</pre>
+
+      </div>
+
+<p>The configured backend module (defaults to <a href="GameServer.Storage.Local.html"><code class="inline">GameServer.Storage.Local</code></a>).</p>
+  </section>
+</section>
+<section class="detail" id="build_key/3">
+
+  <div class="detail-header">
+    <a href="#build_key/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">build_key(namespace, owner_id, filename)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L77" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> build_key(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+
+      </div>
+
+<p>Build a collision-resistant object key: <code class="inline">&lt;namespace&gt;/&lt;owner_id&gt;/&lt;random&gt;&lt;ext&gt;</code>.</p><p>The extension is taken (lower-cased) from <code class="inline">filename</code>; everything else is
+server-chosen so a client can't overwrite another object.</p>
+  </section>
+</section>
+<section class="detail" id="delete/1">
+
+  <div class="detail-header">
+    <a href="#delete/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete(key)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L48" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> delete(<a href="GameServer.Storage.Adapter.html#t:key/0">GameServer.Storage.Adapter.key</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="exists?/1">
+
+  <div class="detail-header">
+    <a href="#exists?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">exists?(key)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L51" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> exists?(<a href="GameServer.Storage.Adapter.html#t:key/0">GameServer.Storage.Adapter.key</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="get/1">
+
+  <div class="detail-header">
+    <a href="#get/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get(key)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L45" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get(<a href="GameServer.Storage.Adapter.html#t:key/0">GameServer.Storage.Adapter.key</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="list_objects/1">
+
+    <span id="list_objects/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_objects/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_objects(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L64" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_objects(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Storage.Adapter.html#t:object/0">GameServer.Storage.Adapter.object</a>()]</pre>
+
+      </div>
+
+<p>One page of stored objects. Opts: <code class="inline">:prefix</code>, <code class="inline">:offset</code>, <code class="inline">:limit</code> (admin use).</p>
+  </section>
+</section>
+<section class="detail" id="presigned_upload/2">
+
+    <span id="presigned_upload/1"></span>
+
+  <div class="detail-header">
+    <a href="#presigned_upload/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">presigned_upload(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L60" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> presigned_upload(
+  <a href="GameServer.Storage.Adapter.html#t:key/0">GameServer.Storage.Adapter.key</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: {:ok, <a href="GameServer.Storage.Adapter.html#t:presigned/0">GameServer.Storage.Adapter.presigned</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>An upload ticket for the client (see the module doc).</p>
+  </section>
+</section>
+<section class="detail" id="put/3">
+
+    <span id="put/2"></span>
+
+  <div class="detail-header">
+    <a href="#put/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put(key, data, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L42" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> put(<a href="GameServer.Storage.Adapter.html#t:key/0">GameServer.Storage.Adapter.key</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iodata</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="GameServer.Storage.Adapter.html#t:key/0">GameServer.Storage.Adapter.key</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="url/2">
+
+    <span id="url/1"></span>
+
+  <div class="detail-header">
+    <a href="#url/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">url(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L55" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> url(
+  <a href="GameServer.Storage.Adapter.html#t:key/0">GameServer.Storage.Adapter.key</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+
+      </div>
+
+<p>A readable URL for <code class="inline">key</code> (public or signed, backend-dependent).</p>
+  </section>
+</section>
+<section class="detail" id="usage/1">
+
+    <span id="usage/0"></span>
+
+  <div class="detail-header">
+    <a href="#usage/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">usage(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L68" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> usage(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: %{count: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), bytes: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+
+      </div>
+
+<p>Total object count and byte size. Opts: <code class="inline">:prefix</code>.</p>
+  </section>
+</section>
+<section class="detail" id="validate_upload/3">
+
+    <span id="validate_upload/2"></span>
+
+  <div class="detail-header">
+    <a href="#validate_upload/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">validate_upload(content_type, size, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage.ex#L91" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> validate_upload(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  :ok | {:error, :unsupported_content_type | :too_large}</pre>
+
+      </div>
+
+<p>Validate an upload's content type and size before issuing a ticket.</p><p>Options: <code class="inline">:content_types</code> (allow-list, defaults to common images),
+<code class="inline">:max_bytes</code> (defaults to <code class="inline">LIMIT_MAX_UPLOAD_BYTES</code>).</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

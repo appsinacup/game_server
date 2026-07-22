@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1050">
+    <meta name="project" content="game_server_core v1.0.1053">
 
 
-    <title>GameServer.Hooks.KvSchemas — game_server_core v1.0.1050</title>
+    <title>GameServer.Hooks.KvSchemas — game_server_core v1.0.1053</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1050
+          v1.0.1053
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks.<wbr>KvSchemas</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1053)</small>
 
     </h1>
 
@@ -117,12 +117,12 @@ game_server_core
 <p>Registry of game-defined protobuf schemas for KV entry data.</p><p>KV keys are open-ended, so unlike metadata entities there is no naming
 convention — a plugin registers schemas explicitly by exporting
 <code class="inline">kv_schemas/0</code>, mapping exact keys or <code class="inline">*</code>-suffixed prefixes to protobuf
-message modules:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">kv_schemas</span><span class="w"> </span><span class="k" data-group-id="9477243141-1">do</span><span class="w">
-  </span><span class="p" data-group-id="9477243141-2">%{</span><span class="w">
+message modules:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">kv_schemas</span><span class="w"> </span><span class="k" data-group-id="6935085474-1">do</span><span class="w">
+  </span><span class="p" data-group-id="6935085474-2">%{</span><span class="w">
     </span><span class="s">&quot;loadout&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nc">MyGame.V1.Loadout</span><span class="p">,</span><span class="w">
     </span><span class="s">&quot;match:*&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nc">MyGame.V1.MatchState</span><span class="w">
-  </span><span class="p" data-group-id="9477243141-2">}</span><span class="w">
-</span><span class="k" data-group-id="9477243141-1">end</span></code></pre><p>On protobuf sockets, <code class="inline">kv_updated</code> data for a matching key is pushed as
+  </span><span class="p" data-group-id="6935085474-2">}</span><span class="w">
+</span><span class="k" data-group-id="6935085474-1">end</span></code></pre><p>On protobuf sockets, <code class="inline">kv_updated</code> data for a matching key is pushed as
 compact binary (<code class="inline">data_pb</code>) instead of JSON bytes; storage and REST stay
 JSON, and data that does not fit the schema falls back to JSON so it is
 never dropped. Exact keys win over prefixes; the longest prefix wins.
@@ -285,9 +285,9 @@ registration is logged.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
 
             </span>
 

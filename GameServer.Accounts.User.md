@@ -60,6 +60,10 @@ Changeset used when a device_id is present (linking device_id to user).
 Ensures device_id is stored on user record and enforces uniqueness by DB
 constraint.
 
+# `avatar_changeset`
+
+Changeset for setting the avatar URL (`profile_url`) from an upload.
+
 # `confirm_changeset`
 
 Confirms the account by setting `confirmed_at`.

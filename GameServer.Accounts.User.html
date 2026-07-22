@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1050">
+    <meta name="project" content="game_server_core v1.0.1053">
 
 
-    <title>GameServer.Accounts.User — game_server_core v1.0.1050</title>
+    <title>GameServer.Accounts.User — game_server_core v1.0.1053</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1050
+          v1.0.1053
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Accounts.<wbr>User</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1053)</small>
 
     </h1>
 
@@ -178,6 +178,16 @@ validations so other domains can reuse them safely.</p>
         <div class="summary-synopsis"><p>Changeset used when a device_id is present (linking device_id to user).
 Ensures device_id is stored on user record and enforces uniqueness by DB
 constraint.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#avatar_changeset/2" data-no-tooltip="" translate="no">avatar_changeset(user, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Changeset for setting the avatar URL (<code class="inline">profile_url</code>) from an upload.</p></div>
 
     </div>
 
@@ -485,6 +495,28 @@ Ensures device_id is stored on user record and enforces uniqueness by DB
 constraint.</p>
   </section>
 </section>
+<section class="detail" id="avatar_changeset/2">
+
+  <div class="detail-header">
+    <a href="#avatar_changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">avatar_changeset(user, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/user.ex#L394" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Changeset for setting the avatar URL (<code class="inline">profile_url</code>) from an upload.</p>
+  </section>
+</section>
 <section class="detail" id="confirm_changeset/1">
 
   <div class="detail-header">
@@ -654,7 +686,7 @@ Defaults to <code class="inline">true</code>.</li></ul>
       <h1 class="signature" translate="no">last_seen_at_or_fallback(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/user.ex#L413" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/user.ex#L420" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -765,7 +797,7 @@ Defaults to <code class="inline">true</code>.</li></ul>
       <h1 class="signature" translate="no">serialize_brief(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/user.ex#L423" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/user.ex#L430" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -841,7 +873,7 @@ Uniqueness is enforced by the DB unique index.</p>
       <h1 class="signature" translate="no">valid_password?(arg1, password)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/user.ex#L399" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/user.ex#L406" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -863,9 +895,9 @@ Uniqueness is enforced by the DB unique index.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
 
             </span>
 

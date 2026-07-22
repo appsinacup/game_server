@@ -6,8 +6,9 @@ Dynamic cron-like job scheduling for hooks.
 Use this module in your `after_startup/0` hook to register scheduled jobs
 that will call your hook functions at specified intervals.
 
-This module is safe for distributed deployments - only one instance will
-execute each job per period using database locks.
+Jobs are durable and safe for distributed deployments: they run through the
+background job queue (`GameServer.Jobs`, backed by Oban), so exactly one
+instance executes each job per period and a crash mid-run is retried.
 
 Scheduled callbacks are automatically protected from user RPC calls.
 
@@ -29,27 +30,29 @@ Scheduled callbacks are automatically protected from user RPC calls.
       :ok
     end
 
-    # Callback receives context map (public function, but protected from RPC)
+    # Callback receives a context map (public function, but protected from RPC)
     def on_hourly(context) do
-      IO.puts("Triggered at #{context.triggered_at}")
+      IO.puts("Triggered at #{context["triggered_at"]}")
       :ok
     end
 
 ## Context
 
-All callbacks receive a context map:
+Callbacks run as background jobs, so the context is a **JSON map with string
+keys** (`triggered_at` is an ISO8601 string):
 
     %{
-      triggered_at: ~U[2025-12-03 14:00:00Z],
-      job_name: :on_hourly,
-      schedule: "0 * * * *"
+      "triggered_at" => "2026-07-22T14:00:00Z",
+      "job_name" => "on_hourly",
+      "schedule" => "0 * * * *"
     }
 
 ## Distributed Safety
 
-When running multiple instances, only one will execute each job per period.
-This is achieved via database locks in the `schedule_locks` table.
-Old locks are automatically cleaned up after 7 days.
+A single per-minute tick (`GameServer.Schedule.TickWorker`, driven by Oban's
+leader-elected Cron plugin) enqueues each due callback as a **unique** job.
+Oban's uniqueness guarantees a callback runs at most once per period across
+the whole cluster — no application-level locks required.
 
 # `cancel`
 
@@ -62,22 +65,6 @@ Cancel a scheduled job.
 ## Examples
 
     Schedule.cancel(:my_job)
-
-# `cleanup_old_locks`
-
-```elixir
-@spec cleanup_old_locks(keyword()) :: {:ok, non_neg_integer()}
-```
-
-Clean up old schedule locks older than the specified number of days.
-
-This is called automatically during job execution, but can also be
-called manually if needed. Default is 7 days.
-
-## Examples
-
-    Schedule.cleanup_old_locks()
-    Schedule.cleanup_old_locks(days: 30)
 
 # `cron`
 
@@ -144,7 +131,7 @@ Run a job every hour.
 # `list`
 
 ```elixir
-@spec list() :: [%{name: atom(), schedule: String.t(), state: term()}]
+@spec list() :: [%{name: atom(), schedule: String.t(), hook: atom(), state: atom()}]
 ```
 
 List all scheduled jobs.
@@ -157,9 +144,12 @@ Returns a list of job info maps.
 @spec registered_callbacks() :: MapSet.t(atom())
 ```
 
-Returns the set of callback function names registered for scheduled jobs.
+Returns the set of callback function names registered for background jobs.
 
-These are protected from user RPC calls via `Hooks.call/3`.
+The union of hook functions bound to an active schedule and any hook enqueued
+via `GameServer.Jobs`. These are protected from user RPC calls via
+`Hooks.call/3`. Cancelling a schedule drops its callback from the set unless
+another schedule (or a `Jobs` enqueue) still references it.
 
 # `weekly`
 

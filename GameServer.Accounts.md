@@ -882,6 +882,11 @@ See `t:GameServer.Types.user_update_attrs/0` for available fields.
     iex> update_user(user, %{metadata: %{level: 5}})
     {:ok, %User{}}
 
+# `update_user_avatar`
+
+Set the user's avatar URL (`profile_url`), typically after an upload confirmed
+by `GameServer.Storage`. Same cache/broadcast/hook path as other profile edits.
+
 # `update_user_display_name`
 
 ```elixir

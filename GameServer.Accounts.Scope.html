@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1050">
+    <meta name="project" content="game_server_core v1.0.1053">
 
 
-    <title>GameServer.Accounts.Scope — game_server_core v1.0.1050</title>
+    <title>GameServer.Accounts.Scope — game_server_core v1.0.1053</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1050
+          v1.0.1053
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Accounts.<wbr>Scope</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1053)</small>
 
     </h1>
 
@@ -114,14 +114,15 @@ game_server_core
 
 
     <section id="moduledoc">
-<p>Defines the scope of the caller to be used throughout the app.</p><p>The <a href="GameServer.Accounts.Scope.html"><code class="inline">GameServer.Accounts.Scope</code></a> allows public interfaces to receive
-information about the caller, such as if the call is initiated from an
-end-user, and if so, which user. Additionally, such a scope can carry fields
-such as &quot;super user&quot; or other privileges for use as authorization, or to
-ensure specific code paths can only be access for a given scope.</p><p>It is useful for logging as well as for scoping pubsub subscriptions and
-broadcasts when a caller subscribes to an interface or performs a particular
-action.</p><p>Feel free to extend the fields on this struct to fit the needs of
-growing application requirements.</p>
+<p>Defines the scope of the caller to be used throughout the app.</p><p>The scope carries only the caller's <code class="inline">user_id</code>, never a cached <code class="inline">%User{}</code>
+snapshot: a scope can outlive the request that built it (a socket stays open
+for hours), so the user is always resolved fresh via <a href="#user/1"><code class="inline">user/1</code></a>, which reads
+through <a href="GameServer.Accounts.html#get_user/1"><code class="inline">GameServer.Accounts.get_user/1</code></a>'s cache. This keeps mutable state
+(lobby_id, online, is_admin) current instead of frozen at connect time.</p><p>A <code class="inline">%Scope{}</code> always represents an authenticated caller — <a href="#for_user/1"><code class="inline">for_user/1</code></a> returns
+<code class="inline">nil</code> for an anonymous one — so a <code class="inline">%Scope{}</code> match implies a present user_id.</p><p><code class="inline">authenticated_at</code> is a session fact (from the session token, virtual on
+<code class="inline">User</code>) that cannot be re-derived from the DB row, so it is carried on the
+scope and merged back onto the freshly-resolved user by <a href="#user/1"><code class="inline">user/1</code></a> — this is
+what <code class="inline">sudo_mode?</code> checks.</p>
     </section>
 
 </div>
@@ -144,7 +145,28 @@ growing application requirements.</p>
 
       </div>
 
-        <div class="summary-synopsis"><p>Creates a scope for the given user.</p></div>
+        <div class="summary-synopsis"><p>Creates a scope for the given user, or nil when anonymous.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#user/1" data-no-tooltip="" translate="no">user(arg1)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Resolves the caller's user fresh (cached), with the session's
+<code class="inline">authenticated_at</code> merged back on. nil if the scope is nil or the user is gone.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#user_id/1" data-no-tooltip="" translate="no">user_id(arg1)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The caller's id, or nil for a nil scope.</p></div>
 
     </div>
 
@@ -172,7 +194,7 @@ growing application requirements.</p>
       <h1 class="signature" translate="no">for_user(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/scope.ex#L28" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/scope.ex#L25" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -181,7 +203,52 @@ growing application requirements.</p>
 
   <section class="docstring">
 
-<p>Creates a scope for the given user.</p><p>Returns nil if no user is given.</p>
+<p>Creates a scope for the given user, or nil when anonymous.</p>
+  </section>
+</section>
+<section class="detail" id="user/1">
+
+  <div class="detail-header">
+    <a href="#user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">user(arg1)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/scope.ex#L38" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Resolves the caller's user fresh (cached), with the session's
+<code class="inline">authenticated_at</code> merged back on. nil if the scope is nil or the user is gone.</p>
+  </section>
+</section>
+<section class="detail" id="user_id/1">
+
+  <div class="detail-header">
+    <a href="#user_id/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">user_id(arg1)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/scope.ex#L31" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>The caller's id, or nil for a nil scope.</p>
   </section>
 </section>
 
@@ -193,9 +260,9 @@ growing application requirements.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
 
             </span>
 

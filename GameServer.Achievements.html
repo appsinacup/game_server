@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1050">
+    <meta name="project" content="game_server_core v1.0.1053">
 
 
-    <title>GameServer.Achievements — game_server_core v1.0.1050</title>
+    <title>GameServer.Achievements — game_server_core v1.0.1053</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1050
+          v1.0.1053
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Achievements</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1053)</small>
 
     </h1>
 
@@ -115,22 +115,22 @@ game_server_core
 
     <section id="moduledoc">
 <p>The Achievements context.</p><p>Manages achievement definitions and user progress/unlocks.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create an achievement (admin)</span><span class="w">
-</span><span class="p" data-group-id="9342456980-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ach</span><span class="p" data-group-id="9342456980-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">create_achievement</span><span class="p" data-group-id="9342456980-2">(</span><span class="p" data-group-id="9342456980-3">%{</span><span class="w">
+</span><span class="p" data-group-id="1806662432-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ach</span><span class="p" data-group-id="1806662432-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">create_achievement</span><span class="p" data-group-id="1806662432-2">(</span><span class="p" data-group-id="1806662432-3">%{</span><span class="w">
   </span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;first_lobby&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Welcome!&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Join your first lobby&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">progress_target</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
-</span><span class="p" data-group-id="9342456980-3">}</span><span class="p" data-group-id="9342456980-2">)</span><span class="w">
+</span><span class="p" data-group-id="1806662432-3">}</span><span class="p" data-group-id="1806662432-2">)</span><span class="w">
 
 </span><span class="c1"># Unlock a one-shot achievement</span><span class="w">
-</span><span class="p" data-group-id="9342456980-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="9342456980-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">unlock_achievement</span><span class="p" data-group-id="9342456980-5">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;first_lobby&quot;</span><span class="p" data-group-id="9342456980-5">)</span><span class="w">
+</span><span class="p" data-group-id="1806662432-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="1806662432-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">unlock_achievement</span><span class="p" data-group-id="1806662432-5">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;first_lobby&quot;</span><span class="p" data-group-id="1806662432-5">)</span><span class="w">
 
 </span><span class="c1"># Increment progress on a multi-step achievement</span><span class="w">
-</span><span class="p" data-group-id="9342456980-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="9342456980-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">increment_progress</span><span class="p" data-group-id="9342456980-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;chat_100&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="9342456980-7">)</span><span class="w">
+</span><span class="p" data-group-id="1806662432-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="1806662432-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">increment_progress</span><span class="p" data-group-id="1806662432-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;chat_100&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="1806662432-7">)</span><span class="w">
 </span><span class="c1"># auto-unlocks when progress &gt;= progress_target</span><span class="w">
 
 </span><span class="c1"># List achievements (with user progress if user_id provided)</span><span class="w">
-</span><span class="n">achievements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">list_achievements</span><span class="p" data-group-id="9342456980-8">(</span><span class="ss">user_id</span><span class="p">:</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="9342456980-8">)</span></code></pre>
+</span><span class="n">achievements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">list_achievements</span><span class="p" data-group-id="1806662432-8">(</span><span class="ss">user_id</span><span class="p">:</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="1806662432-8">)</span></code></pre>
     </section>
 
 </div>
@@ -405,7 +405,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">change_achievement(achievement, attrs \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L146" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L151" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -436,7 +436,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">count_achievements(opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L290" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L295" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -464,7 +464,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">count_all_achievements()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L350" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L355" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -492,7 +492,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">count_all_unlocks()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L356" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L361" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -520,7 +520,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">count_hidden_achievements()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L363" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L368" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -548,7 +548,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">count_user_achievements(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L458" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L463" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -576,7 +576,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">count_users_with_unlocks()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L370" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L375" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -633,7 +633,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">dashboard_stats()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L389" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L394" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -690,7 +690,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">get_achievement(id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L135" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L1" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -718,7 +718,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">get_achievement_by_slug(slug)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L139" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L144" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -747,7 +747,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">get_user_achievement(user_id, achievement_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L603" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L608" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -776,7 +776,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">grant_achievement(user_id, slug)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L622" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L627" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -807,7 +807,7 @@ sets progress to the target and marks it as unlocked.</p></div>
       <h1 class="signature" translate="no">increment_progress(user_id, slug, amount \\ 1)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L532" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L537" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -839,7 +839,7 @@ when progress reaches the target.</p><p>Returns <code class="inline">{:ok, user_
       <h1 class="signature" translate="no">list_achievements(opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L165" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L170" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -869,7 +869,7 @@ when progress reaches the target.</p><p>Returns <code class="inline">{:ok, user_
       <h1 class="signature" translate="no">list_user_achievements(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L440" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L445" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -900,7 +900,7 @@ when progress reaches the target.</p><p>Returns <code class="inline">{:ok, user_
       <h1 class="signature" translate="no">reset_user_achievement(user_id, achievement_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L611" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L616" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -930,7 +930,7 @@ when progress reaches the target.</p><p>Returns <code class="inline">{:ok, user_
       <h1 class="signature" translate="no">revoke_achievement(user_id, achievement_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L631" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L636" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -987,7 +987,7 @@ when progress reaches the target.</p><p>Returns <code class="inline">{:ok, user_
       <h1 class="signature" translate="no">unlock_achievement(user_id, slug_or_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L477" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L482" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1017,7 +1017,7 @@ sets progress to the target and marks it as unlocked.</p><p>Returns <code class=
       <h1 class="signature" translate="no">unlock_percentage(achievement_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L645" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/achievements.ex#L650" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1073,9 +1073,9 @@ sets progress to the target and marks it as unlocked.</p><p>Returns <code class=
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
 
             </span>
 

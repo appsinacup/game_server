@@ -45,6 +45,7 @@ GameServer.Hooks.PluginManager.html
 GameServer.Hooks.html
 GameServer.IpBans.IpBan.html
 GameServer.IpBans.html
+GameServer.Jobs.html
 GameServer.KV.html
 GameServer.Leaderboards.Leaderboard.html
 GameServer.Leaderboards.Record.html
@@ -96,10 +97,12 @@ GameServer.Repo.AdvisoryLock.html
 GameServer.Repo.MigrationPaths.html
 GameServer.Repo.html
 GameServer.Retention.html
-GameServer.Schedule.Lock.html
-GameServer.Schedule.Scheduler.html
 GameServer.Schedule.html
 GameServer.Schema.html
+GameServer.Storage.Adapter.html
+GameServer.Storage.Local.html
+GameServer.Storage.S3.html
+GameServer.Storage.html
 GameServer.Theme.JSONConfig.html
 GameServer.Theme.html
 GameServer.Tournaments.Entry.html
@@ -121,8 +124,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-ZWU5GQ4X.woff2
-dist/search_data-247376B1.js
-dist/sidebar_items-7875F389.js
+dist/search_data-C46D3747.js
+dist/sidebar_items-7DB926F8.js
 index.html
 readme.html
 search.html

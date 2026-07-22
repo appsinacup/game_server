@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1050">
+    <meta name="project" content="game_server_core v1.0.1053">
 
 
-    <title>GameServer.Schedule — game_server_core v1.0.1050</title>
+    <title>GameServer.Schedule — game_server_core v1.0.1053</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1050
+          v1.0.1053
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Schedule</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1050)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1053)</small>
 
     </h1>
 
@@ -115,34 +115,37 @@ game_server_core
 
     <section id="moduledoc">
 <p>Dynamic cron-like job scheduling for hooks.</p><p>Use this module in your <code class="inline">after_startup/0</code> hook to register scheduled jobs
-that will call your hook functions at specified intervals.</p><p>This module is safe for distributed deployments - only one instance will
-execute each job per period using database locks.</p><p>Scheduled callbacks are automatically protected from user RPC calls.</p><h2 id="module-examples" class="section-heading"><a href="#module-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">after_startup</span><span class="w"> </span><span class="k" data-group-id="3897769465-1">do</span><span class="w">
+that will call your hook functions at specified intervals.</p><p>Jobs are durable and safe for distributed deployments: they run through the
+background job queue (<a href="GameServer.Jobs.html"><code class="inline">GameServer.Jobs</code></a>, backed by Oban), so exactly one
+instance executes each job per period and a crash mid-run is retried.</p><p>Scheduled callbacks are automatically protected from user RPC calls.</p><h2 id="module-examples" class="section-heading"><a href="#module-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">after_startup</span><span class="w"> </span><span class="k" data-group-id="8370560228-1">do</span><span class="w">
   </span><span class="c1"># Simple intervals</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="3897769465-2">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_5m</span><span class="p" data-group-id="3897769465-2">)</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="3897769465-3">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="3897769465-3">)</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="3897769465-4">(</span><span class="ss">:on_daily</span><span class="p" data-group-id="3897769465-4">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="8370560228-2">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_5m</span><span class="p" data-group-id="8370560228-2">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="8370560228-3">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="8370560228-3">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="8370560228-4">(</span><span class="ss">:on_daily</span><span class="p" data-group-id="8370560228-4">)</span><span class="w">
 
   </span><span class="c1"># With options</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="3897769465-5">(</span><span class="ss">:on_morning_report</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="3897769465-5">)</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="3897769465-6">(</span><span class="ss">:on_monday</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="3897769465-6">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="8370560228-5">(</span><span class="ss">:on_morning_report</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="8370560228-5">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="8370560228-6">(</span><span class="ss">:on_monday</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="8370560228-6">)</span><span class="w">
 
   </span><span class="c1"># Full cron syntax</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="3897769465-7">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 */6 * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_6h</span><span class="p" data-group-id="3897769465-7">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="8370560228-7">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 */6 * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_6h</span><span class="p" data-group-id="8370560228-7">)</span><span class="w">
 
   </span><span class="ss">:ok</span><span class="w">
-</span><span class="k" data-group-id="3897769465-1">end</span><span class="w">
+</span><span class="k" data-group-id="8370560228-1">end</span><span class="w">
 
-</span><span class="c1"># Callback receives context map (public function, but protected from RPC)</span><span class="w">
-</span><span class="kd">def</span><span class="w"> </span><span class="nf">on_hourly</span><span class="p" data-group-id="3897769465-8">(</span><span class="n">context</span><span class="p" data-group-id="3897769465-8">)</span><span class="w"> </span><span class="k" data-group-id="3897769465-9">do</span><span class="w">
-  </span><span class="nc">IO</span><span class="o">.</span><span class="n">puts</span><span class="p" data-group-id="3897769465-10">(</span><span class="s">&quot;Triggered at </span><span class="si" data-group-id="3897769465-11">#{</span><span class="n">context</span><span class="o">.</span><span class="n">triggered_at</span><span class="si" data-group-id="3897769465-11">}</span><span class="s">&quot;</span><span class="p" data-group-id="3897769465-10">)</span><span class="w">
+</span><span class="c1"># Callback receives a context map (public function, but protected from RPC)</span><span class="w">
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">on_hourly</span><span class="p" data-group-id="8370560228-8">(</span><span class="n">context</span><span class="p" data-group-id="8370560228-8">)</span><span class="w"> </span><span class="k" data-group-id="8370560228-9">do</span><span class="w">
+  </span><span class="nc">IO</span><span class="o">.</span><span class="n">puts</span><span class="p" data-group-id="8370560228-10">(</span><span class="s">&quot;Triggered at </span><span class="si" data-group-id="8370560228-11">#{</span><span class="n">context</span><span class="p" data-group-id="8370560228-12">[</span><span class="s">&quot;triggered_at&quot;</span><span class="p" data-group-id="8370560228-12">]</span><span class="si" data-group-id="8370560228-11">}</span><span class="s">&quot;</span><span class="p" data-group-id="8370560228-10">)</span><span class="w">
   </span><span class="ss">:ok</span><span class="w">
-</span><span class="k" data-group-id="3897769465-9">end</span></code></pre><h2 id="module-context" class="section-heading"><a href="#module-context" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Context</span></h2><p>All callbacks receive a context map:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="0693668198-1">%{</span><span class="w">
-  </span><span class="ss">triggered_at</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2025-12-03 14:00:00Z]</span><span class="p">,</span><span class="w">
-  </span><span class="ss">job_name</span><span class="p">:</span><span class="w"> </span><span class="ss">:on_hourly</span><span class="p">,</span><span class="w">
-  </span><span class="ss">schedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0 * * * *&quot;</span><span class="w">
-</span><span class="p" data-group-id="0693668198-1">}</span></code></pre><h2 id="module-distributed-safety" class="section-heading"><a href="#module-distributed-safety" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Distributed Safety</span></h2><p>When running multiple instances, only one will execute each job per period.
-This is achieved via database locks in the <code class="inline">schedule_locks</code> table.
-Old locks are automatically cleaned up after 7 days.</p>
+</span><span class="k" data-group-id="8370560228-9">end</span></code></pre><h2 id="module-context" class="section-heading"><a href="#module-context" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Context</span></h2><p>Callbacks run as background jobs, so the context is a <strong>JSON map with string
+keys</strong> (<code class="inline">triggered_at</code> is an ISO8601 string):</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="4388845793-1">%{</span><span class="w">
+  </span><span class="s">&quot;triggered_at&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;2026-07-22T14:00:00Z&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="s">&quot;job_name&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;on_hourly&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="s">&quot;schedule&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;0 * * * *&quot;</span><span class="w">
+</span><span class="p" data-group-id="4388845793-1">}</span></code></pre><h2 id="module-distributed-safety" class="section-heading"><a href="#module-distributed-safety" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Distributed Safety</span></h2><p>A single per-minute tick (<code class="inline">GameServer.Schedule.TickWorker</code>, driven by Oban's
+leader-elected Cron plugin) enqueues each due callback as a <strong>unique</strong> job.
+Oban's uniqueness guarantees a callback runs at most once per period across
+the whole cluster — no application-level locks required.</p>
     </section>
 
 </div>
@@ -166,16 +169,6 @@ Old locks are automatically cleaned up after 7 days.</p>
       </div>
 
         <div class="summary-synopsis"><p>Cancel a scheduled job.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#cleanup_old_locks/1" data-no-tooltip="" translate="no">cleanup_old_locks(opts \\ [])</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Clean up old schedule locks older than the specified number of days.</p></div>
 
     </div>
 
@@ -235,7 +228,7 @@ Old locks are automatically cleaned up after 7 days.</p>
 
       </div>
 
-        <div class="summary-synopsis"><p>Returns the set of callback function names registered for scheduled jobs.</p></div>
+        <div class="summary-synopsis"><p>Returns the set of callback function names registered for background jobs.</p></div>
 
     </div>
 
@@ -273,7 +266,7 @@ Old locks are automatically cleaned up after 7 days.</p>
       <h1 class="signature" translate="no">cancel(name)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L232" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L224" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -288,39 +281,7 @@ Old locks are automatically cleaned up after 7 days.</p>
 
       </div>
 
-<p>Cancel a scheduled job.</p><h2 id="cancel/1-examples" class="section-heading"><a href="#cancel/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cancel</span><span class="p" data-group-id="1669527068-1">(</span><span class="ss">:my_job</span><span class="p" data-group-id="1669527068-1">)</span></code></pre>
-  </section>
-</section>
-<section class="detail" id="cleanup_old_locks/1">
-
-    <span id="cleanup_old_locks/0"></span>
-
-  <div class="detail-header">
-    <a href="#cleanup_old_locks/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">cleanup_old_locks(opts \\ [])</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L269" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> cleanup_old_locks(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
-
-      </div>
-
-<p>Clean up old schedule locks older than the specified number of days.</p><p>This is called automatically during job execution, but can also be
-called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-examples" class="section-heading"><a href="#cleanup_old_locks/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cleanup_old_locks</span><span class="p" data-group-id="9686398801-1">(</span><span class="p" data-group-id="9686398801-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cleanup_old_locks</span><span class="p" data-group-id="9686398801-2">(</span><span class="ss">days</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="9686398801-2">)</span></code></pre>
+<p>Cancel a scheduled job.</p><h2 id="cancel/1-examples" class="section-heading"><a href="#cancel/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cancel</span><span class="p" data-group-id="5302039471-1">(</span><span class="ss">:my_job</span><span class="p" data-group-id="5302039471-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="cron/3">
@@ -333,7 +294,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
       <h1 class="signature" translate="no">cron(name, cron_expr, hook_fn)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L122" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L119" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -348,8 +309,8 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
 
       </div>
 
-<p>Register a job with full cron syntax.</p><h2 id="cron/3-examples" class="section-heading"><a href="#cron/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="0193245381-1">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;*/15 * * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_15m</span><span class="p" data-group-id="0193245381-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="0193245381-2">(</span><span class="ss">:weekdays</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 9 * * 1-5&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_weekday_morning</span><span class="p" data-group-id="0193245381-2">)</span></code></pre>
+<p>Register a job with full cron syntax.</p><h2 id="cron/3-examples" class="section-heading"><a href="#cron/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="7885306924-1">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;*/15 * * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_15m</span><span class="p" data-group-id="7885306924-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="7885306924-2">(</span><span class="ss">:weekdays</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 9 * * 1-5&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_weekday_morning</span><span class="p" data-group-id="7885306924-2">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="daily/2">
@@ -364,7 +325,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
       <h1 class="signature" translate="no">daily(hook_fn, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L194" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L186" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -379,9 +340,9 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
 
       </div>
 
-<p>Run a job every day.</p><h2 id="daily/2-options" class="section-heading"><a href="#daily/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="daily/2-examples" class="section-heading"><a href="#daily/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="1935952704-1">(</span><span class="ss">:on_midnight</span><span class="p" data-group-id="1935952704-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="1935952704-2">(</span><span class="ss">:on_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="1935952704-2">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="1935952704-3">(</span><span class="ss">:on_evening</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="1935952704-3">)</span></code></pre>
+<p>Run a job every day.</p><h2 id="daily/2-options" class="section-heading"><a href="#daily/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="daily/2-examples" class="section-heading"><a href="#daily/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="9060695910-1">(</span><span class="ss">:on_midnight</span><span class="p" data-group-id="9060695910-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="9060695910-2">(</span><span class="ss">:on_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="9060695910-2">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="9060695910-3">(</span><span class="ss">:on_evening</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="9060695910-3">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="every_minutes/2">
@@ -394,7 +355,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
       <h1 class="signature" translate="no">every_minutes(n, hook_fn)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L155" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L147" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -409,8 +370,8 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
 
       </div>
 
-<p>Run a job every N minutes.</p><h2 id="every_minutes/2-examples" class="section-heading"><a href="#every_minutes/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="4925585731-1">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_5m</span><span class="p" data-group-id="4925585731-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="4925585731-2">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_15m</span><span class="p" data-group-id="4925585731-2">)</span></code></pre>
+<p>Run a job every N minutes.</p><h2 id="every_minutes/2-examples" class="section-heading"><a href="#every_minutes/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="2795512880-1">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_5m</span><span class="p" data-group-id="2795512880-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="2795512880-2">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_15m</span><span class="p" data-group-id="2795512880-2">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="hourly/2">
@@ -425,7 +386,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
       <h1 class="signature" translate="no">hourly(hook_fn, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L173" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L165" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -440,8 +401,8 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
 
       </div>
 
-<p>Run a job every hour.</p><h2 id="hourly/2-options" class="section-heading"><a href="#hourly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="hourly/2-examples" class="section-heading"><a href="#hourly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="8663545966-1">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="8663545966-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="8663545966-2">(</span><span class="ss">:on_half_hour</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="8663545966-2">)</span></code></pre>
+<p>Run a job every hour.</p><h2 id="hourly/2-options" class="section-heading"><a href="#hourly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="hourly/2-examples" class="section-heading"><a href="#hourly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="3551866806-1">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="3551866806-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="3551866806-2">(</span><span class="ss">:on_half_hour</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="3551866806-2">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="list/0">
@@ -454,7 +415,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
       <h1 class="signature" translate="no">list()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L245" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L236" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -465,7 +426,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list() :: [%{name: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), schedule: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), state: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list() :: [%{name: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), schedule: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), hook: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), state: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}]</pre>
 
       </div>
 
@@ -482,7 +443,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
       <h1 class="signature" translate="no">registered_callbacks()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L80" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L101" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -497,7 +458,10 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
 
       </div>
 
-<p>Returns the set of callback function names registered for scheduled jobs.</p><p>These are protected from user RPC calls via <code class="inline">Hooks.call/3</code>.</p>
+<p>Returns the set of callback function names registered for background jobs.</p><p>The union of hook functions bound to an active schedule and any hook enqueued
+via <a href="GameServer.Jobs.html"><code class="inline">GameServer.Jobs</code></a>. These are protected from user RPC calls via
+<code class="inline">Hooks.call/3</code>. Cancelling a schedule drops its callback from the set unless
+another schedule (or a <code class="inline">Jobs</code> enqueue) still references it.</p>
   </section>
 </section>
 <section class="detail" id="weekly/2">
@@ -512,7 +476,7 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
       <h1 class="signature" translate="no">weekly(hook_fn, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L216" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/schedule.ex#L208" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -528,8 +492,8 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
 
       </div>
 
-<p>Run a job every week.</p><h2 id="weekly/2-options" class="section-heading"><a href="#weekly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:day</code> - day of week (<code class="inline">:sunday</code>, <code class="inline">:monday</code>, etc.), default: <code class="inline">:sunday</code></li><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="weekly/2-examples" class="section-heading"><a href="#weekly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="9515214157-1">(</span><span class="ss">:on_sunday</span><span class="p" data-group-id="9515214157-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="9515214157-2">(</span><span class="ss">:on_monday_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="9515214157-2">)</span></code></pre>
+<p>Run a job every week.</p><h2 id="weekly/2-options" class="section-heading"><a href="#weekly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:day</code> - day of week (<code class="inline">:sunday</code>, <code class="inline">:monday</code>, etc.), default: <code class="inline">:sunday</code></li><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="weekly/2-examples" class="section-heading"><a href="#weekly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="9817695295-1">(</span><span class="ss">:on_sunday</span><span class="p" data-group-id="9817695295-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="9817695295-2">(</span><span class="ss">:on_monday_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="9817695295-2">)</span></code></pre>
   </section>
 </section>
 
@@ -541,9 +505,9 @@ called manually if needed. Default is 7 days.</p><h2 id="cleanup_old_locks/1-exa
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
 
             </span>
 

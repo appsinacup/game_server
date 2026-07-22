@@ -3,24 +3,32 @@
 
 Defines the scope of the caller to be used throughout the app.
 
-The `GameServer.Accounts.Scope` allows public interfaces to receive
-information about the caller, such as if the call is initiated from an
-end-user, and if so, which user. Additionally, such a scope can carry fields
-such as "super user" or other privileges for use as authorization, or to
-ensure specific code paths can only be access for a given scope.
+The scope carries only the caller's `user_id`, never a cached `%User{}`
+snapshot: a scope can outlive the request that built it (a socket stays open
+for hours), so the user is always resolved fresh via `user/1`, which reads
+through `GameServer.Accounts.get_user/1`'s cache. This keeps mutable state
+(lobby_id, online, is_admin) current instead of frozen at connect time.
 
-It is useful for logging as well as for scoping pubsub subscriptions and
-broadcasts when a caller subscribes to an interface or performs a particular
-action.
+A `%Scope{}` always represents an authenticated caller — `for_user/1` returns
+`nil` for an anonymous one — so a `%Scope{}` match implies a present user_id.
 
-Feel free to extend the fields on this struct to fit the needs of
-growing application requirements.
+`authenticated_at` is a session fact (from the session token, virtual on
+`User`) that cannot be re-derived from the DB row, so it is carried on the
+scope and merged back onto the freshly-resolved user by `user/1` — this is
+what `sudo_mode?` checks.
 
 # `for_user`
 
-Creates a scope for the given user.
+Creates a scope for the given user, or nil when anonymous.
 
-Returns nil if no user is given.
+# `user`
+
+Resolves the caller's user fresh (cached), with the session's
+`authenticated_at` merged back on. nil if the scope is nil or the user is gone.
+
+# `user_id`
+
+The caller's id, or nil for a nil scope.
 
 ---
 

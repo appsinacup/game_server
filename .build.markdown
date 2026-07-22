@@ -44,6 +44,7 @@ GameServer.Hooks.PluginManager.md
 GameServer.Hooks.md
 GameServer.IpBans.IpBan.md
 GameServer.IpBans.md
+GameServer.Jobs.md
 GameServer.KV.md
 GameServer.Leaderboards.Leaderboard.md
 GameServer.Leaderboards.Record.md
@@ -95,10 +96,12 @@ GameServer.Repo.AdvisoryLock.md
 GameServer.Repo.MigrationPaths.md
 GameServer.Repo.md
 GameServer.Retention.md
-GameServer.Schedule.Lock.md
-GameServer.Schedule.Scheduler.md
 GameServer.Schedule.md
 GameServer.Schema.md
+GameServer.Storage.Adapter.md
+GameServer.Storage.Local.md
+GameServer.Storage.S3.md
+GameServer.Storage.md
 GameServer.Theme.JSONConfig.md
 GameServer.Theme.md
 GameServer.Tournaments.Entry.md

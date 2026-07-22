@@ -1,4 +1,4 @@
-# game_server_core v1.0.1050 - API Reference
+# game_server_core v1.0.1053 - API Reference
 
 ## Modules
 
@@ -63,6 +63,7 @@ transport and payload format.
 - [GameServer.IpBans](GameServer.IpBans.md): Persistence for IP bans.
 - [GameServer.IpBans.IpBan](GameServer.IpBans.IpBan.md): A persisted IP ban. `expires_at` is `nil` for permanent bans.
 
+- [GameServer.Jobs](GameServer.Jobs.md): Durable background jobs, backed by Oban.
 - [GameServer.KV](GameServer.KV.md): Generic key/value storage.
 - [GameServer.Leaderboards](GameServer.Leaderboards.md): The Leaderboards context.
 - [GameServer.Leaderboards.Leaderboard](GameServer.Leaderboards.Leaderboard.md): Ecto schema for the `leaderboards` table.
@@ -127,9 +128,11 @@ Server Notifications V2).
 - [GameServer.Repo.MigrationPaths](GameServer.Repo.MigrationPaths.md): Resolves every migration directory that belongs to a gamend deployment.
 - [GameServer.Retention](GameServer.Retention.md): Periodically prunes old rows from unbounded tables.
 - [GameServer.Schedule](GameServer.Schedule.md): Dynamic cron-like job scheduling for hooks.
-- [GameServer.Schedule.Lock](GameServer.Schedule.Lock.md): Schema for schedule job locks.
-- [GameServer.Schedule.Scheduler](GameServer.Schedule.Scheduler.md): Defines a quantum Scheduler.
 - [GameServer.Schema](GameServer.Schema.md): Shared schema base: `use GameServer.Schema` instead of `use Ecto.Schema`.
+- [GameServer.Storage](GameServer.Storage.md): Object storage for user uploads (avatars, and future user-generated content).
+- [GameServer.Storage.Adapter](GameServer.Storage.Adapter.md): Behaviour for object-storage backends.
+- [GameServer.Storage.Local](GameServer.Storage.Local.md): Disk-backed storage — the default backend.
+- [GameServer.Storage.S3](GameServer.Storage.S3.md): S3-compatible storage via ExAws.
 - [GameServer.Theme](GameServer.Theme.md): Behaviour for pluggable site theming providers.
 - [GameServer.Theme.JSONConfig](GameServer.Theme.JSONConfig.md): JSON-backed Theme provider. Reads a locale-specific JSON file from either the
 THEME_CONFIG environment variable override or the host-owned default path

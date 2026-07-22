@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1050">
+    <meta name="project" content="game_server_core v1.0.1053">
 
 
-    <title>API Reference — game_server_core v1.0.1050</title>
+    <title>API Reference — game_server_core v1.0.1053</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-7875F389.js"></script>
+    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1050
+          v1.0.1053
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ game_server_core
 
 <div id="top-content">
   <div class="heading-with-actions top-heading">
-    <h1>API Reference <small class="app-vsn">game_server_core v#1.0.1050</small></h1>
+    <h1>API Reference <small class="app-vsn">game_server_core v#1.0.1053</small></h1>
 <a href="api-reference.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
@@ -542,6 +542,15 @@ transport and payload format.</p></div>
   </div>
 
     <div class="summary-synopsis"><p>A persisted IP ban. <code class="inline">expires_at</code> is <code class="inline">nil</code> for permanent bans.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Jobs.html" translate="no">GameServer.<wbr>Jobs</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Durable background jobs, backed by Oban.</p></div>
 
 </div>
 <div class="summary-row">
@@ -1013,29 +1022,47 @@ Server Notifications V2).</p></div>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Schedule.Lock.html" translate="no">GameServer.<wbr>Schedule.<wbr>Lock</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Schema for schedule job locks.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Schedule.Scheduler.html" translate="no">GameServer.<wbr>Schedule.<wbr>Scheduler</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Defines a quantum Scheduler.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
     <a href="GameServer.Schema.html" translate="no">GameServer.<wbr>Schema</a>
 
   </div>
 
     <div class="summary-synopsis"><p>Shared schema base: <code class="inline">use GameServer.Schema</code> instead of <code class="inline">use Ecto.Schema</code>.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Storage.html" translate="no">GameServer.<wbr>Storage</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Object storage for user uploads (avatars, and future user-generated content).</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Storage.Adapter.html" translate="no">GameServer.<wbr>Storage.<wbr>Adapter</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Behaviour for object-storage backends.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Storage.Local.html" translate="no">GameServer.<wbr>Storage.<wbr>Local</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Disk-backed storage — the default backend.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Storage.S3.html" translate="no">GameServer.<wbr>Storage.<wbr>S3</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>S3-compatible storage via ExAws.</p></div>
 
 </div>
 <div class="summary-row">
@@ -1171,9 +1198,9 @@ list/detail pages at realistic sizes.</p></div>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1050">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1050">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
 
             </span>
 
