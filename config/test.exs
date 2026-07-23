@@ -68,6 +68,14 @@ config :swoosh, :api_client, false
 # Print only warnings and errors during test
 config :logger, level: :warning
 
+# Run GameServer.Async side effects inline so assertions observe them without
+# racing, and so a task can't outlive the test's DB sandbox owner.
+config :game_server_core, async_inline: true
+
+# The periodic tournament tick has no sandbox connection in tests; leave the
+# ticker supervised but idle. Tests drive GameServer.Tournaments.tick/0 directly.
+config :game_server_core, GameServer.Tournaments.Ticker, enabled: false
+
 # Disable app-level caching in tests to avoid stale reads across assertions.
 # Still provide the multilevel configuration so the cache can start.
 config :game_server_core, GameServer.Cache,

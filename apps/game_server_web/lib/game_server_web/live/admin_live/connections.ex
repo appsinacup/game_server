@@ -186,7 +186,9 @@ defmodule GameServerWeb.AdminLive.Connections do
                       </thead>
                       <tbody>
                         <tr :for={peer <- @webrtc_users}>
-                          <td class="text-sm" title={peer.user_id}>{user_display(@user_names[peer.user_id])}</td>
+                          <td class="text-sm" title={peer.user_id}>
+                            {user_display(@user_names[peer.user_id])}
+                          </td>
                           <td class="font-mono text-xs text-base-content/50">{peer.pid}</td>
                         </tr>
                       </tbody>
@@ -247,7 +249,9 @@ defmodule GameServerWeb.AdminLive.Connections do
                   </thead>
                   <tbody>
                     <tr :for={user <- @paged_users} id={"conn-user-#{user.user_id}"}>
-                      <td class="text-sm" title={user.user_id}>{user_display(@user_names[user.user_id])}</td>
+                      <td class="text-sm" title={user.user_id}>
+                        {user_display(@user_names[user.user_id])}
+                      </td>
                       <td>
                         <div class="flex flex-wrap gap-1">
                           <span

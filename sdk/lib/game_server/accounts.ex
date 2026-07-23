@@ -1781,6 +1781,23 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Map of `%{id => %User{}}` for the given ids, for batch name lookups (e.g. admin
+    tables that hold only a `user_id`). Nil/duplicate ids are ignored.
+    
+  """
+  @spec users_by_ids([Ecto.UUID.t()]) :: %{required(Ecto.UUID.t()) => GameServer.Accounts.User.t()}
+  def users_by_ids(_ids) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Accounts.users_by_ids/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Returns true when `password` matches the user's current password.
     
   """

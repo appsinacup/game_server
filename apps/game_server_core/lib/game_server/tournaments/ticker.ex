@@ -19,9 +19,13 @@ defmodule GameServer.Tournaments.Ticker do
 
   @impl true
   def init(_opts) do
-    Process.send_after(self(), :tick, @initial_delay_ms)
+    # Stays supervised but idle when disabled (tests): the tick has no sandbox
+    # connection to check out, so it would just stall and then error.
+    if enabled?(), do: Process.send_after(self(), :tick, @initial_delay_ms)
     {:ok, %{}}
   end
+
+  defp enabled?, do: Application.get_env(:game_server_core, __MODULE__, [])[:enabled] != false
 
   @impl true
   def handle_info(:tick, state) do

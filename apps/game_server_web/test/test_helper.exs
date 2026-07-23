@@ -6,7 +6,11 @@ end
 
 GameServerWeb.TestSupport.Runtime.ensure_started()
 
-ExUnit.start()
+# capture_log: many tests deliberately exercise failure paths (OAuth CSRF
+# rejection, payment decline, SMTP failure, plugin hook raising, log rotation
+# probes). Their logs are captured per test and only printed when that test
+# fails, so a green run stays readable without losing diagnostics.
+ExUnit.start(capture_log: true)
 Ecto.Adapters.SQL.Sandbox.mode(GameServer.Repo, :manual)
 
 # Some auth controller flows require these env vars at runtime.

@@ -15,7 +15,10 @@ defmodule GameServer.Accounts.AvatarMirrorTest do
     dir = Path.join(System.tmp_dir!(), "gs_avatar_mirror_#{System.unique_integer([:positive])}")
     old = Application.get_env(:game_server_core, GameServer.Storage.Local)
     Application.put_env(:game_server_core, GameServer.Storage.Local, dir: dir)
-    Application.put_env(:game_server_core, :avatar_mirror_req_options, plug: {Req.Test, __MODULE__})
+
+    Application.put_env(:game_server_core, :avatar_mirror_req_options,
+      plug: {Req.Test, __MODULE__}
+    )
 
     on_exit(fn ->
       File.rm_rf(dir)
