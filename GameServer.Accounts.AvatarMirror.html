@@ -8,7 +8,7 @@
     <meta name="project" content="game_server_core v1.0.1056">
 
 
-    <title>GameServer.Storage.S3 — game_server_core v1.0.1056</title>
+    <title>GameServer.Accounts.AvatarMirror — game_server_core v1.0.1056</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,19 +93,19 @@ game_server_core
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>Storage.<wbr>S3</span> 
+      <span translate="no">GameServer.<wbr>Accounts.<wbr>AvatarMirror</span> 
       <small class="app-vsn" translate="no">(game_server_core v1.0.1056)</small>
 
     </h1>
 
-<a href="GameServer.Storage.S3.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Accounts.AvatarMirror.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
 
 
 
-      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/storage/s3.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/accounts/avatar_mirror.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
@@ -114,9 +114,12 @@ game_server_core
 
 
     <section id="moduledoc">
-<p>S3-compatible storage via ExAws.</p><p>Works with AWS S3, Cloudflare R2, Backblaze B2, MinIO, and DigitalOcean Spaces
-— set <code class="inline">bucket</code>, <code class="inline">region</code>, and (for non-AWS) <code class="inline">endpoint</code> in config. Uploads use
-presigned <code class="inline">PUT</code> URLs so clients upload straight to the bucket.</p>
+<p>Oban worker that mirrors a user's external (OAuth provider) avatar into our
+own object storage, so avatars render from our storage/CDN instead of
+hotlinking the provider.</p><p>Enqueued <strong>once</strong> — the first time a user gets a provider avatar while nothing
+is stored yet (see <code class="inline">GameServer.Accounts.maybe_mirror_avatar/2</code>). We never
+re-mirror: a repeated fetch is wasteful and can trip a provider's rate limits,
+so if the download fails the provider URL simply stays as the fallback.</p>
     </section>
 
 </div>

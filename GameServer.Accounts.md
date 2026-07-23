@@ -956,6 +956,17 @@ Returns true when the given user is activated or when account activation
 is not required. Returns false only when activation is required **and**
 the user's `is_activated` flag is `false`.
 
+# `users_by_ids`
+
+```elixir
+@spec users_by_ids([Ecto.UUID.t()]) :: %{
+  required(Ecto.UUID.t()) =&gt; GameServer.Accounts.User.t()
+}
+```
+
+Map of `%{id => %User{}}` for the given ids, for batch name lookups (e.g. admin
+tables that hold only a `user_id`). Nil/duplicate ids are ignored.
+
 # `valid_password?`
 
 ```elixir

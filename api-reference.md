@@ -1,10 +1,13 @@
-# game_server_core v1.0.1055 - API Reference
+# game_server_core v1.0.1056 - API Reference
 
 ## Modules
 
 - [GameServer](GameServer.md): GameServer keeps the contexts that define your domain
 and business logic.
 - [GameServer.Accounts](GameServer.Accounts.md): The Accounts context.
+- [GameServer.Accounts.AvatarMirror](GameServer.Accounts.AvatarMirror.md): Oban worker that mirrors a user's external (OAuth provider) avatar into our
+own object storage, so avatars render from our storage/CDN instead of
+hotlinking the provider.
 - [GameServer.Accounts.Scope](GameServer.Accounts.Scope.md): Defines the scope of the caller to be used throughout the app.
 - [GameServer.Accounts.StalePresenceSweeper](GameServer.Accounts.StalePresenceSweeper.md): Periodically sweeps users whose `is_online` flag is `true` but whose
 `last_seen_at` timestamp is older than a configurable threshold.

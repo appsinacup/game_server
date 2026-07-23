@@ -1,3 +1,4 @@
+GameServer.Accounts.AvatarMirror.md
 GameServer.Accounts.Scope.md
 GameServer.Accounts.StalePresenceSweeper.md
 GameServer.Accounts.User.md
