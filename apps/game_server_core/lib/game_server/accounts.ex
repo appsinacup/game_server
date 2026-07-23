@@ -23,7 +23,7 @@ defmodule GameServer.Accounts do
   alias GameServer.Repo
   alias GameServer.Types
 
-  alias GameServer.Accounts.{User, UsernameGenerator, UserNotifier, UserToken}
+  alias GameServer.Accounts.{AvatarMirror, User, UsernameGenerator, UserNotifier, UserToken}
 
   @stats_cache_ttl_ms 60_000
   @users_count_cache_ttl_ms 60_000
@@ -572,6 +572,19 @@ defmodule GameServer.Accounts do
               opts: [ttl: @user_cache_ttl_ms]
             )
   def get_user(id), do: Repo.get_uuid(User, id)
+
+  @doc """
+  Map of `%{id => %User{}}` for the given ids, for batch name lookups (e.g. admin
+  tables that hold only a `user_id`). Nil/duplicate ids are ignored.
+  """
+  @spec users_by_ids([Ecto.UUID.t()]) :: %{Ecto.UUID.t() => User.t()}
+  def users_by_ids(ids) when is_list(ids) do
+    ids = ids |> Enum.reject(&is_nil/1) |> Enum.uniq()
+
+    from(u in User, where: u.id in ^ids)
+    |> Repo.all()
+    |> Map.new(&{&1.id, &1})
+  end
 
   @decorate cacheable(
               key: {:accounts, :user_by, field, value},
@@ -1236,15 +1249,20 @@ defmodule GameServer.Accounts do
     provider_id = Map.get(attrs, provider_id_field)
     email = Map.get(attrs, :email)
 
-    cond do
-      provider_id != nil ->
-        handle_provider_id(provider_id, attrs, provider_id_field, changeset_fn)
+    result =
+      cond do
+        provider_id != nil ->
+          handle_provider_id(provider_id, attrs, provider_id_field, changeset_fn)
 
-      email != nil ->
-        handle_by_email(email, attrs, provider_id_field, changeset_fn)
+        email != nil ->
+          handle_by_email(email, attrs, provider_id_field, changeset_fn)
 
-      true ->
-        create_user_from_provider(attrs, changeset_fn)
+        true ->
+          create_user_from_provider(attrs, changeset_fn)
+      end
+
+    with {:ok, %User{} = user} <- result do
+      {:ok, maybe_mirror_avatar(user)}
     end
   end
 
@@ -1313,6 +1331,34 @@ defmodule GameServer.Accounts do
       {:error, %{changeset | action: :update}}
     end
   end
+
+  # Mirror an external (OAuth provider) avatar into our object storage so avatars
+  # render from our storage/CDN rather than hotlinking the provider. Enqueued only
+  # when the user's avatar is not already one of our stored objects. Oban's
+  # `:infinity` uniqueness keeps it to one job per user, and once mirrored the URL
+  # points at our storage so `our_stored_avatar?/1` short-circuits future logins —
+  # we never re-mirror. See `GameServer.Accounts.AvatarMirror`.
+  defp maybe_mirror_avatar(%User{profile_url: url} = user) when is_binary(url) and url != "" do
+    unless our_stored_avatar?(user) do
+      _ =
+        Oban.insert(
+          AvatarMirror.new(
+            %{"user_id" => user.id, "source_url" => url},
+            unique: [keys: [:user_id], period: :infinity, states: Oban.Job.states()]
+          )
+        )
+    end
+
+    user
+  end
+
+  defp maybe_mirror_avatar(user), do: user
+
+  # Our stored avatars live under the `avatars/<user_id>/…` key namespace, so a
+  # profile URL containing that segment is one we already host (uploaded or
+  # previously mirrored) — anything else is an external provider link.
+  defp our_stored_avatar?(%User{id: id, profile_url: url}),
+    do: is_binary(url) and String.contains?(url, "avatars/#{id}")
 
   defp create_user_from_provider(attrs, changeset_fn) do
     is_first_user = first_user?()
@@ -1402,7 +1448,7 @@ defmodule GameServer.Accounts do
         # Broadcast user update to user channel
         broadcast_user_update(updated_user)
 
-        {:ok, updated_user}
+        {:ok, maybe_mirror_avatar(updated_user)}
 
       {:error, changeset} ->
         handle_link_error(user, attrs, provider_id_field, changeset)

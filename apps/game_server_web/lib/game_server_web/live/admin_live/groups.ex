@@ -304,7 +304,7 @@ defmodule GameServerWeb.AdminLive.Groups do
               <tbody>
                 <tr :for={m <- @members} id={"member-" <> to_string(m.id)}>
                   <td class="font-mono text-sm">{m.user_id}</td>
-                  <td class="text-sm">{m.user.display_name || m.user.email || "-"}</td>
+                  <td class="text-sm">{user_display(m.user)}</td>
                   <td class="text-sm">
                     <%= if m.role == "admin" do %>
                       <span class="badge badge-primary badge-sm">Admin</span>
@@ -343,7 +343,7 @@ defmodule GameServerWeb.AdminLive.Groups do
                         phx-click="kick_member"
                         phx-value-group-id={m.group_id}
                         phx-value-user-id={m.user_id}
-                        data-confirm={"Kick user #{m.user_id} from group?"}
+                        data-confirm={"Kick #{user_display(m.user)} from group?"}
                         class="btn btn-xs btn-outline btn-error"
                       >
                         Kick

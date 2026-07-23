@@ -58,6 +58,10 @@ defmodule GameServerWeb.AdminLive.Storage do
 
   def handle_event("refresh", _params, socket), do: {:noreply, reload(socket)}
 
+  def handle_event("cancel_upload_entry", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :object, ref)}
+  end
+
   def handle_event("validate_upload", params, socket) do
     {:noreply, assign(socket, :upload_path, Map.get(params, "path", socket.assigns.upload_path))}
   end
@@ -206,8 +210,24 @@ defmodule GameServerWeb.AdminLive.Storage do
             >
               Upload
             </button>
-            <span :for={entry <- @uploads.object.entries}>
-              <span :for={err <- upload_errors(@uploads.object, entry)} class="text-error text-xs">
+            <%!-- The native file input clears its label on re-render, so show
+                  the picked file here instead. --%>
+            <span
+              :for={entry <- @uploads.object.entries}
+              class="flex items-center gap-2 text-xs"
+            >
+              <span class="font-mono truncate max-w-[14rem]">{entry.client_name}</span>
+              <span class="text-base-content/60">{entry.progress}%</span>
+              <button
+                type="button"
+                phx-click="cancel_upload_entry"
+                phx-value-ref={entry.ref}
+                class="btn btn-ghost btn-xs"
+                aria-label="Remove selected file"
+              >
+                <.icon name="hero-x-mark-solid" class="w-3 h-3" />
+              </button>
+              <span :for={err <- upload_errors(@uploads.object, entry)} class="text-error">
                 {upload_error(err)}
               </span>
             </span>

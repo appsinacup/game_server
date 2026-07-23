@@ -263,7 +263,7 @@ defmodule GameServerWeb.AdminLive.Payments do
                   <tr :for={p <- @purchases} id={"admin-purchase-#{p.id}"}>
                     <td class="font-mono text-xs">{p.id}</td>
                     <td class="font-mono text-xs break-all">{p.order_id}</td>
-                    <td class="font-mono text-xs">{p.user_id}</td>
+                    <td class="text-xs" title={p.user_id}>{user_display(p.user)}</td>
                     <td>
                       <span class={["badge", provider_badge_class(p.provider)]}>{p.provider}</span>
                     </td>
@@ -318,7 +318,7 @@ defmodule GameServerWeb.AdminLive.Payments do
                 <tbody>
                   <tr :for={e <- @entitlements} id={"admin-entitlement-#{e.id}"}>
                     <td class="font-mono text-xs">{e.id}</td>
-                    <td class="font-mono text-xs">{e.user_id}</td>
+                    <td class="text-xs" title={e.user_id}>{user_display(e.user)}</td>
                     <td class="font-mono text-xs break-all">{e.key}</td>
                     <td>
                       <span class={["badge", entitlement_badge_class(e.status)]}>{e.status}</span>

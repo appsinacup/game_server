@@ -305,6 +305,7 @@ defmodule GameServer.Notifications do
     |> order_by([n], desc: n.inserted_at, desc: n.id)
     |> limit(^page_size)
     |> offset(^offset)
+    |> preload([:sender, :recipient])
     |> Repo.all()
   end
 

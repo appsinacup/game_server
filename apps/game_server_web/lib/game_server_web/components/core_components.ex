@@ -541,4 +541,44 @@ defmodule GameServerWeb.CoreComponents do
     </div>
     """
   end
+
+  @doc """
+  Display label for a user in admin tables: username, then display name, then the
+  raw id as a last resort. Accepts a loaded `%User{}`; `nil` or a not-loaded
+  association renders "-". Surface the full id separately (e.g. a `title`
+  attribute on the cell) so it stays available without cluttering the table.
+  """
+  def user_display(%GameServer.Accounts.User{} = user) do
+    cond do
+      is_binary(user.username) and user.username != "" -> user.username
+      is_binary(user.display_name) and user.display_name != "" -> user.display_name
+      true -> user.id
+    end
+  end
+
+  def user_display(_), do: "-"
+
+  @doc """
+  A user's avatar as a round image when they have one (`profile_url`), falling
+  back to the generic person icon. Pass `class` for sizing, e.g. `"w-5 h-5"`.
+  """
+  attr :user, :any, default: nil
+  attr :class, :string, default: "w-6 h-6"
+
+  def user_avatar(assigns) do
+    assigns = assign(assigns, :avatar_url, avatar_url(assigns.user))
+
+    ~H"""
+    <img
+      :if={@avatar_url}
+      src={@avatar_url}
+      alt=""
+      class={["rounded-full object-cover bg-base-300", @class]}
+    />
+    <.icon :if={!@avatar_url} name="hero-user-circle-solid" class={@class} />
+    """
+  end
+
+  defp avatar_url(%{profile_url: url}) when is_binary(url) and url != "", do: url
+  defp avatar_url(_), do: nil
 end

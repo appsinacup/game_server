@@ -172,8 +172,8 @@ defmodule GameServerWeb.AdminLive.Notifications do
                         />
                       </td>
                       <td class="font-mono text-sm">{n.id}</td>
-                      <td class="font-mono text-sm">{n.sender_id}</td>
-                      <td class="font-mono text-sm">{n.recipient_id}</td>
+                      <td class="text-sm" title={n.sender_id}>{user_display(n.sender)}</td>
+                      <td class="text-sm" title={n.recipient_id}>{user_display(n.recipient)}</td>
                       <td class="text-sm max-w-xs truncate">{n.title}</td>
                       <td class="text-sm max-w-xs truncate">{n.content || "-"}</td>
                       <td class="text-xs font-mono max-w-xs truncate">

@@ -42,6 +42,11 @@ game_server-*.tar
 !/apps/game_server_web/priv/static/robots.txt
 /apps/game_server_web/apps/game_server_web/priv/static/
 
+# Object storage, local backend (GameServer.Storage.Local) — user uploads,
+# avatars and other stored objects live here in dev; never source-controlled.
+/apps/game_server_core/priv/storage/
+/priv/storage/
+
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/

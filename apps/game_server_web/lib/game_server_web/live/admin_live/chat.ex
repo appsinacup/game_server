@@ -130,8 +130,8 @@ defmodule GameServerWeb.AdminLive.Chat do
                         />
                       </td>
                       <td class="font-mono text-sm">{m.id}</td>
-                      <td class="font-mono text-sm">
-                        {m.sender_id}
+                      <td class="text-sm" title={m.sender_id}>
+                        {user_display(m.sender)}
                         <%= if Ecto.assoc_loaded?(m.sender) and m.sender do %>
                           <div class="text-xs text-base-content/60 truncate max-w-[120px]">
                             {m.sender.email}

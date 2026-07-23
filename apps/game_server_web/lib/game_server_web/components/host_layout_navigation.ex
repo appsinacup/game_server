@@ -133,7 +133,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
           else: "btn-outline"
         )
       ]}>
-        <.icon name="hero-user-circle-solid" class="w-5 h-5" />
+        <.user_avatar user={Scope.user(@current_scope)} class="w-6 h-6" />
         <span class="max-w-[8rem] truncate">{display_name(Scope.user(@current_scope))}</span>
         <span
           :if={@notif_unread_count > 0}
@@ -524,7 +524,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
           if(@active?, do: "btn-primary", else: "btn-ghost")
         ]}>
           <span class="flex items-center gap-2">
-            <.icon name="hero-user-circle-solid" class="w-4 h-4" />
+            <.user_avatar user={Scope.user(@current_scope)} class="w-5 h-5" />
             <span class="truncate">{display_name(Scope.user(@current_scope))}</span>
             <span
               :if={@notif_unread_count > 0}
