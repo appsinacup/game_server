@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="game_server_core v1.0.1055">
+
+
+    <title>GameServer.Inventory — game_server_core v1.0.1055</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-BFE007A3.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="readme.html" class="sidebar-projectName" translate="no">
+game_server_core
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.1055
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server_core</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Inventory</span> 
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1055)</small>
+
+    </h1>
+
+<a href="GameServer.Inventory.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Player item stacks — the non-fungible companion to <a href="GameServer.Economy.html"><code class="inline">GameServer.Economy</code></a>.</p><p>Items are free-form string codes (<code class="inline">&quot;health_potion&quot;</code>, <code class="inline">&quot;sword&quot;</code>, <code class="inline">&quot;card_374&quot;</code>);
+each <code class="inline">(user, item)</code> pair holds a quantity and per-stack <code class="inline">metadata</code>. Grants and
+consumes are atomic — a consume can never take a stack below zero.</p><h2 id="module-usage-server-side-hooks" class="section-heading"><a href="#module-usage-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Inventory</span><span class="o">.</span><span class="n">grant_item</span><span class="p" data-group-id="9743232161-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="9743232161-1">)</span><span class="w">
+</span><span class="k">case</span><span class="w"> </span><span class="nc">Inventory</span><span class="o">.</span><span class="n">consume_item</span><span class="p" data-group-id="9743232161-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="9743232161-2">)</span><span class="w"> </span><span class="k" data-group-id="9743232161-3">do</span><span class="w">
+  </span><span class="p" data-group-id="9743232161-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">remaining</span><span class="p" data-group-id="9743232161-4">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:ok</span><span class="w">
+  </span><span class="p" data-group-id="9743232161-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:insufficient_items</span><span class="p" data-group-id="9743232161-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:none_left</span><span class="w">
+</span><span class="k" data-group-id="9743232161-3">end</span><span class="w">
+
+</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">quantity</span><span class="p" data-group-id="9743232161-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p" data-group-id="9743232161-6">)</span><span class="w">  </span><span class="c1">#=&gt; 2</span><span class="w">
+</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">inventory</span><span class="p" data-group-id="9743232161-7">(</span><span class="n">user_id</span><span class="p" data-group-id="9743232161-7">)</span><span class="w">                  </span><span class="c1">#=&gt; %{&quot;health_potion&quot; =&gt; 2}</span></code></pre><p>Like the economy these are <strong>server-authoritative</strong>: expose them from hooks and
+admin tools, never as a raw client &quot;give me items&quot; endpoint.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-types summary">
+  <h3>
+    <a href="#types">Types</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:item/0" data-no-tooltip="" translate="no">item()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:user_id/0" data-no-tooltip="" translate="no">user_id()</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#consume_item/4" data-no-tooltip="" translate="no">consume_item(user_id, item, qty, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Remove <code class="inline">qty</code> of <code class="inline">item</code>, atomically. <code class="inline">{:error, :insufficient_items}</code> if the user
+doesn't hold enough — the stack never goes negative.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#grant_item/4" data-no-tooltip="" translate="no">grant_item(user_id, item, qty, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Add <code class="inline">qty</code> of <code class="inline">item</code> to a user's inventory. Returns <code class="inline">{:ok, new_quantity}</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#inventory/1" data-no-tooltip="" translate="no">inventory(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>All held items for a user, as a <code class="inline">%{item =&gt; quantity}</code> map.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#quantity/2" data-no-tooltip="" translate="no">quantity(user_id, item)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Quantity of one item a user holds (0 when they have none).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#set_metadata/3" data-no-tooltip="" translate="no">set_metadata(user_id, item, metadata)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Set (overwrite) the per-stack metadata for a user's item.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe/1" data-no-tooltip="" translate="no">subscribe(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe the calling process to a user's live inventory updates.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe/1" data-no-tooltip="" translate="no">unsubscribe(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Stop receiving a user's inventory updates.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="types" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h2>
+
+    <div class="types-list">
+<section class="detail" id="t:item/0">
+
+  <div class="detail-header">
+    <a href="#t:item/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">item()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L30" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> item() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:user_id/0">
+
+  <div class="detail-header">
+    <a href="#t:user_id/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">user_id()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L29" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://hexdocs.pm/ecto/3.13.6/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="consume_item/4">
+
+    <span id="consume_item/3"></span>
+
+  <div class="detail-header">
+    <a href="#consume_item/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">consume_item(user_id, item, qty, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L66" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> consume_item(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, :insufficient_items | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Remove <code class="inline">qty</code> of <code class="inline">item</code>, atomically. <code class="inline">{:error, :insufficient_items}</code> if the user
+doesn't hold enough — the stack never goes negative.</p>
+  </section>
+</section>
+<section class="detail" id="grant_item/4">
+
+    <span id="grant_item/3"></span>
+
+  <div class="detail-header">
+    <a href="#grant_item/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">grant_item(user_id, item, qty, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L56" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> grant_item(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Add <code class="inline">qty</code> of <code class="inline">item</code> to a user's inventory. Returns <code class="inline">{:ok, new_quantity}</code>.</p>
+  </section>
+</section>
+<section class="detail" id="inventory/1">
+
+  <div class="detail-header">
+    <a href="#inventory/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">inventory(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L45" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> inventory(<a href="#t:user_id/0">user_id</a>()) :: %{required(<a href="#t:item/0">item</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+
+      </div>
+
+<p>All held items for a user, as a <code class="inline">%{item =&gt; quantity}</code> map.</p>
+  </section>
+</section>
+<section class="detail" id="quantity/2">
+
+  <div class="detail-header">
+    <a href="#quantity/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">quantity(user_id, item)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L38" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> quantity(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Quantity of one item a user holds (0 when they have none).</p>
+  </section>
+</section>
+<section class="detail" id="set_metadata/3">
+
+  <div class="detail-header">
+    <a href="#set_metadata/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">set_metadata(user_id, item, metadata)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L122" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> set_metadata(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Set (overwrite) the per-stack metadata for a user's item.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe/1">
+
+  <div class="detail-header">
+    <a href="#subscribe/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L140" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe the calling process to a user's live inventory updates.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/inventory.ex#L144" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Stop receiving a user's inventory updates.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+            <span class="line">
+              <a href="https://hex.pm/packages/game_server_core/1.0.1055">Hex Package</a>
+
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1055">Hex Preview</a>
+
+            </span>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="game_server_core.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

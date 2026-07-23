@@ -22,6 +22,9 @@ GameServer.Chat.ReadCursor.md
 GameServer.Chat.md
 GameServer.Config.md
 GameServer.Content.md
+GameServer.Economy.LedgerEntry.md
+GameServer.Economy.Wallet.md
+GameServer.Economy.md
 GameServer.Env.md
 GameServer.Friends.Friendship.md
 GameServer.Friends.md
@@ -42,6 +45,8 @@ GameServer.Hooks.PluginBuilder.md
 GameServer.Hooks.PluginManager.Plugin.md
 GameServer.Hooks.PluginManager.md
 GameServer.Hooks.md
+GameServer.Inventory.Item.md
+GameServer.Inventory.md
 GameServer.IpBans.IpBan.md
 GameServer.IpBans.md
 GameServer.Jobs.md

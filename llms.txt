@@ -1,4 +1,4 @@
-# game_server_core v1.0.1053 - Table of Contents
+# game_server_core v1.0.1055 - Table of Contents
 
 Core functionality for Gamend GameServer, including user management, authentication, friends, matchmaking, and more.
 
@@ -40,6 +40,13 @@ aggregated from telemetry events
 - [GameServer.Chat.ReadCursor](GameServer.Chat.ReadCursor.md): Ecto schema for the `chat_read_cursors` table.
 - [GameServer.Config](GameServer.Config.md): Typed reads of environment variables a plugin declared via `env_vars/0`.
 - [GameServer.Content](GameServer.Content.md): Reads and renders Markdown content from project files and directories.
+- [GameServer.Economy](GameServer.Economy.md): Virtual-currency wallets with an append-only ledger.
+- [GameServer.Economy.LedgerEntry](GameServer.Economy.LedgerEntry.md): Append-only record of a single wallet change (grant, spend, transfer, admin
+adjustment). One row per balance mutation, keeping an auditable history.
+
+- [GameServer.Economy.Wallet](GameServer.Economy.Wallet.md): A user's balance of one currency. Currencies are free-form string codes
+(`"gold"`, `"gems"`, `"energy"`) — the game decides which exist.
+
 - [GameServer.Env](GameServer.Env.md): Helpers for reading and parsing environment variables.
 - [GameServer.Friends](GameServer.Friends.md): Friends context - handles friend requests and relationships.
 - [GameServer.Friends.Friendship](GameServer.Friends.Friendship.md): Ecto schema representing a friendship/request between two users.
@@ -66,6 +73,11 @@ transport and payload format.
 - [GameServer.Hooks.PluginBuilder](GameServer.Hooks.PluginBuilder.md): Builds an OTP plugin bundle from plugin source code on disk.
 - [GameServer.Hooks.PluginManager](GameServer.Hooks.PluginManager.md): Loads and manages hook plugins shipped as OTP applications under `modules/plugins/*`.
 - [GameServer.Hooks.PluginManager.Plugin](GameServer.Hooks.PluginManager.Plugin.md): A loaded plugin descriptor.
+- [GameServer.Inventory](GameServer.Inventory.md): Player item stacks — the non-fungible companion to `GameServer.Economy`.
+- [GameServer.Inventory.Item](GameServer.Inventory.Item.md): A user's stack of one item. Items are free-form string codes
+(`"health_potion"`, `"sword"`, `"card_374"`) — the game decides which exist.
+`metadata` holds per-stack properties.
+
 - [GameServer.IpBans](GameServer.IpBans.md): Persistence for IP bans.
 - [GameServer.IpBans.IpBan](GameServer.IpBans.IpBan.md): A persisted IP ban. `expires_at` is `nil` for permanent bans.
 

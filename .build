@@ -23,6 +23,9 @@ GameServer.Chat.ReadCursor.html
 GameServer.Chat.html
 GameServer.Config.html
 GameServer.Content.html
+GameServer.Economy.LedgerEntry.html
+GameServer.Economy.Wallet.html
+GameServer.Economy.html
 GameServer.Env.html
 GameServer.Friends.Friendship.html
 GameServer.Friends.html
@@ -43,6 +46,8 @@ GameServer.Hooks.PluginBuilder.html
 GameServer.Hooks.PluginManager.Plugin.html
 GameServer.Hooks.PluginManager.html
 GameServer.Hooks.html
+GameServer.Inventory.Item.html
+GameServer.Inventory.html
 GameServer.IpBans.IpBan.html
 GameServer.IpBans.html
 GameServer.Jobs.html
@@ -124,8 +129,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-ZWU5GQ4X.woff2
-dist/search_data-C46D3747.js
-dist/sidebar_items-7DB926F8.js
+dist/search_data-55E732FA.js
+dist/sidebar_items-BFE007A3.js
 index.html
 readme.html
 search.html

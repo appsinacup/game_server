@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1053">
+    <meta name="project" content="game_server_core v1.0.1055">
 
 
-    <title>API Reference — game_server_core v1.0.1053</title>
+    <title>API Reference — game_server_core v1.0.1055</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-7DB926F8.js"></script>
+    <script defer src="dist/sidebar_items-BFE007A3.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1053
+          v1.0.1055
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ game_server_core
 
 <div id="top-content">
   <div class="heading-with-actions top-heading">
-    <h1>API Reference <small class="app-vsn">game_server_core v#1.0.1053</small></h1>
+    <h1>API Reference <small class="app-vsn">game_server_core v#1.0.1055</small></h1>
 <a href="api-reference.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
@@ -342,6 +342,35 @@ aggregated from telemetry events</p></div>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
+    <a href="GameServer.Economy.html" translate="no">GameServer.<wbr>Economy</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Virtual-currency wallets with an append-only ledger.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Economy.LedgerEntry.html" translate="no">GameServer.<wbr>Economy.<wbr>LedgerEntry</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Append-only record of a single wallet change (grant, spend, transfer, admin
+adjustment). One row per balance mutation, keeping an auditable history.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Economy.Wallet.html" translate="no">GameServer.<wbr>Economy.<wbr>Wallet</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>A user's balance of one currency. Currencies are free-form string codes
+(<code class="inline">&quot;gold&quot;</code>, <code class="inline">&quot;gems&quot;</code>, <code class="inline">&quot;energy&quot;</code>) — the game decides which exist.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
     <a href="GameServer.Env.html" translate="no">GameServer.<wbr>Env</a>
 
   </div>
@@ -524,6 +553,26 @@ transport and payload format.</p></div>
   </div>
 
     <div class="summary-synopsis"><p>A loaded plugin descriptor.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Inventory.html" translate="no">GameServer.<wbr>Inventory</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Player item stacks — the non-fungible companion to <a href="GameServer.Economy.html"><code class="inline">GameServer.Economy</code></a>.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Inventory.Item.html" translate="no">GameServer.<wbr>Inventory.<wbr>Item</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>A user's stack of one item. Items are free-form string codes
+(<code class="inline">&quot;health_potion&quot;</code>, <code class="inline">&quot;sword&quot;</code>, <code class="inline">&quot;card_374&quot;</code>) — the game decides which exist.
+<code class="inline">metadata</code> holds per-stack properties.</p></div>
 
 </div>
 <div class="summary-row">
@@ -1198,9 +1247,9 @@ list/detail pages at realistic sizes.</p></div>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1053">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1055">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1053">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1055">Hex Preview</a>
 
             </span>
 

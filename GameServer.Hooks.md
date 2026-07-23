@@ -511,6 +511,20 @@ to the player:
 @callback after_purchase_revoked(GameServer.Payments.Purchase.t()) :: any()
 ```
 
+# `after_inventory_changed`
+*optional* 
+
+```elixir
+@callback after_inventory_changed(map()) :: any()
+```
+
+# `after_wallet_changed`
+*optional* 
+
+```elixir
+@callback after_wallet_changed(map()) :: any()
+```
+
 # `before_kv_get`
 
 ```elixir

@@ -1,5 +1,5 @@
 # `GameServer.Hooks.Default`
-[🔗](https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1226)
+[🔗](https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1235)
 
 Default no-op implementation for GameServer.Hooks
 

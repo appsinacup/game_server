@@ -884,6 +884,11 @@ See `t:GameServer.Types.user_update_attrs/0` for available fields.
 
 # `update_user_avatar`
 
+```elixir
+@spec update_user_avatar(GameServer.Accounts.User.t(), String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
+```
+
 Set the user's avatar URL (`profile_url`), typically after an upload confirmed
 by `GameServer.Storage`. Same cache/broadcast/hook path as other profile edits.
 
