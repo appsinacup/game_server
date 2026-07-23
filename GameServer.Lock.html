@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1056">
+    <meta name="project" content="game_server_core v1.0.1057">
 
 
-    <title>GameServer.Lock — game_server_core v1.0.1056</title>
+    <title>GameServer.Lock — game_server_core v1.0.1057</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1056
+          v1.0.1057
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Lock</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1056)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1057)</small>
 
     </h1>
 
@@ -125,16 +125,16 @@ serializes all writes at the database level.</p><h2 id="module-multi-node-safety
 application nodes — all nodes share the same Postgres instance, so the lock
 is globally consistent.</p><h2 id="module-namespace-conventions" class="section-heading"><a href="#module-namespace-conventions" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Namespace conventions</span></h2><p>The <code class="inline">namespace</code> argument can be:</p><ul><li>A <strong>predefined atom</strong>: <code class="inline">:lobby</code> (1), <code class="inline">:group</code> (2), <code class="inline">:party</code> (3)</li><li>An <strong>arbitrary string</strong>: hashed to a stable integer, e.g. <code class="inline">&quot;word_guessed&quot;</code></li></ul><p>The <code class="inline">resource_id</code> is typically the lobby, group, or user id that scopes
 the lock.</p><h2 id="module-examples" class="section-heading"><a href="#module-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Serialize all &quot;word_guessed&quot; RPCs per lobby</span><span class="w">
-</span><span class="nc">GameServer.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="3508425503-1">(</span><span class="s">&quot;word_guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="3508425503-2">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
-  </span><span class="p" data-group-id="3508425503-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p" data-group-id="3508425503-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.KV</span><span class="o">.</span><span class="n">get</span><span class="p" data-group-id="3508425503-4">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="3508425503-4">)</span><span class="w">
-  </span><span class="n">new_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p" data-group-id="3508425503-5">(</span><span class="n">entry</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3508425503-6">[</span><span class="n">word</span><span class="p" data-group-id="3508425503-6">]</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="p" data-group-id="3508425503-7">[</span><span class="n">word</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="ni">&amp;1</span><span class="p" data-group-id="3508425503-7">]</span><span class="p" data-group-id="3508425503-5">)</span><span class="w">
-  </span><span class="nc">GameServer.KV</span><span class="o">.</span><span class="n">put</span><span class="p" data-group-id="3508425503-8">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">new_val</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3508425503-9">%{</span><span class="p" data-group-id="3508425503-9">}</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="3508425503-8">)</span><span class="w">
-</span><span class="k" data-group-id="3508425503-2">end</span><span class="p" data-group-id="3508425503-1">)</span><span class="w">
+</span><span class="nc">GameServer.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="7750679130-1">(</span><span class="s">&quot;word_guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="7750679130-2">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+  </span><span class="p" data-group-id="7750679130-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p" data-group-id="7750679130-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.KV</span><span class="o">.</span><span class="n">get</span><span class="p" data-group-id="7750679130-4">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="7750679130-4">)</span><span class="w">
+  </span><span class="n">new_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p" data-group-id="7750679130-5">(</span><span class="n">entry</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7750679130-6">[</span><span class="n">word</span><span class="p" data-group-id="7750679130-6">]</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="p" data-group-id="7750679130-7">[</span><span class="n">word</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="ni">&amp;1</span><span class="p" data-group-id="7750679130-7">]</span><span class="p" data-group-id="7750679130-5">)</span><span class="w">
+  </span><span class="nc">GameServer.KV</span><span class="o">.</span><span class="n">put</span><span class="p" data-group-id="7750679130-8">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">new_val</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7750679130-9">%{</span><span class="p" data-group-id="7750679130-9">}</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="7750679130-8">)</span><span class="w">
+</span><span class="k" data-group-id="7750679130-2">end</span><span class="p" data-group-id="7750679130-1">)</span><span class="w">
 
 </span><span class="c1"># Using a predefined atom namespace</span><span class="w">
-</span><span class="nc">GameServer.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="3508425503-10">(</span><span class="ss">:lobby</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="3508425503-11">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+</span><span class="nc">GameServer.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="7750679130-10">(</span><span class="ss">:lobby</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="7750679130-11">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
   </span><span class="c1"># exclusive per-lobby operation</span><span class="w">
-</span><span class="k" data-group-id="3508425503-11">end</span><span class="p" data-group-id="3508425503-10">)</span></code></pre><h2 id="module-return-value" class="section-heading"><a href="#module-return-value" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Return value</span></h2><p>Returns <code class="inline">{:ok, result}</code> where <code class="inline">result</code> is the return value of the function,
+</span><span class="k" data-group-id="7750679130-11">end</span><span class="p" data-group-id="7750679130-10">)</span></code></pre><h2 id="module-return-value" class="section-heading"><a href="#module-return-value" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Return value</span></h2><p>Returns <code class="inline">{:ok, result}</code> where <code class="inline">result</code> is the return value of the function,
 or <code class="inline">{:error, reason}</code> if the transaction rolls back.</p>
     </section>
 
@@ -216,9 +216,9 @@ callers block until the lock is released (on transaction commit/rollback).</p><p
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1056">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1057">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1056">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1057">Hex Preview</a>
 
             </span>
 

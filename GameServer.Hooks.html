@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1056">
+    <meta name="project" content="game_server_core v1.0.1057">
 
 
-    <title>GameServer.Hooks — game_server_core v1.0.1056</title>
+    <title>GameServer.Hooks — game_server_core v1.0.1057</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1056
+          v1.0.1057
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1056)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1057)</small>
 
     </h1>
 
@@ -1221,13 +1221,13 @@ overridable. A hook-supplied username that is invalid or already taken is
 replaced with a generated one (a plugin bug must never lock a player out
 of login). For strict policy on player-initiated changes — profanity or
 reserved names — use <a href="#c:before_user_update/2"><code class="inline">before_user_update/2</code></a>, where errors are returned
-to the player:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="5341623316-1">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5341623316-2">%{</span><span class="s">&quot;username&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">name</span><span class="p" data-group-id="5341623316-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="5341623316-1">)</span><span class="w"> </span><span class="k" data-group-id="5341623316-3">do</span><span class="w">
-  </span><span class="k">if</span><span class="w"> </span><span class="nc">MyGame.Profanity</span><span class="o">.</span><span class="n">allowed?</span><span class="p" data-group-id="5341623316-4">(</span><span class="n">name</span><span class="p" data-group-id="5341623316-4">)</span><span class="p">,</span><span class="w">
-    </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5341623316-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="5341623316-5">}</span><span class="p">,</span><span class="w">
-    </span><span class="ss">else</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5341623316-6">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:invalid_username</span><span class="p" data-group-id="5341623316-6">}</span><span class="w">
-</span><span class="k" data-group-id="5341623316-3">end</span><span class="w">
+to the player:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="6922327141-1">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6922327141-2">%{</span><span class="s">&quot;username&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">name</span><span class="p" data-group-id="6922327141-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="6922327141-1">)</span><span class="w"> </span><span class="k" data-group-id="6922327141-3">do</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="nc">MyGame.Profanity</span><span class="o">.</span><span class="n">allowed?</span><span class="p" data-group-id="6922327141-4">(</span><span class="n">name</span><span class="p" data-group-id="6922327141-4">)</span><span class="p">,</span><span class="w">
+    </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6922327141-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="6922327141-5">}</span><span class="p">,</span><span class="w">
+    </span><span class="ss">else</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6922327141-6">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:invalid_username</span><span class="p" data-group-id="6922327141-6">}</span><span class="w">
+</span><span class="k" data-group-id="6922327141-3">end</span><span class="w">
 
-</span><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="5341623316-7">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="5341623316-7">)</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5341623316-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="5341623316-8">}</span></code></pre>
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="6922327141-7">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="6922327141-7">)</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6922327141-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="6922327141-8">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="c:before_user_update/2">
@@ -3500,9 +3500,9 @@ than fanning out notifications. Exposed for the admin runtime page.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1056">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1057">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1056">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1057">Hex Preview</a>
 
             </span>
 

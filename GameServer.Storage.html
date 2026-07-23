@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1056">
+    <meta name="project" content="game_server_core v1.0.1057">
 
 
-    <title>GameServer.Storage — game_server_core v1.0.1056</title>
+    <title>GameServer.Storage — game_server_core v1.0.1057</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1056
+          v1.0.1057
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Storage</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1056)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1057)</small>
 
     </h1>
 
@@ -119,8 +119,8 @@ bytes live:</p><ul><li><a href="GameServer.Storage.Local.html"><code class="inli
 single-node deploys).</li><li><a href="GameServer.Storage.S3.html"><code class="inline">GameServer.Storage.S3</code></a> — any S3-compatible service (AWS S3, Cloudflare
 R2, Backblaze B2, MinIO, DigitalOcean Spaces).</li></ul><p>Select the backend with <code class="inline">STORAGE_ADAPTER</code> (<code class="inline">local</code> | <code class="inline">s3</code>); see the deployment
 docs for the full <code class="inline">STORAGE_*</code> variable list.</p><h2 id="module-direct-uploads" class="section-heading"><a href="#module-direct-uploads" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Direct uploads</span></h2><p>Clients never stream bytes through the app. The server issues an upload ticket
-and the client uploads straight to the backend:</p><pre><code class="makeup elixir" translate="no"><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">build_key</span><span class="p" data-group-id="0184724088-1">(</span><span class="s">&quot;avatars&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;me.png&quot;</span><span class="p" data-group-id="0184724088-1">)</span><span class="w">
-</span><span class="p" data-group-id="0184724088-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ticket</span><span class="p" data-group-id="0184724088-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">presigned_upload</span><span class="p" data-group-id="0184724088-3">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="ss">content_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;image/png&quot;</span><span class="p" data-group-id="0184724088-3">)</span><span class="w">
+and the client uploads straight to the backend:</p><pre><code class="makeup elixir" translate="no"><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">build_key</span><span class="p" data-group-id="6635191014-1">(</span><span class="s">&quot;avatars&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;me.png&quot;</span><span class="p" data-group-id="6635191014-1">)</span><span class="w">
+</span><span class="p" data-group-id="6635191014-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ticket</span><span class="p" data-group-id="6635191014-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">presigned_upload</span><span class="p" data-group-id="6635191014-3">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="ss">content_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;image/png&quot;</span><span class="p" data-group-id="6635191014-3">)</span><span class="w">
 </span><span class="c1"># -&gt; client PUTs the file to ticket.url, then tells the server `key` is ready</span></code></pre><p>The ticket shape is identical for local disk and S3, so the client code does
 not change between environments.</p>
     </section>
@@ -594,9 +594,9 @@ server-chosen so a client can't overwrite another object.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1056">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1057">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1056">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1057">Hex Preview</a>
 
             </span>
 

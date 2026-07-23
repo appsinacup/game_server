@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1056">
+    <meta name="project" content="game_server_core v1.0.1057">
 
 
-    <title>GameServer.Leaderboards.Leaderboard — game_server_core v1.0.1056</title>
+    <title>GameServer.Leaderboards.Leaderboard — game_server_core v1.0.1057</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1056
+          v1.0.1057
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Leaderboards.<wbr>Leaderboard</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1056)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1057)</small>
 
     </h1>
 
@@ -459,10 +459,10 @@ Works with both <code class="inline">%Leaderboard{}</code> structs and plain map
   <section class="docstring">
 
 <p>Returns the localized title for the given locale.</p><p>Looks up <code class="inline">metadata[&quot;titles&quot;][locale]</code>, falling back to <code class="inline">title</code>.
-Works with both <code class="inline">%Leaderboard{}</code> structs and plain maps (e.g. group info).</p><h2 id="localized_title/2-examples" class="section-heading"><a href="#localized_title/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">lb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p" data-group-id="8857019209-1">%</span><span class="nc" data-group-id="8857019209-1">Leaderboard</span><span class="p" data-group-id="8857019209-1">{</span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Weekly Kills&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="8857019209-2">%{</span><span class="s">&quot;titles&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="8857019209-3">%{</span><span class="s">&quot;es&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Muertes Semanales&quot;</span><span class="p" data-group-id="8857019209-3">}</span><span class="p" data-group-id="8857019209-2">}</span><span class="p" data-group-id="8857019209-1">}</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="nc">Leaderboard</span><span class="o">.</span><span class="n">localized_title</span><span class="p" data-group-id="8857019209-4">(</span><span class="n">lb</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;es&quot;</span><span class="p" data-group-id="8857019209-4">)</span><span class="w">
+Works with both <code class="inline">%Leaderboard{}</code> structs and plain maps (e.g. group info).</p><h2 id="localized_title/2-examples" class="section-heading"><a href="#localized_title/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">lb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p" data-group-id="4891009455-1">%</span><span class="nc" data-group-id="4891009455-1">Leaderboard</span><span class="p" data-group-id="4891009455-1">{</span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Weekly Kills&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="4891009455-2">%{</span><span class="s">&quot;titles&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="4891009455-3">%{</span><span class="s">&quot;es&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Muertes Semanales&quot;</span><span class="p" data-group-id="4891009455-3">}</span><span class="p" data-group-id="4891009455-2">}</span><span class="p" data-group-id="4891009455-1">}</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Leaderboard</span><span class="o">.</span><span class="n">localized_title</span><span class="p" data-group-id="4891009455-4">(</span><span class="n">lb</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;es&quot;</span><span class="p" data-group-id="4891009455-4">)</span><span class="w">
 </span><span class="s">&quot;Muertes Semanales&quot;</span><span class="w">
-</span><span class="gp unselectable">iex&gt; </span><span class="nc">Leaderboard</span><span class="o">.</span><span class="n">localized_title</span><span class="p" data-group-id="8857019209-5">(</span><span class="n">lb</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;en&quot;</span><span class="p" data-group-id="8857019209-5">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Leaderboard</span><span class="o">.</span><span class="n">localized_title</span><span class="p" data-group-id="4891009455-5">(</span><span class="n">lb</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;en&quot;</span><span class="p" data-group-id="4891009455-5">)</span><span class="w">
 </span><span class="s">&quot;Weekly Kills&quot;</span></code></pre>
   </section>
 </section>
@@ -498,9 +498,9 @@ Does not allow changing slug, sort_order, or operator after creation.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1056">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1057">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1056">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1057">Hex Preview</a>
 
             </span>
 
