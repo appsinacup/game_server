@@ -43,6 +43,7 @@ defmodule GameServer.Accounts.AvatarMirror do
          key <- Storage.build_key("avatars", user.id, "avatar#{extension(content_type)}"),
          {:ok, ^key} <- Storage.put(key, body, content_type: content_type),
          {:ok, _updated} <- Accounts.update_user_avatar(user, Storage.url(key)) do
+      _ = Accounts.prune_user_avatars(user.id, key)
       :ok
     else
       other ->

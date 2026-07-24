@@ -482,17 +482,20 @@ defmodule GameServerWeb.UserLive.Settings.AccountTab do
   def handle_event("save_avatar", _params, socket) do
     user = Shared.current_user(socket)
 
-    urls =
+    uploads =
       consume_uploaded_entries(socket, :avatar, fn %{path: path}, entry ->
         key = Storage.build_key("avatars", user.id, entry.client_name)
         {:ok, _} = Storage.put(key, File.read!(path), content_type: entry.client_type)
-        {:ok, Storage.url(key)}
+        {:ok, {key, Storage.url(key)}}
       end)
 
-    case urls do
-      [url | _] ->
+    case uploads do
+      [{key, url} | _] ->
         case Accounts.update_user_avatar(user, url) do
           {:ok, updated} ->
+            # Drop the previous avatar object(s) now that the new one is live.
+            _ = Accounts.prune_user_avatars(user.id, key)
+
             # The navbar reads its user via `Scope.user/1`, which re-fetches by id;
             # `update_user_avatar` invalidated the cache, so it picks up the new
             # avatar on this re-render without touching the scope.

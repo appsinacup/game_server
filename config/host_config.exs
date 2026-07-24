@@ -79,6 +79,19 @@ config :game_server_core, Oban,
 # and the STORAGE_* vars (see config/host_runtime.exs) select and configure a
 # backend at runtime.
 config :game_server_core, GameServer.Storage, adapter: GameServer.Storage.Local
+
+# HTTP caching per key-prefix (first match wins). The `avatars/` immutable rule
+# and the revalidate-by-ETag default ship in code; override here to add prefixes
+# or change TTLs. Applied to the local serve route and set as S3 object metadata.
+#
+#   config :game_server_core, GameServer.Storage,
+#     adapter: GameServer.Storage.Local,
+#     cache_policies: [
+#       {"avatars/", "public, max-age=31536000, immutable"},
+#       {"public/", "public, max-age=3600"}
+#     ],
+#     default_cache_control: "public, max-age=0, must-revalidate"
+
 config :ex_aws, json_codec: Jason
 
 host_root = Path.expand("..", __DIR__)

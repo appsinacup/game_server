@@ -14,10 +14,8 @@ defmodule GameServer.Storage.S3 do
   @impl true
   def put(key, data, opts) do
     s3_opts =
-      case Keyword.get(opts, :content_type) do
-        nil -> []
-        ct -> [content_type: ct]
-      end
+      [content_type: Keyword.get(opts, :content_type), cache_control: Keyword.get(opts, :cache_control)]
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
 
     case bucket() |> S3.put_object(key, IO.iodata_to_binary(data), s3_opts) |> request() do
       {:ok, _} -> {:ok, key}

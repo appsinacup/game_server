@@ -46,10 +46,20 @@ defmodule GameServerWeb.Api.V1.AvatarUploadTest do
 
       assert json_response(up, 200)["key"] == key
 
-      # served publicly
+      # served publicly, with immutable caching + an ETag (avatar keys are
+      # content-unique, so the URL changes whenever the image does)
       served = get(build_conn(), "/storage/#{key}")
       assert served.status == 200
       assert served.resp_body == "PNGBYTES"
+      assert get_resp_header(served, "cache-control") == ["public, max-age=31536000, immutable"]
+      assert [etag] = get_resp_header(served, "etag")
+
+      # revalidating with the ETag returns a bodiless 304
+      not_modified =
+        build_conn() |> put_req_header("if-none-match", etag) |> get("/storage/#{key}")
+
+      assert not_modified.status == 304
+      assert not_modified.resp_body == ""
 
       # confirm sets profile_url
       confirm = post(conn, "/api/v1/me/avatar", %{key: key})

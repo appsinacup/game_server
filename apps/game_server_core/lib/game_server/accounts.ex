@@ -2237,6 +2237,28 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Delete a user's stored avatar objects except `keep_key`.
+
+  Each new avatar gets a fresh random key (`avatars/<user_id>/<rand><ext>`), so
+  without this the previous upload or mirror copy lingers in storage forever.
+  Best-effort: a failed cleanup leaves the old object rather than failing the
+  update that already succeeded.
+  """
+  @spec prune_user_avatars(Ecto.UUID.t(), String.t()) :: :ok
+  def prune_user_avatars(user_id, keep_key) when is_binary(user_id) and is_binary(keep_key) do
+    [prefix: "avatars/#{user_id}/", limit: 100]
+    |> GameServer.Storage.list_objects()
+    |> Enum.reject(&(&1.key == keep_key))
+    |> Enum.each(fn %{key: key} -> GameServer.Storage.delete(key) end)
+
+    :ok
+  rescue
+    e ->
+      Logger.warning("avatar prune failed user=#{user_id}: #{inspect(e)}")
+      :ok
+  end
+
+  @doc """
   Updates the user's display name and broadcasts the change.
   """
   @spec update_user_display_name(User.t(), map()) ::

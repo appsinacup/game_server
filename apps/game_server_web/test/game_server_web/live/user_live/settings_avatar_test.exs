@@ -45,4 +45,31 @@ defmodule GameServerWeb.UserLive.SettingsAvatarTest do
     updated = Accounts.get_user(user.id)
     assert updated.profile_url =~ "avatars/#{user.id}"
   end
+
+  test "uploading a new avatar prunes the previous object", %{conn: conn} do
+    user = user_fixture()
+    {:ok, lv, _html} = conn |> log_in_user(user) |> live(~p"/users/settings")
+
+    submit_avatar = fn name ->
+      lv
+      |> file_input("#avatar_form", :avatar, [%{name: name, content: @png, type: "image/png"}])
+      |> render_upload(name)
+
+      lv |> element("#avatar_form") |> render_submit()
+    end
+
+    submit_avatar.("first.png")
+    first_url = Accounts.get_user(user.id).profile_url
+    assert length(GameServer.Storage.list_objects(prefix: "avatars/#{user.id}/")) == 1
+
+    submit_avatar.("second.png")
+    second_url = Accounts.get_user(user.id).profile_url
+
+    # The new avatar replaces the old — exactly one object remains, and it is
+    # the one profile_url now points at.
+    objects = GameServer.Storage.list_objects(prefix: "avatars/#{user.id}/")
+    assert length(objects) == 1
+    refute first_url == second_url
+    assert second_url =~ "avatars/#{user.id}"
+  end
 end
