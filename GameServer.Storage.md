@@ -45,6 +45,16 @@ Build a collision-resistant object key: `<namespace>/<owner_id>/<random><ext>`.
 The extension is taken (lower-cased) from `filename`; everything else is
 server-chosen so a client can't overwrite another object.
 
+# `cache_control`
+
+```elixir
+@spec cache_control(GameServer.Storage.Adapter.key()) :: String.t()
+```
+
+The `Cache-Control` header for `key`, from the first matching prefix policy
+(or `default_cache_control` when none match). Used by the local serve route
+and set as S3 object metadata at upload.
+
 # `delete`
 
 ```elixir

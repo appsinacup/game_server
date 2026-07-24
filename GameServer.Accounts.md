@@ -664,6 +664,19 @@ There are three cases to consider:
    source of security pitfalls. See the "Mixing magic link and password registration" section of
    `mix help phx.gen.auth`.
 
+# `prune_user_avatars`
+
+```elixir
+@spec prune_user_avatars(Ecto.UUID.t(), String.t()) :: :ok
+```
+
+Delete a user's stored avatar objects except `keep_key`.
+
+Each new avatar gets a fresh random key (`avatars/<user_id>/<rand><ext>`), so
+without this the previous upload or mirror copy lingers in storage forever.
+Best-effort: a failed cleanup leaves the old object rather than failing the
+update that already succeeded.
+
 # `register_user`
 
 ```elixir
