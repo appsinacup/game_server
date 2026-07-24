@@ -224,6 +224,14 @@ defmodule GameServer.Hooks do
   @callback before_chat_message(User.t(), map()) :: hook_result(map())
   @callback after_chat_message(Message.t()) :: any()
 
+  # Fired synchronously just before a member leaves and the lobby-scoped KV is
+  # wiped, so a plugin can persist state that dies with the membership (e.g.
+  # banking cargo collected in a level the player abandons). Non-gating: the
+  # return value is ignored — it cannot block the leave. Optional so existing
+  # plugins need not implement it.
+  @callback before_lobby_leave(User.t(), Lobby.t()) :: any()
+  @optional_callbacks before_lobby_leave: 2
+
   @callback after_lobby_leave(User.t(), Lobby.t()) :: any()
 
   @callback before_lobby_update(Lobby.t(), map()) :: hook_result(map())
@@ -467,6 +475,7 @@ defmodule GameServer.Hooks do
       :before_party_kick,
       :before_chat_message,
       :after_chat_message,
+      :before_lobby_leave,
       :after_lobby_leave,
       :before_lobby_update,
       :after_lobby_updated,
@@ -1356,6 +1365,9 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_lobby_join(_user, _lobby), do: :ok
+
+  @impl true
+  def before_lobby_leave(_user, _lobby), do: :ok
 
   @impl true
   def after_lobby_leave(_user, _lobby), do: :ok

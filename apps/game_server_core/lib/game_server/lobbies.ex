@@ -1044,6 +1044,11 @@ defmodule GameServer.Lobbies do
         handle_host_transfer(lobby, user_id, membership.id)
       end)
 
+    # Let plugins react to the state that is about to be wiped (e.g. bank cargo
+    # collected in a level the player is abandoning). Runs synchronously, before
+    # the KV clear, and only when the leave actually committed.
+    if match?({:ok, _}, result), do: run_before_lobby_leave(user_id, lobby)
+
     _ = clear_lobby_scoped_kv(user_id, lobby_id)
 
     result
@@ -1053,6 +1058,17 @@ defmodule GameServer.Lobbies do
     Ecto.StaleEntryError ->
       # Race condition: user was concurrently removed (double leave, kicked, etc.)
       {:error, :not_in_lobby}
+  end
+
+  defp run_before_lobby_leave(user_id, lobby) do
+    case Accounts.get_user(user_id) do
+      %User{} = user -> GameServer.Hooks.internal_call(:before_lobby_leave, [user, lobby])
+      _ -> :ok
+    end
+  rescue
+    exception ->
+      Logger.warning("before_lobby_leave hook failed: #{Exception.message(exception)}")
+      :ok
   end
 
   # Per-member lobby state (ready flags, loadouts, character picks) is stored as
