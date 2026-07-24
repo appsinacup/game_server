@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1058">
+    <meta name="project" content="game_server_core v1.0.1059">
 
 
-    <title>GameServer.Hooks — game_server_core v1.0.1058</title>
+    <title>GameServer.Hooks — game_server_core v1.0.1059</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-38F054BC.js"></script>
+    <script defer src="dist/sidebar_items-E947DB44.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1058
+          v1.0.1059
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1058)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1059)</small>
 
     </h1>
 
@@ -320,6 +320,14 @@ email, device, and all OAuth providers (which register mid-login).</p></div>
     <div class="summary-row">
       <div class="summary-signature">
         <a href="#c:before_lobby_kick/3" data-no-tooltip="" translate="no">before_lobby_kick(t, t, t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_lobby_leave/2" data-no-tooltip="" translate="no">before_lobby_leave(t, t)</a>
 
       </div>
 
@@ -1221,13 +1229,13 @@ overridable. A hook-supplied username that is invalid or already taken is
 replaced with a generated one (a plugin bug must never lock a player out
 of login). For strict policy on player-initiated changes — profanity or
 reserved names — use <a href="#c:before_user_update/2"><code class="inline">before_user_update/2</code></a>, where errors are returned
-to the player:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="7926657001-1">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7926657001-2">%{</span><span class="s">&quot;username&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">name</span><span class="p" data-group-id="7926657001-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="7926657001-1">)</span><span class="w"> </span><span class="k" data-group-id="7926657001-3">do</span><span class="w">
-  </span><span class="k">if</span><span class="w"> </span><span class="nc">MyGame.Profanity</span><span class="o">.</span><span class="n">allowed?</span><span class="p" data-group-id="7926657001-4">(</span><span class="n">name</span><span class="p" data-group-id="7926657001-4">)</span><span class="p">,</span><span class="w">
-    </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="7926657001-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="7926657001-5">}</span><span class="p">,</span><span class="w">
-    </span><span class="ss">else</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="7926657001-6">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:invalid_username</span><span class="p" data-group-id="7926657001-6">}</span><span class="w">
-</span><span class="k" data-group-id="7926657001-3">end</span><span class="w">
+to the player:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="9914449889-1">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9914449889-2">%{</span><span class="s">&quot;username&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">name</span><span class="p" data-group-id="9914449889-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="9914449889-1">)</span><span class="w"> </span><span class="k" data-group-id="9914449889-3">do</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="nc">MyGame.Profanity</span><span class="o">.</span><span class="n">allowed?</span><span class="p" data-group-id="9914449889-4">(</span><span class="n">name</span><span class="p" data-group-id="9914449889-4">)</span><span class="p">,</span><span class="w">
+    </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="9914449889-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="9914449889-5">}</span><span class="p">,</span><span class="w">
+    </span><span class="ss">else</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="9914449889-6">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:invalid_username</span><span class="p" data-group-id="9914449889-6">}</span><span class="w">
+</span><span class="k" data-group-id="9914449889-3">end</span><span class="w">
 
-</span><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="7926657001-7">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="7926657001-7">)</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="7926657001-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="7926657001-8">}</span></code></pre>
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">before_user_update</span><span class="p" data-group-id="9914449889-7">(</span><span class="c">_user</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="9914449889-7">)</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="9914449889-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">attrs</span><span class="p" data-group-id="9914449889-8">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="c:before_user_update/2">
@@ -1309,7 +1317,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">after_lobby_deleted(t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L233" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L241" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1337,7 +1345,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">after_lobby_host_change(t, t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L258" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L266" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1394,7 +1402,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">after_lobby_kick(t, t, t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L237" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L245" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1426,7 +1434,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">after_lobby_leave(t, t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L227" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L235" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1455,7 +1463,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">after_lobby_updated(t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L230" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L238" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1511,7 +1519,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">before_lobby_delete(t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L232" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L240" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1575,7 +1583,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">before_lobby_kick(t, t, t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L235" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L243" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1601,6 +1609,37 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
 
   </section>
 </section>
+<section class="detail" id="c:before_lobby_leave/2">
+
+  <div class="detail-header">
+    <a href="#c:before_lobby_leave/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_lobby_leave(t, t)</h1>
+
+        <span class="note">(optional)</span>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L232" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_leave(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
 <section class="detail" id="c:before_lobby_update/2">
 
   <div class="detail-header">
@@ -1611,7 +1650,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">before_lobby_update(t, map)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L229" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L237" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3052,7 +3091,7 @@ to the player:</p><pre><code class="makeup elixir" translate="no"><span class="k
       <h1 class="signature" translate="no">before_kv_get(t, kv_opts)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L256" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L264" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3232,7 +3271,7 @@ Hooks may accept either a map or keyword list for convenience.</p>
       <h1 class="signature" translate="no">call(name, args \\ [], opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L281" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L289" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3256,7 +3295,7 @@ timeout to avoid long-running user code.</p><p>Returns {:ok, result} | {:error, 
       <h1 class="signature" translate="no">caller()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1197" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1206" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3288,7 +3327,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">caller_id()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1202" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1211" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3316,7 +3355,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">caller_user()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1216" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1225" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3349,7 +3388,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">exported_functions(mod \\ module())</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1115" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L1124" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3376,7 +3415,7 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
       <h1 class="signature" translate="no">internal_call(name, args \\ [], opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L370" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L378" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3400,7 +3439,7 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
       <h1 class="signature" translate="no">internal_hooks()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L429" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L437" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3431,7 +3470,7 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
       <h1 class="signature" translate="no">invoke(name, args \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L405" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L413" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3456,7 +3495,7 @@ function doesn't exist.</p>
       <h1 class="signature" translate="no">module()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L261" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L269" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3478,7 +3517,7 @@ function doesn't exist.</p>
       <h1 class="signature" translate="no">pipeline_hook?(name, arity)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L525" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/hooks.ex#L534" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -3500,9 +3539,9 @@ than fanning out notifications. Exposed for the admin runtime page.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1058">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1059">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1058">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1059">Hex Preview</a>
 
             </span>
 

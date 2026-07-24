@@ -1,4 +1,4 @@
-# game_server_core v1.0.1058 - Table of Contents
+# game_server_core v1.0.1059 - Table of Contents
 
 Core functionality for Gamend GameServer, including user management, authentication, friends, matchmaking, and more.
 

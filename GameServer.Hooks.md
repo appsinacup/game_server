@@ -200,6 +200,14 @@ to the player:
   )
 ```
 
+# `before_lobby_leave`
+*optional* 
+
+```elixir
+@callback before_lobby_leave(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t()) ::
+  any()
+```
+
 # `before_lobby_update`
 
 ```elixir

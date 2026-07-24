@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1058">
+    <meta name="project" content="game_server_core v1.0.1059">
 
 
-    <title>GameServer.Lobbies — game_server_core v1.0.1058</title>
+    <title>GameServer.Lobbies — game_server_core v1.0.1059</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-38F054BC.js"></script>
+    <script defer src="dist/sidebar_items-E947DB44.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1058
+          v1.0.1059
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Lobbies</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1058)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1059)</small>
 
     </h1>
 
@@ -116,21 +116,21 @@ game_server_core
     <section id="moduledoc">
 <p>Context module for lobby management: creating, updating, listing and searching lobbies.</p><p>This module contains the core domain operations; more advanced membership and
 permission logic will be added in follow-up tasks.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a lobby (returns {:ok, lobby} | {:error, changeset})</span><span class="w">
-</span><span class="p" data-group-id="6929884110-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="6929884110-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">create_lobby</span><span class="p" data-group-id="6929884110-2">(</span><span class="p" data-group-id="6929884110-3">%{</span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fun-room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Fun Room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">host_id</span><span class="p">:</span><span class="w"> </span><span class="n">host_id</span><span class="p" data-group-id="6929884110-3">}</span><span class="p" data-group-id="6929884110-2">)</span><span class="w">
+</span><span class="p" data-group-id="0177934563-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="0177934563-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">create_lobby</span><span class="p" data-group-id="0177934563-2">(</span><span class="p" data-group-id="0177934563-3">%{</span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fun-room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Fun Room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">host_id</span><span class="p">:</span><span class="w"> </span><span class="n">host_id</span><span class="p" data-group-id="0177934563-3">}</span><span class="p" data-group-id="0177934563-2">)</span><span class="w">
 
 </span><span class="c1"># List public lobbies (paginated/filterable)</span><span class="w">
-</span><span class="n">lobbies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">list_lobbies</span><span class="p" data-group-id="6929884110-4">(</span><span class="p" data-group-id="6929884110-5">%{</span><span class="p" data-group-id="6929884110-5">}</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="6929884110-4">)</span><span class="w">
+</span><span class="n">lobbies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">list_lobbies</span><span class="p" data-group-id="0177934563-4">(</span><span class="p" data-group-id="0177934563-5">%{</span><span class="p" data-group-id="0177934563-5">}</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="0177934563-4">)</span><span class="w">
 
 </span><span class="c1"># Join and leave</span><span class="w">
-</span><span class="p" data-group-id="6929884110-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="6929884110-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">join_lobby</span><span class="p" data-group-id="6929884110-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="6929884110-7">)</span><span class="w">
-</span><span class="p" data-group-id="6929884110-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="6929884110-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">leave_lobby</span><span class="p" data-group-id="6929884110-9">(</span><span class="n">user</span><span class="p" data-group-id="6929884110-9">)</span><span class="w">
+</span><span class="p" data-group-id="0177934563-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="0177934563-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">join_lobby</span><span class="p" data-group-id="0177934563-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="0177934563-7">)</span><span class="w">
+</span><span class="p" data-group-id="0177934563-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="0177934563-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">leave_lobby</span><span class="p" data-group-id="0177934563-9">(</span><span class="n">user</span><span class="p" data-group-id="0177934563-9">)</span><span class="w">
 
 </span><span class="c1"># Get current lobby members</span><span class="w">
-</span><span class="n">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">get_lobby_members</span><span class="p" data-group-id="6929884110-10">(</span><span class="n">lobby</span><span class="p" data-group-id="6929884110-10">)</span><span class="w">
+</span><span class="n">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">get_lobby_members</span><span class="p" data-group-id="0177934563-10">(</span><span class="n">lobby</span><span class="p" data-group-id="0177934563-10">)</span><span class="w">
 
 </span><span class="c1"># Subscribe to global or per-lobby events</span><span class="w">
-</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobbies</span><span class="p" data-group-id="6929884110-11">(</span><span class="p" data-group-id="6929884110-11">)</span><span class="w">
-</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobby</span><span class="p" data-group-id="6929884110-12">(</span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="6929884110-12">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><p><code class="inline">&quot;lobbies&quot;</code> topic (global lobby list changes):</p><ul><li><code class="inline">{:lobby_created, lobby}</code> - a new lobby was created</li><li><code class="inline">{:lobby_updated, lobby}</code> - a lobby was updated</li><li><code class="inline">{:lobby_deleted, lobby_id}</code> - a lobby was deleted</li></ul></li><li><p><code class="inline">&quot;lobby:&lt;lobby_id&gt;&quot;</code> topic (per-lobby membership changes):</p><ul><li><code class="inline">{:user_joined, lobby_id, user_id}</code> - a user joined the lobby</li><li><code class="inline">{:user_left, lobby_id, user_id}</code> - a user left the lobby</li><li><code class="inline">{:user_kicked, lobby_id, user_id}</code> - a user was kicked from the lobby</li><li><code class="inline">{:lobby_updated, lobby}</code> - the lobby settings were updated</li><li><code class="inline">{:host_changed, lobby_id, new_host_id}</code> - the host changed (e.g., after host leaves)</li></ul></li></ul>
+</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobbies</span><span class="p" data-group-id="0177934563-11">(</span><span class="p" data-group-id="0177934563-11">)</span><span class="w">
+</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobby</span><span class="p" data-group-id="0177934563-12">(</span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="0177934563-12">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><p><code class="inline">&quot;lobbies&quot;</code> topic (global lobby list changes):</p><ul><li><code class="inline">{:lobby_created, lobby}</code> - a new lobby was created</li><li><code class="inline">{:lobby_updated, lobby}</code> - a lobby was updated</li><li><code class="inline">{:lobby_deleted, lobby_id}</code> - a lobby was deleted</li></ul></li><li><p><code class="inline">&quot;lobby:&lt;lobby_id&gt;&quot;</code> topic (per-lobby membership changes):</p><ul><li><code class="inline">{:user_joined, lobby_id, user_id}</code> - a user joined the lobby</li><li><code class="inline">{:user_left, lobby_id, user_id}</code> - a user left the lobby</li><li><code class="inline">{:user_kicked, lobby_id, user_id}</code> - a user was kicked from the lobby</li><li><code class="inline">{:lobby_updated, lobby}</code> - the lobby settings were updated</li><li><code class="inline">{:host_changed, lobby_id, new_host_id}</code> - the host changed (e.g., after host leaves)</li></ul></li></ul>
     </section>
 
 </div>
@@ -503,7 +503,7 @@ create a new lobby if none matches.</p></div>
       <h1 class="signature" translate="no">can_edit_lobby?(arg1, lobby)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1268" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1284" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -535,7 +535,7 @@ create a new lobby if none matches.</p></div>
       <h1 class="signature" translate="no">can_view_lobby?(user, lobby)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1280" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1296" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -962,11 +962,11 @@ Users can view any lobby they can see in the list.</p>
 
       </div>
 
-<p>Gets all users currently in a lobby.</p><p>Returns a list of User structs.</p><h2 id="get_lobby_members/1-examples" class="section-heading"><a href="#get_lobby_members/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="8725701371-1">(</span><span class="n">lobby</span><span class="p" data-group-id="8725701371-1">)</span><span class="w">
-</span><span class="p" data-group-id="8725701371-2">[</span><span class="p" data-group-id="8725701371-3">%</span><span class="nc" data-group-id="8725701371-3">User</span><span class="p" data-group-id="8725701371-3">{</span><span class="p" data-group-id="8725701371-3">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8725701371-4">%</span><span class="nc" data-group-id="8725701371-4">User</span><span class="p" data-group-id="8725701371-4">{</span><span class="p" data-group-id="8725701371-4">}</span><span class="p" data-group-id="8725701371-2">]</span><span class="w">
+<p>Gets all users currently in a lobby.</p><p>Returns a list of User structs.</p><h2 id="get_lobby_members/1-examples" class="section-heading"><a href="#get_lobby_members/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="7981740897-1">(</span><span class="n">lobby</span><span class="p" data-group-id="7981740897-1">)</span><span class="w">
+</span><span class="p" data-group-id="7981740897-2">[</span><span class="p" data-group-id="7981740897-3">%</span><span class="nc" data-group-id="7981740897-3">User</span><span class="p" data-group-id="7981740897-3">{</span><span class="p" data-group-id="7981740897-3">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7981740897-4">%</span><span class="nc" data-group-id="7981740897-4">User</span><span class="p" data-group-id="7981740897-4">{</span><span class="p" data-group-id="7981740897-4">}</span><span class="p" data-group-id="7981740897-2">]</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="8725701371-5">(</span><span class="n">lobby_id</span><span class="p" data-group-id="8725701371-5">)</span><span class="w">
-</span><span class="p" data-group-id="8725701371-6">[</span><span class="p" data-group-id="8725701371-7">%</span><span class="nc" data-group-id="8725701371-7">User</span><span class="p" data-group-id="8725701371-7">{</span><span class="p" data-group-id="8725701371-7">}</span><span class="p" data-group-id="8725701371-6">]</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="7981740897-5">(</span><span class="n">lobby_id</span><span class="p" data-group-id="7981740897-5">)</span><span class="w">
+</span><span class="p" data-group-id="7981740897-6">[</span><span class="p" data-group-id="7981740897-7">%</span><span class="nc" data-group-id="7981740897-7">User</span><span class="p" data-group-id="7981740897-7">{</span><span class="p" data-group-id="7981740897-7">}</span><span class="p" data-group-id="7981740897-6">]</span></code></pre>
   </section>
 </section>
 <section class="detail" id="join_lobby/3">
@@ -1017,7 +1017,7 @@ reason is one of <code class="inline">:already_in_lobby</code>, <code class="inl
       <h1 class="signature" translate="no">kick_user(arg1, lobby, arg3)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1181" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1197" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1191,7 +1191,7 @@ Includes the user's own lobby even if it's hidden.</p>
       <h1 class="signature" translate="no">list_memberships_for_lobby(lobby_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1368" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1384" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1225,7 +1225,7 @@ Includes the user's own lobby even if it's hidden.</p>
       <h1 class="signature" translate="no">quick_join(user, title \\ nil, max_users \\ nil, metadata \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1391" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1407" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1261,7 +1261,7 @@ create a new lobby if none matches.</p><p>Signature: quick_join(user, title \ ni
       <h1 class="signature" translate="no">spectatable?(lobby)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1290" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1306" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1405,7 +1405,7 @@ create a new lobby if none matches.</p><p>Signature: quick_join(user, title \ ni
       <h1 class="signature" translate="no">update_lobby_by_host(user, lobby, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1296" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/v1.0.7/lib/game_server/lobbies.ex#L1312" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1438,9 +1438,9 @@ create a new lobby if none matches.</p><p>Signature: quick_join(user, title \ ni
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1058">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1059">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1058">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1059">Hex Preview</a>
 
             </span>
 

@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="game_server_core v1.0.1058">
+    <meta name="project" content="game_server_core v1.0.1059">
 
 
-    <title>GameServer.Inventory — game_server_core v1.0.1058</title>
+    <title>GameServer.Inventory — game_server_core v1.0.1059</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-38F054BC.js"></script>
+    <script defer src="dist/sidebar_items-E947DB44.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server_core
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.1058
+          v1.0.1059
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server_core
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Inventory</span> 
-      <small class="app-vsn" translate="no">(game_server_core v1.0.1058)</small>
+      <small class="app-vsn" translate="no">(game_server_core v1.0.1059)</small>
 
     </h1>
 
@@ -116,14 +116,14 @@ game_server_core
     <section id="moduledoc">
 <p>Player item stacks — the non-fungible companion to <a href="GameServer.Economy.html"><code class="inline">GameServer.Economy</code></a>.</p><p>Items are free-form string codes (<code class="inline">&quot;health_potion&quot;</code>, <code class="inline">&quot;sword&quot;</code>, <code class="inline">&quot;card_374&quot;</code>);
 each <code class="inline">(user, item)</code> pair holds a quantity and per-stack <code class="inline">metadata</code>. Grants and
-consumes are atomic — a consume can never take a stack below zero.</p><h2 id="module-usage-server-side-hooks" class="section-heading"><a href="#module-usage-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Inventory</span><span class="o">.</span><span class="n">grant_item</span><span class="p" data-group-id="0160525015-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="0160525015-1">)</span><span class="w">
-</span><span class="k">case</span><span class="w"> </span><span class="nc">Inventory</span><span class="o">.</span><span class="n">consume_item</span><span class="p" data-group-id="0160525015-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="0160525015-2">)</span><span class="w"> </span><span class="k" data-group-id="0160525015-3">do</span><span class="w">
-  </span><span class="p" data-group-id="0160525015-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">remaining</span><span class="p" data-group-id="0160525015-4">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:ok</span><span class="w">
-  </span><span class="p" data-group-id="0160525015-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:insufficient_items</span><span class="p" data-group-id="0160525015-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:none_left</span><span class="w">
-</span><span class="k" data-group-id="0160525015-3">end</span><span class="w">
+consumes are atomic — a consume can never take a stack below zero.</p><h2 id="module-usage-server-side-hooks" class="section-heading"><a href="#module-usage-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Inventory</span><span class="o">.</span><span class="n">grant_item</span><span class="p" data-group-id="4960855876-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="4960855876-1">)</span><span class="w">
+</span><span class="k">case</span><span class="w"> </span><span class="nc">Inventory</span><span class="o">.</span><span class="n">consume_item</span><span class="p" data-group-id="4960855876-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="4960855876-2">)</span><span class="w"> </span><span class="k" data-group-id="4960855876-3">do</span><span class="w">
+  </span><span class="p" data-group-id="4960855876-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">remaining</span><span class="p" data-group-id="4960855876-4">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:ok</span><span class="w">
+  </span><span class="p" data-group-id="4960855876-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:insufficient_items</span><span class="p" data-group-id="4960855876-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:none_left</span><span class="w">
+</span><span class="k" data-group-id="4960855876-3">end</span><span class="w">
 
-</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">quantity</span><span class="p" data-group-id="0160525015-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p" data-group-id="0160525015-6">)</span><span class="w">  </span><span class="c1">#=&gt; 2</span><span class="w">
-</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">inventory</span><span class="p" data-group-id="0160525015-7">(</span><span class="n">user_id</span><span class="p" data-group-id="0160525015-7">)</span><span class="w">                  </span><span class="c1">#=&gt; %{&quot;health_potion&quot; =&gt; 2}</span></code></pre><p>Like the economy these are <strong>server-authoritative</strong>: expose them from hooks and
+</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">quantity</span><span class="p" data-group-id="4960855876-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p" data-group-id="4960855876-6">)</span><span class="w">  </span><span class="c1">#=&gt; 2</span><span class="w">
+</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">inventory</span><span class="p" data-group-id="4960855876-7">(</span><span class="n">user_id</span><span class="p" data-group-id="4960855876-7">)</span><span class="w">                  </span><span class="c1">#=&gt; %{&quot;health_potion&quot; =&gt; 2}</span></code></pre><p>Like the economy these are <strong>server-authoritative</strong>: expose them from hooks and
 admin tools, never as a raw client &quot;give me items&quot; endpoint.</p>
     </section>
 
@@ -529,9 +529,9 @@ doesn't hold enough — the stack never goes negative.</p>
         <p>
 
             <span class="line">
-              <a href="https://hex.pm/packages/game_server_core/1.0.1058">Hex Package</a>
+              <a href="https://hex.pm/packages/game_server_core/1.0.1059">Hex Package</a>
 
-              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1058">Hex Preview</a>
+              <a href="https://preview.hex.pm/preview/game_server_core/1.0.1059">Hex Preview</a>
 
             </span>
 
