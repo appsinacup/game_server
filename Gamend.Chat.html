@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Chat — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -598,8 +598,8 @@ symmetrically).</li></ul><h2 id="module-pubsub-topics" class="section-heading"><
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> admin_delete_message(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> admin_delete_message(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -627,8 +627,8 @@ symmetrically).</li></ul><h2 id="module-pubsub-topics" class="section-heading"><
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> authorize_access(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> authorize_access(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()}</pre>
 
       </div>
 
@@ -656,7 +656,7 @@ symmetrically).</li></ul><h2 id="module-pubsub-topics" class="section-heading"><
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cleanup_chat(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cleanup_chat(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -684,7 +684,7 @@ symmetrically).</li></ul><h2 id="module-pubsub-topics" class="section-heading"><
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cleanup_friend_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cleanup_friend_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -715,7 +715,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_all_messages(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_all_messages(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -743,7 +743,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_friend_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_friend_messages(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -771,7 +771,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_messages(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -799,7 +799,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_messages_by_type() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_messages_by_type() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()</pre>
 
       </div>
 
@@ -829,7 +829,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_mutes(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_mutes(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -859,7 +859,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_reports(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_reports(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -887,7 +887,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_unique_senders() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_unique_senders() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -915,7 +915,7 @@ the other's id as chat_ref_id), so both directions must be cleaned up.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_unread(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_unread(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -944,7 +944,7 @@ in which case <a href="#count_messages/2"><code class="inline">count_messages/2<
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_unread_friend(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_unread_friend(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -972,8 +972,8 @@ in which case <a href="#count_messages/2"><code class="inline">count_messages/2<
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_unread_friends_batch(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), [<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]) :: %{
-  required(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()
+          <pre translate="no"><span class="attribute">@spec</span> count_unread_friends_batch(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), [<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]) :: %{
+  required(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()
 }</pre>
 
       </div>
@@ -1003,8 +1003,8 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_unread_groups_batch(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), [<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]) :: %{
-  required(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()
+          <pre translate="no"><span class="attribute">@spec</span> count_unread_groups_batch(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), [<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]) :: %{
+  required(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()
 }</pre>
 
       </div>
@@ -1033,7 +1033,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_messages(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: {<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
 
       </div>
 
@@ -1061,8 +1061,8 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_own_message(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_own_message(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1091,7 +1091,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_read_cursors(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_read_cursors(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: {<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
 
       </div>
 
@@ -1119,7 +1119,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> filter_hits(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [{<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> filter_hits(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: [{<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()}]</pre>
 
       </div>
 
@@ -1147,7 +1147,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_message(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_message(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>() | nil</pre>
 
       </div>
 
@@ -1175,7 +1175,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_read_cursor(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> get_read_cursor(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
   <a href="Gamend.Chat.ReadCursor.html#t:t/0">Gamend.Chat.ReadCursor.t</a>() | nil</pre>
 
       </div>
@@ -1208,10 +1208,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_all_messages(
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [<a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_all_messages(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()]</pre>
 
       </div>
 
@@ -1241,7 +1238,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_friend_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_friend_messages(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [
   <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()
 ]</pre>
 
@@ -1273,7 +1270,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_messages(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()]</pre>
 
       </div>
 
@@ -1306,10 +1303,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_mutes(
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [<a href="Gamend.Chat.Mute.html#t:t/0">Gamend.Chat.Mute.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_mutes(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Chat.Mute.html#t:t/0">Gamend.Chat.Mute.t</a>()]</pre>
 
       </div>
 
@@ -1341,10 +1335,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_reports(
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [<a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_reports(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()]</pre>
 
       </div>
 
@@ -1372,8 +1363,8 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> mark_read(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  {:ok, <a href="Gamend.Chat.ReadCursor.html#t:t/0">Gamend.Chat.ReadCursor.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> mark_read(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, <a href="Gamend.Chat.ReadCursor.html#t:t/0">Gamend.Chat.ReadCursor.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1403,8 +1394,8 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> mute_user(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="Gamend.Chat.Mute.html#t:t/0">Gamend.Chat.Mute.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> mute_user(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="Gamend.Chat.Mute.html#t:t/0">Gamend.Chat.Mute.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1433,7 +1424,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> muted?(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> muted?(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -1463,8 +1454,8 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> report_message(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil) ::
-  {:ok, <a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> report_message(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil) ::
+  {:ok, <a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1494,8 +1485,8 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> resolve_report(<a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>() | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> resolve_report(<a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>() | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1523,8 +1514,8 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> review_report(<a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>() | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  {:ok, <a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> review_report(<a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>() | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, <a href="Gamend.Chat.Report.html#t:t/0">Gamend.Chat.Report.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1552,7 +1543,7 @@ at least one unread message.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> send_message(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> send_message(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1584,7 +1575,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe_friend_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_friend_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1612,7 +1603,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe_group_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_group_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1640,7 +1631,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe_lobby_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_lobby_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1668,7 +1659,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe_party_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_party_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1698,8 +1689,8 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> unmute_user(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil) ::
-  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> unmute_user(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil) ::
+  {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
 
       </div>
 
@@ -1727,7 +1718,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_friend_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_friend_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -1755,7 +1746,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_group_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_group_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -1783,7 +1774,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_lobby_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_lobby_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -1811,7 +1802,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_party_chat(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_party_chat(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -1839,8 +1830,8 @@ refused. The hook can then modify attrs or reject the message itself. The
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> update_message(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> update_message(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="Gamend.Chat.Message.html#t:t/0">Gamend.Chat.Message.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1883,7 +1874,7 @@ refused. The hook can then modify attrs or reject the message itself. The
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

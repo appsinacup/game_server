@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Hooks.Declarations — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,17 +117,17 @@ gamend_core
 <p>Registry of what a plugin <em>declares</em> it contributes, for observability and
 validation.</p><p>Three optional callbacks, registered the same convention-based way as
 <a href="Gamend.Hooks.KvSchemas.html"><code class="inline">Gamend.Hooks.KvSchemas</code></a> — export them from the plugin's hooks module and
-they are picked up at load:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">notification_types</span><span class="w"> </span><span class="k" data-group-id="5705075027-1">do</span><span class="w">
-  </span><span class="p" data-group-id="5705075027-2">%{</span><span class="s">&quot;quest_completed&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Player finished a quest&quot;</span><span class="p" data-group-id="5705075027-2">}</span><span class="w">
-</span><span class="k" data-group-id="5705075027-1">end</span><span class="w">
+they are picked up at load:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">notification_types</span><span class="w"> </span><span class="k" data-group-id="group-1">do</span><span class="w">
+  </span><span class="p" data-group-id="group-2">%{</span><span class="s">&quot;quest_completed&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Player finished a quest&quot;</span><span class="p" data-group-id="group-2">}</span><span class="w">
+</span><span class="k" data-group-id="group-1">end</span><span class="w">
 
-</span><span class="kd">def</span><span class="w"> </span><span class="nf">realtime_events</span><span class="w"> </span><span class="k" data-group-id="5705075027-3">do</span><span class="w">
-  </span><span class="p" data-group-id="5705075027-4">%{</span><span class="s">&quot;quest_progress&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Objective counter moved&quot;</span><span class="p" data-group-id="5705075027-4">}</span><span class="w">
-</span><span class="k" data-group-id="5705075027-3">end</span><span class="w">
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">realtime_events</span><span class="w"> </span><span class="k" data-group-id="group-3">do</span><span class="w">
+  </span><span class="p" data-group-id="group-4">%{</span><span class="s">&quot;quest_progress&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Objective counter moved&quot;</span><span class="p" data-group-id="group-4">}</span><span class="w">
+</span><span class="k" data-group-id="group-3">end</span><span class="w">
 
-</span><span class="kd">def</span><span class="w"> </span><span class="nf">env_vars</span><span class="w"> </span><span class="k" data-group-id="5705075027-5">do</span><span class="w">
-  </span><span class="p" data-group-id="5705075027-6">[</span><span class="p" data-group-id="5705075027-7">%{</span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MYGAME_DIFFICULTY&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;normal&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Global difficulty&quot;</span><span class="p" data-group-id="5705075027-7">}</span><span class="p" data-group-id="5705075027-6">]</span><span class="w">
-</span><span class="k" data-group-id="5705075027-5">end</span></code></pre><p><a href="#notification_types/0"><code class="inline">notification_types/0</code></a> is <strong>enforced</strong>: <a href="Gamend.Notifications.html"><code class="inline">Gamend.Notifications</code></a> rejects a
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">env_vars</span><span class="w"> </span><span class="k" data-group-id="group-5">do</span><span class="w">
+  </span><span class="p" data-group-id="group-6">[</span><span class="p" data-group-id="group-7">%{</span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MYGAME_DIFFICULTY&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;normal&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Global difficulty&quot;</span><span class="p" data-group-id="group-7">}</span><span class="p" data-group-id="group-6">]</span><span class="w">
+</span><span class="k" data-group-id="group-5">end</span></code></pre><p><a href="#notification_types/0"><code class="inline">notification_types/0</code></a> is <strong>enforced</strong>: <a href="Gamend.Notifications.html"><code class="inline">Gamend.Notifications</code></a> rejects a
 notification whose <code class="inline">metadata[&quot;type&quot;]</code> is not declared by core or a plugin, so
 a client is never sent a code nobody documented. The other two are
 declarations only — a plugin can always read an env var directly, and events
@@ -235,9 +235,9 @@ the whole truth instead of only core's half.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> all() :: %{
-  notification_types: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()},
-  realtime_events: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()},
-  env_vars: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]
+  notification_types: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()},
+  realtime_events: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()},
+  env_vars: [<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()]
 }</pre>
 
       </div>
@@ -266,7 +266,7 @@ the whole truth instead of only core's half.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> env_vars() :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> env_vars() :: [<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()]</pre>
 
       </div>
 
@@ -294,7 +294,7 @@ the whole truth instead of only core's half.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> notification_types() :: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> notification_types() :: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()}</pre>
 
       </div>
 
@@ -322,7 +322,7 @@ the whole truth instead of only core's half.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> realtime_events() :: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> realtime_events() :: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()}</pre>
 
       </div>
 
@@ -350,7 +350,7 @@ the whole truth instead of only core's half.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> refresh([<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">struct</a>()]) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> refresh([<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">struct</a>()]) :: :ok</pre>
 
       </div>
 
@@ -391,7 +391,7 @@ the whole truth instead of only core's half.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

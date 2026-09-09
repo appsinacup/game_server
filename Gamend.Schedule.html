@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Schedule — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,32 +117,32 @@ gamend_core
 <p>Dynamic cron-like job scheduling for hooks.</p><p>Use this module in your <code class="inline">after_startup/0</code> hook to register scheduled jobs
 that will call your hook functions at specified intervals.</p><p>Jobs are durable and safe for distributed deployments: they run through the
 background job queue (<a href="Gamend.Jobs.html"><code class="inline">Gamend.Jobs</code></a>, backed by Oban), so exactly one
-instance executes each job per period and a crash mid-run is retried.</p><p>Scheduled callbacks are automatically protected from user RPC calls.</p><h2 id="module-examples" class="section-heading"><a href="#module-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">after_startup</span><span class="w"> </span><span class="k" data-group-id="2315208946-1">do</span><span class="w">
+instance executes each job per period and a crash mid-run is retried.</p><p>Scheduled callbacks are automatically protected from user RPC calls.</p><h2 id="module-examples" class="section-heading"><a href="#module-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">after_startup</span><span class="w"> </span><span class="k" data-group-id="group-1">do</span><span class="w">
   </span><span class="c1"># Simple intervals</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="2315208946-2">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_5m</span><span class="p" data-group-id="2315208946-2">)</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="2315208946-3">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="2315208946-3">)</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="2315208946-4">(</span><span class="ss">:on_daily</span><span class="p" data-group-id="2315208946-4">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="group-2">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_5m</span><span class="p" data-group-id="group-2">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="group-3">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="group-3">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="group-4">(</span><span class="ss">:on_daily</span><span class="p" data-group-id="group-4">)</span><span class="w">
 
   </span><span class="c1"># With options</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="2315208946-5">(</span><span class="ss">:on_morning_report</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="2315208946-5">)</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="2315208946-6">(</span><span class="ss">:on_monday</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="2315208946-6">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="group-5">(</span><span class="ss">:on_morning_report</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="group-5">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="group-6">(</span><span class="ss">:on_monday</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="group-6">)</span><span class="w">
 
   </span><span class="c1"># Full cron syntax</span><span class="w">
-  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="2315208946-7">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 */6 * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_6h</span><span class="p" data-group-id="2315208946-7">)</span><span class="w">
+  </span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="group-7">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 */6 * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_6h</span><span class="p" data-group-id="group-7">)</span><span class="w">
 
   </span><span class="ss">:ok</span><span class="w">
-</span><span class="k" data-group-id="2315208946-1">end</span><span class="w">
+</span><span class="k" data-group-id="group-1">end</span><span class="w">
 
 </span><span class="c1"># Callback receives a context map (public function, but protected from RPC)</span><span class="w">
-</span><span class="kd">def</span><span class="w"> </span><span class="nf">on_hourly</span><span class="p" data-group-id="2315208946-8">(</span><span class="n">context</span><span class="p" data-group-id="2315208946-8">)</span><span class="w"> </span><span class="k" data-group-id="2315208946-9">do</span><span class="w">
-  </span><span class="nc">IO</span><span class="o">.</span><span class="n">puts</span><span class="p" data-group-id="2315208946-10">(</span><span class="s">&quot;Triggered at </span><span class="si" data-group-id="2315208946-11">#{</span><span class="n">context</span><span class="p" data-group-id="2315208946-12">[</span><span class="s">&quot;triggered_at&quot;</span><span class="p" data-group-id="2315208946-12">]</span><span class="si" data-group-id="2315208946-11">}</span><span class="s">&quot;</span><span class="p" data-group-id="2315208946-10">)</span><span class="w">
+</span><span class="kd">def</span><span class="w"> </span><span class="nf">on_hourly</span><span class="p" data-group-id="group-8">(</span><span class="n">context</span><span class="p" data-group-id="group-8">)</span><span class="w"> </span><span class="k" data-group-id="group-9">do</span><span class="w">
+  </span><span class="nc">IO</span><span class="o">.</span><span class="n">puts</span><span class="p" data-group-id="group-10">(</span><span class="s">&quot;Triggered at </span><span class="si" data-group-id="group-11">#{</span><span class="n">context</span><span class="p" data-group-id="group-12">[</span><span class="s">&quot;triggered_at&quot;</span><span class="p" data-group-id="group-12">]</span><span class="si" data-group-id="group-11">}</span><span class="s">&quot;</span><span class="p" data-group-id="group-10">)</span><span class="w">
   </span><span class="ss">:ok</span><span class="w">
-</span><span class="k" data-group-id="2315208946-9">end</span></code></pre><h2 id="module-context" class="section-heading"><a href="#module-context" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Context</span></h2><p>Callbacks run as background jobs, so the context is a <strong>JSON map with string
-keys</strong> (<code class="inline">triggered_at</code> is an ISO8601 string):</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="0594766673-1">%{</span><span class="w">
+</span><span class="k" data-group-id="group-9">end</span></code></pre><h2 id="module-context" class="section-heading"><a href="#module-context" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Context</span></h2><p>Callbacks run as background jobs, so the context is a <strong>JSON map with string
+keys</strong> (<code class="inline">triggered_at</code> is an ISO8601 string):</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="group-1">%{</span><span class="w">
   </span><span class="s">&quot;triggered_at&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;2026-07-22T14:00:00Z&quot;</span><span class="p">,</span><span class="w">
   </span><span class="s">&quot;job_name&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;on_hourly&quot;</span><span class="p">,</span><span class="w">
   </span><span class="s">&quot;schedule&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;0 * * * *&quot;</span><span class="w">
-</span><span class="p" data-group-id="0594766673-1">}</span></code></pre><h2 id="module-distributed-safety" class="section-heading"><a href="#module-distributed-safety" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Distributed Safety</span></h2><p>A single per-minute tick (<code class="inline">Gamend.Schedule.TickWorker</code>, driven by Oban's
+</span><span class="p" data-group-id="group-1">}</span></code></pre><h2 id="module-distributed-safety" class="section-heading"><a href="#module-distributed-safety" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Distributed Safety</span></h2><p>A single per-minute tick (<code class="inline">Gamend.Schedule.TickWorker</code>, driven by Oban's
 leader-elected Cron plugin) enqueues each due callback as a <strong>unique</strong> job.
 Oban's uniqueness guarantees a callback runs at most once per period across
 the whole cluster — no application-level locks required.</p>
@@ -277,11 +277,11 @@ the whole cluster — no application-level locks required.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cancel(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cancel(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()) :: :ok</pre>
 
       </div>
 
-<p>Cancel a scheduled job.</p><h2 id="cancel/1-examples" class="section-heading"><a href="#cancel/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cancel</span><span class="p" data-group-id="1091253254-1">(</span><span class="ss">:my_job</span><span class="p" data-group-id="1091253254-1">)</span></code></pre>
+<p>Cancel a scheduled job.</p><h2 id="cancel/1-examples" class="section-heading"><a href="#cancel/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cancel</span><span class="p" data-group-id="group-1">(</span><span class="ss">:my_job</span><span class="p" data-group-id="group-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="cron/3">
@@ -305,12 +305,12 @@ the whole cluster — no application-level locks required.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cron(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cron(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
-<p>Register a job with full cron syntax.</p><h2 id="cron/3-examples" class="section-heading"><a href="#cron/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="6144406024-1">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;*/15 * * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_15m</span><span class="p" data-group-id="6144406024-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="6144406024-2">(</span><span class="ss">:weekdays</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 9 * * 1-5&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_weekday_morning</span><span class="p" data-group-id="6144406024-2">)</span></code></pre>
+<p>Register a job with full cron syntax.</p><h2 id="cron/3-examples" class="section-heading"><a href="#cron/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="group-1">(</span><span class="ss">:my_job</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;*/15 * * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_every_15m</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">cron</span><span class="p" data-group-id="group-2">(</span><span class="ss">:weekdays</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0 9 * * 1-5&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_weekday_morning</span><span class="p" data-group-id="group-2">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="daily/2">
@@ -336,13 +336,13 @@ the whole cluster — no application-level locks required.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> daily(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), hour: 0..23, minute: 0..59) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> daily(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>(), hour: 0..23, minute: 0..59) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
-<p>Run a job every day.</p><h2 id="daily/2-options" class="section-heading"><a href="#daily/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="daily/2-examples" class="section-heading"><a href="#daily/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="7557033893-1">(</span><span class="ss">:on_midnight</span><span class="p" data-group-id="7557033893-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="7557033893-2">(</span><span class="ss">:on_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="7557033893-2">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="7557033893-3">(</span><span class="ss">:on_evening</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="7557033893-3">)</span></code></pre>
+<p>Run a job every day.</p><h2 id="daily/2-options" class="section-heading"><a href="#daily/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="daily/2-examples" class="section-heading"><a href="#daily/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="group-1">(</span><span class="ss">:on_midnight</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="group-2">(</span><span class="ss">:on_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="group-2">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">daily</span><span class="p" data-group-id="group-3">(</span><span class="ss">:on_evening</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="group-3">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="every_minutes/2">
@@ -366,12 +366,12 @@ the whole cluster — no application-level locks required.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> every_minutes(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> every_minutes(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
-<p>Run a job every N minutes.</p><h2 id="every_minutes/2-examples" class="section-heading"><a href="#every_minutes/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="1182003598-1">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_5m</span><span class="p" data-group-id="1182003598-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="1182003598-2">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_15m</span><span class="p" data-group-id="1182003598-2">)</span></code></pre>
+<p>Run a job every N minutes.</p><h2 id="every_minutes/2-examples" class="section-heading"><a href="#every_minutes/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="group-1">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_5m</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">every_minutes</span><span class="p" data-group-id="group-2">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_15m</span><span class="p" data-group-id="group-2">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="hourly/2">
@@ -397,12 +397,12 @@ the whole cluster — no application-level locks required.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> hourly(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), [{:minute, 0..59}]) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> hourly(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>(), [{:minute, 0..59}]) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
-<p>Run a job every hour.</p><h2 id="hourly/2-options" class="section-heading"><a href="#hourly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="hourly/2-examples" class="section-heading"><a href="#hourly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="5118070601-1">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="5118070601-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="5118070601-2">(</span><span class="ss">:on_half_hour</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="5118070601-2">)</span></code></pre>
+<p>Run a job every hour.</p><h2 id="hourly/2-options" class="section-heading"><a href="#hourly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="hourly/2-examples" class="section-heading"><a href="#hourly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="group-1">(</span><span class="ss">:on_hourly</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">hourly</span><span class="p" data-group-id="group-2">(</span><span class="ss">:on_half_hour</span><span class="p">,</span><span class="w"> </span><span class="ss">minute</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p" data-group-id="group-2">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="list/0">
@@ -426,7 +426,7 @@ the whole cluster — no application-level locks required.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list() :: [%{name: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), schedule: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), hook: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), state: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list() :: [%{name: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>(), schedule: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), hook: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>(), state: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()}]</pre>
 
       </div>
 
@@ -454,7 +454,7 @@ the whole cluster — no application-level locks required.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> registered_callbacks() :: <a href="https://hexdocs.pm/elixir/MapSet.html#t:t/1">MapSet.t</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>())</pre>
+          <pre translate="no"><span class="attribute">@spec</span> registered_callbacks() :: <a href="https://elixir.hexdocs.pm/MapSet.html#t:t/1">MapSet.t</a>(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>())</pre>
 
       </div>
 
@@ -487,13 +487,13 @@ another schedule (or a <code class="inline">Jobs</code> enqueue) still reference
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> weekly(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), day: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), hour: 0..23, minute: 0..59) ::
-  :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> weekly(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>(), day: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>(), hour: 0..23, minute: 0..59) ::
+  :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
-<p>Run a job every week.</p><h2 id="weekly/2-options" class="section-heading"><a href="#weekly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:day</code> - day of week (<code class="inline">:sunday</code>, <code class="inline">:monday</code>, etc.), default: <code class="inline">:sunday</code></li><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="weekly/2-examples" class="section-heading"><a href="#weekly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="9792875094-1">(</span><span class="ss">:on_sunday</span><span class="p" data-group-id="9792875094-1">)</span><span class="w">
-</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="9792875094-2">(</span><span class="ss">:on_monday_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="9792875094-2">)</span></code></pre>
+<p>Run a job every week.</p><h2 id="weekly/2-options" class="section-heading"><a href="#weekly/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:day</code> - day of week (<code class="inline">:sunday</code>, <code class="inline">:monday</code>, etc.), default: <code class="inline">:sunday</code></li><li><code class="inline">:hour</code> - hour of the day (0-23), default: 0</li><li><code class="inline">:minute</code> - minute of the hour (0-59), default: 0</li></ul><h2 id="weekly/2-examples" class="section-heading"><a href="#weekly/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="group-1">(</span><span class="ss">:on_sunday</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="nc">Schedule</span><span class="o">.</span><span class="n">weekly</span><span class="p" data-group-id="group-2">(</span><span class="ss">:on_monday_morning</span><span class="p">,</span><span class="w"> </span><span class="ss">day</span><span class="p">:</span><span class="w"> </span><span class="ss">:monday</span><span class="p">,</span><span class="w"> </span><span class="ss">hour</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p" data-group-id="group-2">)</span></code></pre>
   </section>
 </section>
 
@@ -530,7 +530,7 @@ another schedule (or a <code class="inline">Jobs</code> enqueue) still reference
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

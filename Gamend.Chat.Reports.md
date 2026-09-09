@@ -66,10 +66,7 @@ Fetch one report with its associations loaded.
 # `list_reports`
 
 ```elixir
-@spec list_reports(
-  map(),
-  keyword()
-) :: [Gamend.Chat.Report.t()]
+@spec list_reports(map(), keyword()) :: [Gamend.Chat.Report.t()]
 ```
 
 List reports, newest first. Filters: `:status`, `:reported_user_id`,

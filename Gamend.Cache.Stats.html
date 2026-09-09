@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Cache.Stats — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -209,7 +209,7 @@ events feed Prometheus via <code class="inline">GamendWeb.PromEx.CachePlugin</co
 
   <section class="docstring">
 
-<p>Returns a specification to start this module under a supervisor.</p><p>See <a href="https://hexdocs.pm/elixir/Supervisor.html"><code class="inline">Supervisor</code></a>.</p>
+<p>Returns a specification to start this module under a supervisor.</p><p>See <a href="https://elixir.hexdocs.pm/Supervisor.html"><code class="inline">Supervisor</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="reset/0">
@@ -261,15 +261,15 @@ events feed Prometheus via <code class="inline">GamendWeb.PromEx.CachePlugin</co
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> snapshot() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> snapshot() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()</pre>
 
       </div>
 
-<p>Returns aggregated counters:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="2330281675-1">%{</span><span class="w">
-  </span><span class="ss">cache</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="2330281675-2">[</span><span class="p" data-group-id="2330281675-3">%{</span><span class="ss">prefix</span><span class="p">:</span><span class="w"> </span><span class="ss">:accounts</span><span class="p">,</span><span class="w"> </span><span class="ss">hits</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="ss">misses</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="ss">hit_rate</span><span class="p">:</span><span class="w"> </span><span class="mf">0.83</span><span class="p" data-group-id="2330281675-3">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="2330281675-2">]</span><span class="p">,</span><span class="w">
-  </span><span class="ss">rate_limit_denies</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="2330281675-4">%{</span><span class="s">&quot;auth&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="2330281675-4">}</span><span class="p">,</span><span class="w">
+<p>Returns aggregated counters:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="group-1">%{</span><span class="w">
+  </span><span class="ss">cache</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="group-2">[</span><span class="p" data-group-id="group-3">%{</span><span class="ss">prefix</span><span class="p">:</span><span class="w"> </span><span class="ss">:accounts</span><span class="p">,</span><span class="w"> </span><span class="ss">hits</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="ss">misses</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="ss">hit_rate</span><span class="p">:</span><span class="w"> </span><span class="mf">0.83</span><span class="p" data-group-id="group-3">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="group-2">]</span><span class="p">,</span><span class="w">
+  </span><span class="ss">rate_limit_denies</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="group-4">%{</span><span class="s">&quot;auth&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="group-4">}</span><span class="p">,</span><span class="w">
   </span><span class="ss">async_overloads</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
-</span><span class="p" data-group-id="2330281675-1">}</span></code></pre>
+</span><span class="p" data-group-id="group-1">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="start_link/1">
@@ -328,7 +328,7 @@ events feed Prometheus via <code class="inline">GamendWeb.PromEx.CachePlugin</co
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

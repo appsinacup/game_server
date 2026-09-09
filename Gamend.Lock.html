@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Lock — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -131,16 +131,16 @@ lock at all.</p><h2 id="module-multi-node-safety" class="section-heading"><a hre
 and <code class="inline">:global.trans</code> coordinates across connected nodes. A netsplit can produce
 two holders on either path, which is why value operations must also be atomic.</p><h2 id="module-namespace-conventions" class="section-heading"><a href="#module-namespace-conventions" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Namespace conventions</span></h2><p>The <code class="inline">namespace</code> argument can be:</p><ul><li>A <strong>predefined atom</strong>: <code class="inline">:lobby</code> (1), <code class="inline">:group</code> (2), <code class="inline">:party</code> (3)</li><li>An <strong>arbitrary string</strong>: hashed to a stable integer, e.g. <code class="inline">&quot;word_guessed&quot;</code></li></ul><p>The <code class="inline">resource_id</code> is typically the lobby, group, or user id that scopes
 the lock.</p><h2 id="module-examples" class="section-heading"><a href="#module-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Serialize all &quot;word_guessed&quot; RPCs per lobby</span><span class="w">
-</span><span class="nc">Gamend.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="1578281526-1">(</span><span class="s">&quot;word_guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="1578281526-2">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
-  </span><span class="p" data-group-id="1578281526-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p" data-group-id="1578281526-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.KV</span><span class="o">.</span><span class="n">get</span><span class="p" data-group-id="1578281526-4">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="1578281526-4">)</span><span class="w">
-  </span><span class="n">new_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p" data-group-id="1578281526-5">(</span><span class="n">entry</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1578281526-6">[</span><span class="n">word</span><span class="p" data-group-id="1578281526-6">]</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="p" data-group-id="1578281526-7">[</span><span class="n">word</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="ni">&amp;1</span><span class="p" data-group-id="1578281526-7">]</span><span class="p" data-group-id="1578281526-5">)</span><span class="w">
-  </span><span class="nc">Gamend.KV</span><span class="o">.</span><span class="n">put</span><span class="p" data-group-id="1578281526-8">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">new_val</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1578281526-9">%{</span><span class="p" data-group-id="1578281526-9">}</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="1578281526-8">)</span><span class="w">
-</span><span class="k" data-group-id="1578281526-2">end</span><span class="p" data-group-id="1578281526-1">)</span><span class="w">
+</span><span class="nc">Gamend.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="group-1">(</span><span class="s">&quot;word_guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="group-2">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+  </span><span class="p" data-group-id="group-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">entry</span><span class="p" data-group-id="group-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.KV</span><span class="o">.</span><span class="n">get</span><span class="p" data-group-id="group-4">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="group-4">)</span><span class="w">
+  </span><span class="n">new_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p" data-group-id="group-5">(</span><span class="n">entry</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;guessed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-6">[</span><span class="n">word</span><span class="p" data-group-id="group-6">]</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="p" data-group-id="group-7">[</span><span class="n">word</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="ni">&amp;1</span><span class="p" data-group-id="group-7">]</span><span class="p" data-group-id="group-5">)</span><span class="w">
+  </span><span class="nc">Gamend.KV</span><span class="o">.</span><span class="n">put</span><span class="p" data-group-id="group-8">(</span><span class="s">&quot;game_state&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">new_val</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-9">%{</span><span class="p" data-group-id="group-9">}</span><span class="p">,</span><span class="w"> </span><span class="ss">lobby_id</span><span class="p">:</span><span class="w"> </span><span class="n">lobby_id</span><span class="p" data-group-id="group-8">)</span><span class="w">
+</span><span class="k" data-group-id="group-2">end</span><span class="p" data-group-id="group-1">)</span><span class="w">
 
 </span><span class="c1"># Using a predefined atom namespace</span><span class="w">
-</span><span class="nc">Gamend.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="1578281526-10">(</span><span class="ss">:lobby</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="1578281526-11">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+</span><span class="nc">Gamend.Lock</span><span class="o">.</span><span class="n">serialize</span><span class="p" data-group-id="group-10">(</span><span class="ss">:lobby</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="k" data-group-id="group-11">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
   </span><span class="c1"># exclusive per-lobby operation</span><span class="w">
-</span><span class="k" data-group-id="1578281526-11">end</span><span class="p" data-group-id="1578281526-10">)</span></code></pre><h2 id="module-return-value" class="section-heading"><a href="#module-return-value" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Return value</span></h2><p>Returns <code class="inline">{:ok, result}</code> where <code class="inline">result</code> is the return value of the function,
+</span><span class="k" data-group-id="group-11">end</span><span class="p" data-group-id="group-10">)</span></code></pre><h2 id="module-return-value" class="section-heading"><a href="#module-return-value" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Return value</span></h2><p>Returns <code class="inline">{:ok, result}</code> where <code class="inline">result</code> is the return value of the function,
 or <code class="inline">{:error, reason}</code> if the transaction rolls back.</p>
     </section>
 
@@ -203,9 +203,9 @@ or <code class="inline">{:error, reason}</code> if the transaction rolls back.</
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> serialize(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), (-&gt; result)) ::
-  {:ok, result} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}
-when result: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> serialize(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>() | <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), (-&gt; result)) ::
+  {:ok, result} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}
+when result: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()</pre>
 
       </div>
 
@@ -247,7 +247,7 @@ callers block until the lock is released (on transaction commit/rollback).</p><p
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

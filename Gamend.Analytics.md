@@ -106,10 +106,7 @@ Daily active users on `day` (default: today, UTC).
 # `economy_flow`
 
 ```elixir
-@spec economy_flow(
-  pos_integer(),
-  keyword()
-) :: [map()]
+@spec economy_flow(pos_integer(), keyword()) :: [map()]
 ```
 
 Currency granted and spent per UTC day per ledger `reason` over the last
@@ -120,10 +117,7 @@ value of negative deltas). Options: `:currency` to filter.
 # `economy_totals`
 
 ```elixir
-@spec economy_totals(
-  pos_integer(),
-  keyword()
-) :: [map()]
+@spec economy_totals(pos_integer(), keyword()) :: [map()]
 ```
 
 `economy_flow/2` collapsed over the window: one row per `{currency,

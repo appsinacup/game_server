@@ -121,10 +121,8 @@ on it — deliberately indistinguishable to a caller.
 # `configure`
 
 ```elixir
-@spec configure(
-  Gamend.Lobbies.Lobby.t() | room_id(),
-  keyword()
-) :: {:ok, Gamend.Lobbies.Lobby.t()} | {:error, term()}
+@spec configure(Gamend.Lobbies.Lobby.t() | room_id(), keyword()) ::
+  {:ok, Gamend.Lobbies.Lobby.t()} | {:error, term()}
 ```
 
 Turns signaling on or off for a lobby, and sets how it behaves.

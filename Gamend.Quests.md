@@ -175,10 +175,7 @@ Count quest definitions (same filters as `list_quests/1`).
 # `count_user_completions`
 
 ```elixir
-@spec count_user_completions(
-  user_id(),
-  keyword()
-) :: non_neg_integer()
+@spec count_user_completions(user_id(), keyword()) :: non_neg_integer()
 ```
 
 Count of a user's completed quests (same filters as `list_user_completions/2`).
@@ -186,10 +183,7 @@ Count of a user's completed quests (same filters as `list_user_completions/2`).
 # `count_user_quests`
 
 ```elixir
-@spec count_user_quests(
-  user_id(),
-  keyword()
-) :: non_neg_integer()
+@spec count_user_quests(user_id(), keyword()) :: non_neg_integer()
 ```
 
 Count of quests visible to the user (same filters as `list_user_quests/2`).
@@ -342,10 +336,7 @@ Lists quest definitions (admin view — no per-user state).
 # `list_user_completions`
 
 ```elixir
-@spec list_user_completions(
-  user_id(),
-  keyword()
-) :: [
+@spec list_user_completions(user_id(), keyword()) :: [
   %{quest: Gamend.Quests.Quest.t(), progress: Gamend.Quests.QuestProgress.t()}
 ]
 ```
@@ -360,10 +351,7 @@ A user's completed quests, newest first — the public-profile view
 # `list_user_quests`
 
 ```elixir
-@spec list_user_quests(
-  user_id(),
-  keyword()
-) :: [
+@spec list_user_quests(user_id(), keyword()) :: [
   %{
     quest: Gamend.Quests.Quest.t(),
     progress: Gamend.Quests.QuestProgress.t() | nil,

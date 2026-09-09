@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Lobbies — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -116,21 +116,21 @@ gamend_core
     <section id="moduledoc">
 <p>Context module for lobby management: creating, updating, listing and searching lobbies.</p><p>This module contains the core domain operations; more advanced membership and
 permission logic will be added in follow-up tasks.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a lobby (returns {:ok, lobby} | {:error, changeset})</span><span class="w">
-</span><span class="p" data-group-id="8023914538-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="8023914538-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">create_lobby</span><span class="p" data-group-id="8023914538-2">(</span><span class="p" data-group-id="8023914538-3">%{</span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fun-room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Fun Room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">host_id</span><span class="p">:</span><span class="w"> </span><span class="n">host_id</span><span class="p" data-group-id="8023914538-3">}</span><span class="p" data-group-id="8023914538-2">)</span><span class="w">
+</span><span class="p" data-group-id="group-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="group-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">create_lobby</span><span class="p" data-group-id="group-2">(</span><span class="p" data-group-id="group-3">%{</span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fun-room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Fun Room&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">host_id</span><span class="p">:</span><span class="w"> </span><span class="n">host_id</span><span class="p" data-group-id="group-3">}</span><span class="p" data-group-id="group-2">)</span><span class="w">
 
 </span><span class="c1"># List public lobbies (paginated/filterable)</span><span class="w">
-</span><span class="n">lobbies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">list_lobbies</span><span class="p" data-group-id="8023914538-4">(</span><span class="p" data-group-id="8023914538-5">%{</span><span class="p" data-group-id="8023914538-5">}</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="8023914538-4">)</span><span class="w">
+</span><span class="n">lobbies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">list_lobbies</span><span class="p" data-group-id="group-4">(</span><span class="p" data-group-id="group-5">%{</span><span class="p" data-group-id="group-5">}</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="group-4">)</span><span class="w">
 
 </span><span class="c1"># Join and leave</span><span class="w">
-</span><span class="p" data-group-id="8023914538-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="8023914538-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">join_lobby</span><span class="p" data-group-id="8023914538-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="8023914538-7">)</span><span class="w">
-</span><span class="p" data-group-id="8023914538-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="8023914538-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">leave_lobby</span><span class="p" data-group-id="8023914538-9">(</span><span class="n">user</span><span class="p" data-group-id="8023914538-9">)</span><span class="w">
+</span><span class="p" data-group-id="group-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="group-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">join_lobby</span><span class="p" data-group-id="group-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="group-7">)</span><span class="w">
+</span><span class="p" data-group-id="group-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="group-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">leave_lobby</span><span class="p" data-group-id="group-9">(</span><span class="n">user</span><span class="p" data-group-id="group-9">)</span><span class="w">
 
 </span><span class="c1"># Get current lobby members</span><span class="w">
-</span><span class="n">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">get_lobby_members</span><span class="p" data-group-id="8023914538-10">(</span><span class="n">lobby</span><span class="p" data-group-id="8023914538-10">)</span><span class="w">
+</span><span class="n">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">get_lobby_members</span><span class="p" data-group-id="group-10">(</span><span class="n">lobby</span><span class="p" data-group-id="group-10">)</span><span class="w">
 
 </span><span class="c1"># Subscribe to global or per-lobby events</span><span class="w">
-</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobbies</span><span class="p" data-group-id="8023914538-11">(</span><span class="p" data-group-id="8023914538-11">)</span><span class="w">
-</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobby</span><span class="p" data-group-id="8023914538-12">(</span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="8023914538-12">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><p><code class="inline">&quot;lobbies&quot;</code> topic (global lobby list changes):</p><ul><li><code class="inline">{:lobby_created, lobby}</code> - a new lobby was created</li><li><code class="inline">{:lobby_updated, lobby}</code> - a lobby was updated</li><li><code class="inline">{:lobby_deleted, lobby_id}</code> - a lobby was deleted</li></ul></li><li><p><code class="inline">&quot;lobby:&lt;lobby_id&gt;&quot;</code> topic (per-lobby membership changes):</p><ul><li><code class="inline">{:user_joined, lobby_id, user_id}</code> - a user joined the lobby</li><li><code class="inline">{:user_left, lobby_id, user_id}</code> - a user left the lobby</li><li><code class="inline">{:user_kicked, lobby_id, user_id}</code> - a user was kicked from the lobby</li><li><code class="inline">{:lobby_updated, lobby}</code> - the lobby settings were updated</li><li><code class="inline">{:host_changed, lobby_id, new_host_id}</code> - the host changed (e.g., after host leaves)</li></ul></li></ul>
+</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobbies</span><span class="p" data-group-id="group-11">(</span><span class="p" data-group-id="group-11">)</span><span class="w">
+</span><span class="ss">:ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Lobbies</span><span class="o">.</span><span class="n">subscribe_lobby</span><span class="p" data-group-id="group-12">(</span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="group-12">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><p><code class="inline">&quot;lobbies&quot;</code> topic (global lobby list changes):</p><ul><li><code class="inline">{:lobby_created, lobby}</code> - a new lobby was created</li><li><code class="inline">{:lobby_updated, lobby}</code> - a lobby was updated</li><li><code class="inline">{:lobby_deleted, lobby_id}</code> - a lobby was deleted</li></ul></li><li><p><code class="inline">&quot;lobby:&lt;lobby_id&gt;&quot;</code> topic (per-lobby membership changes):</p><ul><li><code class="inline">{:user_joined, lobby_id, user_id}</code> - a user joined the lobby</li><li><code class="inline">{:user_left, lobby_id, user_id}</code> - a user left the lobby</li><li><code class="inline">{:user_kicked, lobby_id, user_id}</code> - a user was kicked from the lobby</li><li><code class="inline">{:lobby_updated, lobby}</code> - the lobby settings were updated</li><li><code class="inline">{:host_changed, lobby_id, new_host_id}</code> - the host changed (e.g., after host leaves)</li></ul></li></ul>
     </section>
 
 </div>
@@ -550,7 +550,7 @@ create a new lobby if none matches.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> broadcast_member_presence(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">tuple</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> broadcast_member_presence(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">tuple</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -581,7 +581,7 @@ create a new lobby if none matches.</p></div>
           <pre translate="no"><span class="attribute">@spec</span> can_manage_lobby?(
   <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>() | nil,
   <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | nil
-) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -619,7 +619,7 @@ is about who relays packets, not who commands the lobby.</p></li></ul>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> can_view_lobby?(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>() | nil, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | nil) ::
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+  <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -653,7 +653,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> change_lobby(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> change_lobby(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()</pre>
 
       </div>
 
@@ -681,7 +681,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_hidden_lobbies() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_hidden_lobbies() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -709,7 +709,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_hostless_lobbies() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_hostless_lobbies() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -739,7 +739,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_list_all_lobbies(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_list_all_lobbies(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -769,7 +769,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_list_lobbies(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_list_lobbies(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -797,7 +797,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_locked_lobbies() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_locked_lobbies() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -825,7 +825,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_passworded_lobbies() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_passworded_lobbies() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -856,7 +856,7 @@ that are not hidden.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> create_lobby(<a href="Gamend.Types.html#t:lobby_create_attrs/0">Gamend.Types.lobby_create_attrs</a>()) ::
-  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -884,9 +884,9 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> create_membership(%{lobby_id: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), user_id: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()}) ::
+          <pre translate="no"><span class="attribute">@spec</span> create_membership(%{lobby_id: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), user_id: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()}) ::
   {:ok, <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()}
-  | {:error, :not_found | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  | {:error, :not_found | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -915,7 +915,7 @@ that are not hidden.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> delete_lobby(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()) ::
-  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -944,7 +944,7 @@ that are not hidden.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> delete_membership(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()) ::
-  {:ok, <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+  {:ok, <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -972,7 +972,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_lobby(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_lobby(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | nil</pre>
 
       </div>
 
@@ -1000,7 +1000,7 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_lobby!(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_lobby!(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()</pre>
 
       </div>
 
@@ -1028,17 +1028,17 @@ that are not hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_lobby_members(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> get_lobby_members(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: [
   <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()
 ]</pre>
 
       </div>
 
-<p>Gets all users currently in a lobby.</p><p>Returns a list of User structs.</p><h2 id="get_lobby_members/1-examples" class="section-heading"><a href="#get_lobby_members/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="3636452495-1">(</span><span class="n">lobby</span><span class="p" data-group-id="3636452495-1">)</span><span class="w">
-</span><span class="p" data-group-id="3636452495-2">[</span><span class="p" data-group-id="3636452495-3">%</span><span class="nc" data-group-id="3636452495-3">User</span><span class="p" data-group-id="3636452495-3">{</span><span class="p" data-group-id="3636452495-3">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3636452495-4">%</span><span class="nc" data-group-id="3636452495-4">User</span><span class="p" data-group-id="3636452495-4">{</span><span class="p" data-group-id="3636452495-4">}</span><span class="p" data-group-id="3636452495-2">]</span><span class="w">
+<p>Gets all users currently in a lobby.</p><p>Returns a list of User structs.</p><h2 id="get_lobby_members/1-examples" class="section-heading"><a href="#get_lobby_members/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="group-1">(</span><span class="n">lobby</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="p" data-group-id="group-2">[</span><span class="p" data-group-id="group-3">%</span><span class="nc" data-group-id="group-3">User</span><span class="p" data-group-id="group-3">{</span><span class="p" data-group-id="group-3">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-4">%</span><span class="nc" data-group-id="group-4">User</span><span class="p" data-group-id="group-4">{</span><span class="p" data-group-id="group-4">}</span><span class="p" data-group-id="group-2">]</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="3636452495-5">(</span><span class="n">lobby_id</span><span class="p" data-group-id="3636452495-5">)</span><span class="w">
-</span><span class="p" data-group-id="3636452495-6">[</span><span class="p" data-group-id="3636452495-7">%</span><span class="nc" data-group-id="3636452495-7">User</span><span class="p" data-group-id="3636452495-7">{</span><span class="p" data-group-id="3636452495-7">}</span><span class="p" data-group-id="3636452495-6">]</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_lobby_members</span><span class="p" data-group-id="group-5">(</span><span class="n">lobby_id</span><span class="p" data-group-id="group-5">)</span><span class="w">
+</span><span class="p" data-group-id="group-6">[</span><span class="p" data-group-id="group-7">%</span><span class="nc" data-group-id="group-7">User</span><span class="p" data-group-id="group-7">{</span><span class="p" data-group-id="group-7">}</span><span class="p" data-group-id="group-6">]</span></code></pre>
   </section>
 </section>
 <section class="detail" id="join_lobby/3">
@@ -1066,10 +1066,10 @@ that are not hidden.</p>
 
           <pre translate="no"><span class="attribute">@spec</span> join_lobby(
   <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(),
-  <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+  <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()
 ) ::
-  {:ok, <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  {:ok, <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1108,7 +1108,7 @@ reason is one of <code class="inline">:already_in_lobby</code>, <code class="inl
   <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(),
   <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()
 ) ::
-  {:ok, <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  {:ok, <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1137,7 +1137,7 @@ reason is one of <code class="inline">:already_in_lobby</code>, <code class="inl
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> leave_lobby(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> leave_lobby(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()) :: {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1169,7 +1169,7 @@ reason is one of <code class="inline">:already_in_lobby</code>, <code class="inl
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_all_lobbies(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="Gamend.Types.html#t:pagination_opts/0">Gamend.Types.pagination_opts</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_all_lobbies(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="Gamend.Types.html#t:pagination_opts/0">Gamend.Types.pagination_opts</a>()) :: [
   <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()
 ]</pre>
 
@@ -1211,7 +1211,7 @@ Accepts filters: %{
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_lobbies(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="Gamend.Types.html#t:lobby_list_opts/0">Gamend.Types.lobby_list_opts</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_lobbies(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="Gamend.Types.html#t:lobby_list_opts/0">Gamend.Types.lobby_list_opts</a>()) :: [
   <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()
 ]</pre>
 
@@ -1247,7 +1247,7 @@ Accepts filters: %{
 
           <pre translate="no"><span class="attribute">@spec</span> list_lobbies_for_user(
   <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>() | nil,
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(),
   <a href="Gamend.Types.html#t:lobby_list_opts/0">Gamend.Types.lobby_list_opts</a>()
 ) :: [
   <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()
@@ -1280,7 +1280,7 @@ Includes the user's own lobby even if it's hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_memberships_for_lobby(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: [<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_memberships_for_lobby(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: [<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()]</pre>
 
       </div>
 
@@ -1308,8 +1308,8 @@ Includes the user's own lobby even if it's hidden.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> merge_metadata(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> merge_metadata(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1349,9 +1349,9 @@ predict is worse than one they can.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> quick_join(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> quick_join(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">integer</a>() | nil, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
   {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()}
-  | {:error, :already_in_lobby | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  | {:error, :already_in_lobby | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1380,7 +1380,7 @@ create a new lobby if none matches.</p><p>Signature: quick_join(user, title \ ni
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> spectatable?(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> spectatable?(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -1414,9 +1414,9 @@ conversation and the roster open to anyone who knew the lobby id.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> stats() :: %{
-  lobbies_total: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
-  by_state: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()},
-  spectators: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()
+  lobbies_total: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(),
+  by_state: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()},
+  spectators: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()
 }</pre>
 
       </div>
@@ -1448,7 +1448,7 @@ inside the cached snapshot rather than being computed per request.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe_lobbies() :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_lobbies() :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1476,7 +1476,7 @@ inside the cached snapshot rather than being computed per request.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe_lobby(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_lobby(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1506,9 +1506,9 @@ inside the cached snapshot rather than being computed per request.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> transition_state(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> transition_state(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
   {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()}
-  | {:error, :invalid_state | {:hook_rejected, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()} | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  | {:error, :invalid_state | {:hook_rejected, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()} | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1545,10 +1545,10 @@ hooks. <code class="inline">after_lobby_state_changed</code> observes post-commi
           <pre translate="no"><span class="attribute">@spec</span> transition_state_by_host(
   <a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(),
   <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(),
-  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
+  <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()
 ) ::
   {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()}
-  | {:error, :not_host | :invalid_state | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  | {:error, :not_host | :invalid_state | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1580,7 +1580,7 @@ hooks instead.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_lobby(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_lobby(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -1609,7 +1609,7 @@ hooks instead.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> update_lobby(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="Gamend.Types.html#t:lobby_update_attrs/0">Gamend.Types.lobby_update_attrs</a>()) ::
-  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1643,7 +1643,7 @@ hooks instead.</p>
   <a href="Gamend.Types.html#t:lobby_update_attrs/0">Gamend.Types.lobby_update_attrs</a>()
 ) ::
   {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()}
-  | {:error, :not_host | :too_small | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  | {:error, :not_host | :too_small | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1675,7 +1675,7 @@ uses <a href="#update_lobby/2"><code class="inline">update_lobby/2</code></a> in
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> webrtc_enabled_lobby_ids() :: [<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> webrtc_enabled_lobby_ids() :: [<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]</pre>
 
       </div>
 
@@ -1703,8 +1703,8 @@ uses <a href="#update_lobby/2"><code class="inline">update_lobby/2</code></a> in
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> write_webrtc_config(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> write_webrtc_config(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -1746,7 +1746,7 @@ Go through <a href="Gamend.Signaling.html#configure/2"><code class="inline">Game
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

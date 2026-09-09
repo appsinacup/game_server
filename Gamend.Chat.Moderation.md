@@ -141,10 +141,7 @@ Every unexpired mute, for the boot load.
 # `list_filter_words`
 
 ```elixir
-@spec list_filter_words(
-  map(),
-  keyword()
-) :: [Gamend.Chat.FilterWord.t()]
+@spec list_filter_words(map(), keyword()) :: [Gamend.Chat.FilterWord.t()]
 ```
 
 List blocklist entries. Filters: `:word`, `:severity`, `:lang`.
@@ -152,10 +149,7 @@ List blocklist entries. Filters: `:word`, `:severity`, `:lang`.
 # `list_mutes`
 
 ```elixir
-@spec list_mutes(
-  map(),
-  keyword()
-) :: [Gamend.Chat.Mute.t()]
+@spec list_mutes(map(), keyword()) :: [Gamend.Chat.Mute.t()]
 ```
 
 List mutes. Filters: `:user_id`, `:scope`, `:scope_ref_id`, `:active` (when

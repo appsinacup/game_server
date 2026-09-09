@@ -219,10 +219,7 @@ Returns `nil` if the user has never opened this conversation.
 # `list_all_messages`
 
 ```elixir
-@spec list_all_messages(
-  map(),
-  keyword()
-) :: [Gamend.Chat.Message.t()]
+@spec list_all_messages(map(), keyword()) :: [Gamend.Chat.Message.t()]
 ```
 
 List all messages (admin). Supports filters: sender_id, chat_type, chat_ref_id, content.
@@ -263,10 +260,7 @@ Returns a list of `%Message{}` structs ordered by `inserted_at` descending
 # `list_mutes`
 
 ```elixir
-@spec list_mutes(
-  map(),
-  keyword()
-) :: [Gamend.Chat.Mute.t()]
+@spec list_mutes(map(), keyword()) :: [Gamend.Chat.Mute.t()]
 ```
 
 List mutes. Filters: `:user_id`, `:scope`, `:scope_ref_id`, `:active`.
@@ -274,10 +268,7 @@ List mutes. Filters: `:user_id`, `:scope`, `:scope_ref_id`, `:active`.
 # `list_reports`
 
 ```elixir
-@spec list_reports(
-  map(),
-  keyword()
-) :: [Gamend.Chat.Report.t()]
+@spec list_reports(map(), keyword()) :: [Gamend.Chat.Report.t()]
 ```
 
 List reports. Filters: `:status`, `:reported_user_id`, `:reporter_id`.

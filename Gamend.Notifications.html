@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Notifications — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -119,21 +119,21 @@ notifications.</p><p>Notifications can only be sent to accepted friends. They ar
 database so that recipients receive them even when offline. On WebSocket
 connect the client gets all undeleted notifications (ordered by timestamp).
 New notifications are also pushed in real-time via PubSub.</p><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts to the <code class="inline">&quot;notifications:user:&lt;user_id&gt;&quot;</code> topic:</p><ul><li><code class="inline">{:notification_created, notification}</code> – a new notification was created</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Send a notification to a friend</span><span class="w">
-</span><span class="p" data-group-id="2408263093-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">notification</span><span class="p" data-group-id="2408263093-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">send_notification</span><span class="p" data-group-id="2408263093-2">(</span><span class="n">sender_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2408263093-3">%{</span><span class="w">
+</span><span class="p" data-group-id="group-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">notification</span><span class="p" data-group-id="group-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">send_notification</span><span class="p" data-group-id="group-2">(</span><span class="n">sender_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-3">%{</span><span class="w">
   </span><span class="s">&quot;user_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">recipient_id</span><span class="p">,</span><span class="w">
   </span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Game invite&quot;</span><span class="p">,</span><span class="w">
   </span><span class="s">&quot;content&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Join my lobby!&quot;</span><span class="p">,</span><span class="w">
-  </span><span class="s">&quot;metadata&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="2408263093-4">%{</span><span class="s">&quot;lobby_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;0198c0de-7f2a-7e3b-9c4d-1a2b3c4d5e6f&quot;</span><span class="p" data-group-id="2408263093-4">}</span><span class="w">
-</span><span class="p" data-group-id="2408263093-3">}</span><span class="p" data-group-id="2408263093-2">)</span><span class="w">
+  </span><span class="s">&quot;metadata&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="group-4">%{</span><span class="s">&quot;lobby_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;0198c0de-7f2a-7e3b-9c4d-1a2b3c4d5e6f&quot;</span><span class="p" data-group-id="group-4">}</span><span class="w">
+</span><span class="p" data-group-id="group-3">}</span><span class="p" data-group-id="group-2">)</span><span class="w">
 
 </span><span class="c1"># List all notifications for a user (ordered oldest-first)</span><span class="w">
-</span><span class="n">notifications</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">list_notifications</span><span class="p" data-group-id="2408263093-5">(</span><span class="n">user_id</span><span class="p" data-group-id="2408263093-5">)</span><span class="w">
+</span><span class="n">notifications</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">list_notifications</span><span class="p" data-group-id="group-5">(</span><span class="n">user_id</span><span class="p" data-group-id="group-5">)</span><span class="w">
 
 </span><span class="c1"># Delete notifications by IDs (only owner can delete)</span><span class="w">
-</span><span class="p" data-group-id="2408263093-6">{</span><span class="n">deleted_count</span><span class="p">,</span><span class="w"> </span><span class="no">nil</span><span class="p" data-group-id="2408263093-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">delete_notifications</span><span class="p" data-group-id="2408263093-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2408263093-8">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="2408263093-8">]</span><span class="p" data-group-id="2408263093-7">)</span><span class="w">
+</span><span class="p" data-group-id="group-6">{</span><span class="n">deleted_count</span><span class="p">,</span><span class="w"> </span><span class="no">nil</span><span class="p" data-group-id="group-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">delete_notifications</span><span class="p" data-group-id="group-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-8">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="group-8">]</span><span class="p" data-group-id="group-7">)</span><span class="w">
 
 </span><span class="c1"># Count notifications for a user</span><span class="w">
-</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">count_notifications</span><span class="p" data-group-id="2408263093-9">(</span><span class="n">user_id</span><span class="p" data-group-id="2408263093-9">)</span></code></pre>
+</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">count_notifications</span><span class="p" data-group-id="group-9">(</span><span class="n">user_id</span><span class="p" data-group-id="group-9">)</span></code></pre>
     </section>
 
 </div>
@@ -403,7 +403,7 @@ entire history).</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
 
       </div>
 
@@ -444,9 +444,9 @@ entire history).</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> admin_create_notification(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> admin_create_notification(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
   {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()}
-  | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+  | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()}</pre>
 
       </div>
 
@@ -474,8 +474,8 @@ entire history).</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> admin_delete_notification(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> admin_delete_notification(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -505,7 +505,7 @@ entire history).</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_all_notifications(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_all_notifications(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -533,7 +533,7 @@ entire history).</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_notifications(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_notifications(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -561,7 +561,7 @@ entire history).</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_unread_notifications(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_unread_notifications(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -589,8 +589,8 @@ entire history).</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> create_chat_notification(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> create_chat_notification(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -621,8 +621,8 @@ are updated (so the user sees the latest message preview).</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_notification_by(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
-  {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_notification_by(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) ::
+  {<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
 
       </div>
 
@@ -651,7 +651,7 @@ Used internally to retract system-generated notifications (e.g. friend request c
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_notifications(<a href="#t:user_id/0">user_id</a>(), [<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_notifications(<a href="#t:user_id/0">user_id</a>(), [<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()]) :: {<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
 
       </div>
 
@@ -680,7 +680,7 @@ Returns <code class="inline">{deleted_count, nil}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_notification(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_notification(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>() | nil</pre>
 
       </div>
 
@@ -708,7 +708,7 @@ Returns <code class="inline">{deleted_count, nil}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_notification!(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_notification!(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()</pre>
 
       </div>
 
@@ -740,10 +740,9 @@ Returns <code class="inline">{deleted_count, nil}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_all_notifications(
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [<a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_all_notifications(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [
+  <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()
+]</pre>
 
       </div>
 
@@ -773,10 +772,9 @@ Returns <code class="inline">{deleted_count, nil}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_notifications(
-  <a href="#t:user_id/0">user_id</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [<a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_notifications(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [
+  <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()
+]</pre>
 
       </div>
 
@@ -805,7 +803,7 @@ receives them in chronological order.</p><p>Supports pagination via <code class=
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_notifications_by_title(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_notifications_by_title(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: [
   <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()
 ]</pre>
 
@@ -836,7 +834,7 @@ as <a href="#list_notifications/2"><code class="inline">list_notifications/2</co
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_recent_notifications(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_recent_notifications(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>()) :: [
   <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()
 ]</pre>
 
@@ -868,7 +866,7 @@ entire history).</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_sent_notifications_by_title(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_sent_notifications_by_title(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: [
   <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()
 ]</pre>
 
@@ -899,7 +897,7 @@ Results are ordered newest-first and cached with the same version-based TTL.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> mark_all_notifications_read(<a href="#t:user_id/0">user_id</a>()) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> mark_all_notifications_read(<a href="#t:user_id/0">user_id</a>()) :: {<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
 
       </div>
 
@@ -927,8 +925,8 @@ Results are ordered newest-first and cached with the same version-based TTL.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> mark_notification_read(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> mark_notification_read(<a href="#t:user_id/0">user_id</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()}</pre>
 
       </div>
 
@@ -956,9 +954,9 @@ Results are ordered newest-first and cached with the same version-based TTL.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> send_notification(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> send_notification(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
   {:ok, <a href="Gamend.Notifications.Notification.html#t:t/0">Gamend.Notifications.Notification.t</a>()}
-  | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+  | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()}</pre>
 
       </div>
 
@@ -986,7 +984,7 @@ Results are ordered newest-first and cached with the same version-based TTL.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1055,7 +1053,7 @@ Results are ordered newest-first and cached with the same version-based TTL.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

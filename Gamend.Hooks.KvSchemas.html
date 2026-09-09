@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Hooks.KvSchemas — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,12 +117,12 @@ gamend_core
 <p>Registry of game-defined protobuf schemas for KV entry data.</p><p>KV keys are open-ended, so unlike metadata entities there is no naming
 convention — a plugin registers schemas explicitly by exporting
 <code class="inline">kv_schemas/0</code>, mapping exact keys or <code class="inline">*</code>-suffixed prefixes to protobuf
-message modules:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">kv_schemas</span><span class="w"> </span><span class="k" data-group-id="1955546797-1">do</span><span class="w">
-  </span><span class="p" data-group-id="1955546797-2">%{</span><span class="w">
+message modules:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">kv_schemas</span><span class="w"> </span><span class="k" data-group-id="group-1">do</span><span class="w">
+  </span><span class="p" data-group-id="group-2">%{</span><span class="w">
     </span><span class="s">&quot;loadout&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nc">MyGame.V1.Loadout</span><span class="p">,</span><span class="w">
     </span><span class="s">&quot;match:*&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nc">MyGame.V1.MatchState</span><span class="w">
-  </span><span class="p" data-group-id="1955546797-2">}</span><span class="w">
-</span><span class="k" data-group-id="1955546797-1">end</span></code></pre><p>On protobuf sockets, <code class="inline">kv_updated</code> data for a matching key is pushed as
+  </span><span class="p" data-group-id="group-2">}</span><span class="w">
+</span><span class="k" data-group-id="group-1">end</span></code></pre><p>On protobuf sockets, <code class="inline">kv_updated</code> data for a matching key is pushed as
 compact binary (<code class="inline">data_pb</code>) instead of JSON bytes; storage and REST stay
 JSON, and data that does not fit the schema falls back to JSON so it is
 never dropped. Exact keys win over prefixes; the longest prefix wins.
@@ -211,8 +211,8 @@ registration is logged.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> all() :: %{
-  exact: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()},
-  prefixes: [{<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()}]
+  exact: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">module</a>()},
+  prefixes: [{<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">module</a>()}]
 }</pre>
 
       </div>
@@ -241,7 +241,7 @@ registration is logged.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> module_for(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> module_for(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">module</a>() | nil</pre>
 
       </div>
 
@@ -269,7 +269,7 @@ registration is logged.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> refresh([<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">struct</a>()]) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> refresh([<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">struct</a>()]) :: :ok</pre>
 
       </div>
 
@@ -310,7 +310,7 @@ registration is logged.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

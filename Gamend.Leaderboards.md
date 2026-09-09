@@ -72,10 +72,7 @@ Accepts the same filter options as `list_leaderboards/1`.
 # `count_records`
 
 ```elixir
-@spec count_records(
-  Ecto.UUID.t(),
-  keyword()
-) :: non_neg_integer()
+@spec count_records(Ecto.UUID.t(), keyword()) :: non_neg_integer()
 ```
 
 Counts records for a leaderboard.
@@ -282,10 +279,9 @@ Lists leaderboards with optional filters.
 # `list_leaderboards_by_slug`
 
 ```elixir
-@spec list_leaderboards_by_slug(
-  String.t(),
-  keyword()
-) :: [Gamend.Leaderboards.Leaderboard.t()]
+@spec list_leaderboards_by_slug(String.t(), keyword()) :: [
+  Gamend.Leaderboards.Leaderboard.t()
+]
 ```
 
 Lists all leaderboards with the given slug (all seasons), ordered by end date.
@@ -293,10 +289,7 @@ Lists all leaderboards with the given slug (all seasons), ordered by end date.
 # `list_records`
 
 ```elixir
-@spec list_records(
-  String.t(),
-  keyword()
-) :: [Gamend.Leaderboards.Record.t()]
+@spec list_records(String.t(), keyword()) :: [Gamend.Leaderboards.Record.t()]
 ```
 
 Lists records for a leaderboard, ordered by rank.

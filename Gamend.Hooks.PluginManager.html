@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Hooks.PluginManager — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -122,7 +122,7 @@ containing:</p><pre><code class="makeup elixir" translate="no"><span class="n">m
   </span><span class="n">deps</span><span class="o">/</span><span class="o">*</span><span class="o">/</span><span class="n">ebin</span><span class="o">/</span><span class="o">*</span><span class="o">.</span><span class="n">beam</span><span class="w">
   </span><span class="n">deps</span><span class="o">/</span><span class="o">*</span><span class="o">/</span><span class="n">priv</span><span class="o">/</span><span class="o">*</span><span class="o">*</span></code></pre><p>The plugin's <code class="inline">.app</code> env must include the key <code class="inline">:hooks_module</code>, whose value is either a
 charlist or string module name like <code class="inline">'Elixir.Gamend.Modules.MyGameHook'</code>.</p><p>This manager is intentionally dependency-free: it only adds <code class="inline">ebin</code> directories to the code
-path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code class="inline">Application.load/1</code></a> + <a href="https://hexdocs.pm/elixir/Application.html#ensure_all_started/1"><code class="inline">Application.ensure_all_started/1</code></a>.</p>
+path and uses <a href="https://elixir.hexdocs.pm/Application.html#load/1"><code class="inline">Application.load/1</code></a> + <a href="https://elixir.hexdocs.pm/Application.html#ensure_all_started/1"><code class="inline">Application.ensure_all_started/1</code></a>.</p>
     </section>
 
 </div>
@@ -270,7 +270,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> plugin_app() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> plugin_app() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()</pre>
 
       </div>
 
@@ -298,7 +298,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> plugin_name() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> plugin_name() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -341,8 +341,8 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> call_rpc(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">list</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> call_rpc(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">list</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">any</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -368,7 +368,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
   <section class="docstring">
 
-<p>Returns a specification to start this module under a supervisor.</p><p>See <a href="https://hexdocs.pm/elixir/Supervisor.html"><code class="inline">Supervisor</code></a>.</p>
+<p>Returns a specification to start this module under a supervisor.</p><p>See <a href="https://elixir.hexdocs.pm/Supervisor.html"><code class="inline">Supervisor</code></a>.</p>
   </section>
 </section>
 <section class="detail" id="hook_modules/0">
@@ -392,7 +392,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> hook_modules() :: [{<a href="#t:plugin_name/0">plugin_name</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()}]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> hook_modules() :: [{<a href="#t:plugin_name/0">plugin_name</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">module</a>()}]</pre>
 
       </div>
 
@@ -449,7 +449,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> lookup(<a href="#t:plugin_name/0">plugin_name</a>()) ::
-  {:ok, <a href="Gamend.Hooks.PluginManager.Plugin.html#t:t/0">Gamend.Hooks.PluginManager.Plugin.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  {:ok, <a href="Gamend.Hooks.PluginManager.Plugin.html#t:t/0">Gamend.Hooks.PluginManager.Plugin.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -477,7 +477,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> plugins_dir() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> plugins_dir() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -535,7 +535,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
           <pre translate="no"><span class="attribute">@spec</span> reload_and_after_startup() :: %{
   plugins: [<a href="Gamend.Hooks.PluginManager.Plugin.html#t:t/0">Gamend.Hooks.PluginManager.Plugin.t</a>()],
-  after_startup: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+  after_startup: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()
 }</pre>
 
       </div>
@@ -566,7 +566,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> start_link(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/GenServer.html#t:on_start/0">GenServer.on_start</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> start_link(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/GenServer.html#t:on_start/0">GenServer.on_start</a>()</pre>
 
       </div>
 
@@ -607,7 +607,7 @@ path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code 
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

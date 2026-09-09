@@ -597,7 +597,9 @@ to the player:
 ```elixir
 @callback before_ready_check_open(
   Gamend.Lobbies.Lobby.t() | Gamend.Parties.Party.t() | :matchmaking,
-  [String.t()]
+  [
+    String.t()
+  ]
 ) :: veto_result()
 ```
 

@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Economy — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,16 +117,16 @@ gamend_core
 <p>Virtual-currency wallets with an append-only ledger.</p><p>Currencies are free-form string codes (<code class="inline">&quot;gold&quot;</code>, <code class="inline">&quot;gems&quot;</code>, <code class="inline">&quot;energy&quot;</code>) — the
 game decides which exist. Every balance change is atomic and recorded in the
 ledger, so two concurrent spends can never overspend and every mutation is
-auditable.</p><h2 id="module-usage-server-side-hooks" class="section-heading"><a href="#module-usage-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Economy</span><span class="o">.</span><span class="n">grant</span><span class="p" data-group-id="0662106461-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gold&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="ss">reason</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;match_reward&quot;</span><span class="p" data-group-id="0662106461-1">)</span><span class="w">
-</span><span class="k">case</span><span class="w"> </span><span class="nc">Economy</span><span class="o">.</span><span class="n">spend</span><span class="p" data-group-id="0662106461-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gold&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="ss">reason</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;store_purchase&quot;</span><span class="p" data-group-id="0662106461-2">)</span><span class="w"> </span><span class="k" data-group-id="0662106461-3">do</span><span class="w">
-  </span><span class="p" data-group-id="0662106461-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">balance</span><span class="p" data-group-id="0662106461-4">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:ok</span><span class="w">
-  </span><span class="p" data-group-id="0662106461-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:insufficient_funds</span><span class="p" data-group-id="0662106461-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:not_enough_gold</span><span class="w">
-</span><span class="k" data-group-id="0662106461-3">end</span><span class="w">
+auditable.</p><h2 id="module-usage-server-side-hooks" class="section-heading"><a href="#module-usage-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Economy</span><span class="o">.</span><span class="n">grant</span><span class="p" data-group-id="group-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gold&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="ss">reason</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;match_reward&quot;</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="k">case</span><span class="w"> </span><span class="nc">Economy</span><span class="o">.</span><span class="n">spend</span><span class="p" data-group-id="group-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gold&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="ss">reason</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;store_purchase&quot;</span><span class="p" data-group-id="group-2">)</span><span class="w"> </span><span class="k" data-group-id="group-3">do</span><span class="w">
+  </span><span class="p" data-group-id="group-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">balance</span><span class="p" data-group-id="group-4">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:ok</span><span class="w">
+  </span><span class="p" data-group-id="group-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:insufficient_funds</span><span class="p" data-group-id="group-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:not_enough_gold</span><span class="w">
+</span><span class="k" data-group-id="group-3">end</span><span class="w">
 
-</span><span class="nc">Economy</span><span class="o">.</span><span class="n">balance</span><span class="p" data-group-id="0662106461-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gold&quot;</span><span class="p" data-group-id="0662106461-6">)</span><span class="w">   </span><span class="c1">#=&gt; 70</span><span class="w">
-</span><span class="nc">Economy</span><span class="o">.</span><span class="n">balances</span><span class="p" data-group-id="0662106461-7">(</span><span class="n">user_id</span><span class="p" data-group-id="0662106461-7">)</span><span class="w">          </span><span class="c1">#=&gt; %{&quot;gold&quot; =&gt; 70}</span></code></pre><h2 id="module-idempotency" class="section-heading"><a href="#module-idempotency" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Idempotency</span></h2><p>Pass <code class="inline">:idempotency_key</code> so a retried request (network retry, at-least-once job)
+</span><span class="nc">Economy</span><span class="o">.</span><span class="n">balance</span><span class="p" data-group-id="group-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gold&quot;</span><span class="p" data-group-id="group-6">)</span><span class="w">   </span><span class="c1">#=&gt; 70</span><span class="w">
+</span><span class="nc">Economy</span><span class="o">.</span><span class="n">balances</span><span class="p" data-group-id="group-7">(</span><span class="n">user_id</span><span class="p" data-group-id="group-7">)</span><span class="w">          </span><span class="c1">#=&gt; %{&quot;gold&quot; =&gt; 70}</span></code></pre><h2 id="module-idempotency" class="section-heading"><a href="#module-idempotency" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Idempotency</span></h2><p>Pass <code class="inline">:idempotency_key</code> so a retried request (network retry, at-least-once job)
 can't double-apply — the second call is a no-op that returns the current
-balance:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Economy</span><span class="o">.</span><span class="n">grant</span><span class="p" data-group-id="8604155342-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gems&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">idempotency_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;purchase:</span><span class="si" data-group-id="8604155342-2">#{</span><span class="n">order_id</span><span class="si" data-group-id="8604155342-2">}</span><span class="s">&quot;</span><span class="p" data-group-id="8604155342-1">)</span></code></pre><h2 id="module-safety" class="section-heading"><a href="#module-safety" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Safety</span></h2><p>These are <strong>server-authoritative</strong>: expose them from hooks and admin tools,
+balance:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Economy</span><span class="o">.</span><span class="n">grant</span><span class="p" data-group-id="group-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;gems&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">idempotency_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;purchase:</span><span class="si" data-group-id="group-2">#{</span><span class="n">order_id</span><span class="si" data-group-id="group-2">}</span><span class="s">&quot;</span><span class="p" data-group-id="group-1">)</span></code></pre><h2 id="module-safety" class="section-heading"><a href="#module-safety" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Safety</span></h2><p>These are <strong>server-authoritative</strong>: expose them from hooks and admin tools,
 never as a raw client &quot;add currency&quot; endpoint. Clients only read their wallet.</p>
     </section>
 
@@ -261,7 +261,7 @@ never as a raw client &quot;add currency&quot; endpoint. Clients only read their
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> currency() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> currency() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -289,7 +289,7 @@ never as a raw client &quot;add currency&quot; endpoint. Clients only read their
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
 
       </div>
 
@@ -330,7 +330,7 @@ never as a raw client &quot;add currency&quot; endpoint. Clients only read their
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> balance(<a href="#t:user_id/0">user_id</a>(), <a href="#t:currency/0">currency</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> balance(<a href="#t:user_id/0">user_id</a>(), <a href="#t:currency/0">currency</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -358,7 +358,7 @@ never as a raw client &quot;add currency&quot; endpoint. Clients only read their
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> balances(<a href="#t:user_id/0">user_id</a>()) :: %{required(<a href="#t:currency/0">currency</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> balances(<a href="#t:user_id/0">user_id</a>()) :: %{required(<a href="#t:currency/0">currency</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
 
       </div>
 
@@ -388,8 +388,8 @@ never as a raw client &quot;add currency&quot; endpoint. Clients only read their
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> grant(<a href="#t:user_id/0">user_id</a>(), <a href="#t:currency/0">currency</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> grant(<a href="#t:user_id/0">user_id</a>(), <a href="#t:currency/0">currency</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -420,8 +420,8 @@ Returns <code class="inline">{:ok, new_balance}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> spend(<a href="#t:user_id/0">user_id</a>(), <a href="#t:currency/0">currency</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, :insufficient_funds | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> spend(<a href="#t:user_id/0">user_id</a>(), <a href="#t:currency/0">currency</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, :insufficient_funds | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -450,7 +450,7 @@ is never left negative.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -519,7 +519,7 @@ is never left negative.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

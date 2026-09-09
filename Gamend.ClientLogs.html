@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.ClientLogs — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -114,7 +114,7 @@ gamend_core
 
 
     <section id="moduledoc">
-<p>Logs from the game client, put where the server's own logs already are.</p><p>A client uploads batches of entries; each one is re-emitted through <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a>
+<p>Logs from the game client, put where the server's own logs already are.</p><p>A client uploads batches of entries; each one is re-emitted through <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a>
 and leaves by whatever path the host already uses — stdout, the rotating file
 (<code class="inline">GamendWeb.FileLogHandler</code>), the admin ring buffer, and from there whatever
 aggregator scrapes them. <code class="inline">client_sessions</code> holds one row per run as the index
@@ -125,22 +125,22 @@ systems, forever. Putting them in the same stream means answering it with one
 query, and a log aggregator indexes and compresses them for a fraction of
 what a Postgres row each would cost.</p><p>So the only durable rows here are per <em>session</em>, which is a few per player
 per day rather than a few hundred.</p><h2 id="module-the-correlation-key" class="section-heading"><a href="#module-the-correlation-key" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">The correlation key</span></h2><p>Every emitted line carries a logfmt prefix naming its session, user, lobby
-and screen:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="5316519037-1">[</span><span class="n">client</span><span class="p" data-group-id="5316519037-1">]</span><span class="w"> </span><span class="n">session</span><span class="o">=</span><span class="mi">0</span><span class="n">f1e</span><span class="err">…</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="mi">9</span><span class="n">ab3</span><span class="err">…</span><span class="w"> </span><span class="n">level</span><span class="o">=</span><span class="n">info</span><span class="w"> </span><span class="n">cat</span><span class="o">=</span><span class="n">game</span><span class="w"> </span><span class="n">lobby</span><span class="o">=</span><span class="mi">77</span><span class="n">c1</span><span class="err">…</span><span class="w"> </span><span class="n">screen</span><span class="o">=</span><span class="n">boat</span><span class="w"> </span><span class="n">seq</span><span class="o">=</span><span class="mi">42</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nc">Game</span><span class="w"> </span><span class="n">starting</span></code></pre><p>In the <em>message</em>, deliberately, not only in <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> metadata. Metadata reaches
+and screen:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="group-1">[</span><span class="n">client</span><span class="p" data-group-id="group-1">]</span><span class="w"> </span><span class="n">session</span><span class="o">=</span><span class="mi">0</span><span class="n">f1e</span><span class="err">…</span><span class="w"> </span><span class="n">user</span><span class="o">=</span><span class="mi">9</span><span class="n">ab3</span><span class="err">…</span><span class="w"> </span><span class="n">level</span><span class="o">=</span><span class="n">info</span><span class="w"> </span><span class="n">cat</span><span class="o">=</span><span class="n">game</span><span class="w"> </span><span class="n">lobby</span><span class="o">=</span><span class="mi">77</span><span class="n">c1</span><span class="err">…</span><span class="w"> </span><span class="n">screen</span><span class="o">=</span><span class="n">boat</span><span class="w"> </span><span class="n">seq</span><span class="o">=</span><span class="mi">42</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nc">Game</span><span class="w"> </span><span class="n">starting</span></code></pre><p>In the <em>message</em>, deliberately, not only in <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> metadata. Metadata reaches
 stdout only for the keys a host lists in its <code class="inline">:default_formatter</code> config, and
 a feature that silently stops correlating because a host never copied a config
 line is worse than a slightly longer line. Metadata is set as well, for the
 structured filters on the admin page.</p><p>A grep for <code class="inline">session=&lt;id&gt;</code> therefore returns client <em>and</em> server lines
 interleaved, in any log store, with no configuration. The same id reaches
 server-side lines through <code class="inline">GamendWeb.Plugs.ClientSession</code>, which stamps it
-from the <code class="inline">x-gamend-session</code> header.</p><h2 id="module-levels" class="section-heading"><a href="#module-levels" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Levels</span></h2><p>Client levels are carried as <code class="inline">level=</code> in the line, not as the <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> level.
-The two mean different things: the <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> level governs how chatty the
+from the <code class="inline">x-gamend-session</code> header.</p><h2 id="module-levels" class="section-heading"><a href="#module-levels" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Levels</span></h2><p>Client levels are carried as <code class="inline">level=</code> in the line, not as the <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> level.
+The two mean different things: the <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> level governs how chatty the
 <em>server</em> is, and hosts routinely purge <code class="inline">debug</code> at compile time in production
 (<code class="inline">compile_time_purge_matching</code>). Routing a client <code class="inline">debug</code> entry through
-<a href="https://hexdocs.pm/logger/Logger.html#debug/1"><code class="inline">Logger.debug/1</code></a> would mean asking a client for verbose capture and then
+<a href="https://logger.hexdocs.pm/Logger.html#debug/1"><code class="inline">Logger.debug/1</code></a> would mean asking a client for verbose capture and then
 dropping it on arrival, in exactly the builds where it is hardest to
-reproduce. Client <code class="inline">warn</code> and <code class="inline">error</code> map to their <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> equivalents so
+reproduce. Client <code class="inline">warn</code> and <code class="inline">error</code> map to their <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> equivalents so
 existing alerting sees them; everything below maps to <code class="inline">Logger.info</code>.</p><p>One consequence worth knowing before wondering where the logs went: a host
-running <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> at <code class="inline">:warning</code> drops every client line below <code class="inline">warn</code>, because
+running <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> at <code class="inline">:warning</code> drops every client line below <code class="inline">warn</code>, because
 the primary level filter runs before any handler. Collecting client <code class="inline">info</code>
 requires the server's own level to be <code class="inline">:info</code> or lower. The admin page says so
 rather than showing an empty list — see <a href="#logger_level_blocks_collection?/0"><code class="inline">logger_level_blocks_collection?/0</code></a>.</p><p>Disabled by default; see <a href="#enabled?/0"><code class="inline">enabled?/0</code></a>.</p>
@@ -226,7 +226,7 @@ rather than showing an empty list — see <a href="#logger_level_blocks_collecti
 
       </div>
 
-        <div class="summary-synopsis"><p>Whether the host's own <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> level is discarding client entries before
+        <div class="summary-synopsis"><p>Whether the host's own <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> level is discarding client entries before
 they reach any handler.</p></div>
 
     </div>
@@ -297,13 +297,13 @@ retention window.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> capture_policy() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> capture_policy() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()</pre>
 
       </div>
 
 <p>The capture policy a client should apply, served to it at startup.</p><p>Clients gate their own uploads on this: the floor level, plus per-category
 overrides so a noisy category can be silenced (or a quiet one opened up)
-without shipping a build. <code class="inline">&quot;off&quot;</code> for a category drops it entirely.</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="5229539826-1">%{</span><span class="ss">enabled</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p">,</span><span class="w"> </span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">categories</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5229539826-2">%{</span><span class="s">&quot;perf&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;off&quot;</span><span class="p" data-group-id="5229539826-2">}</span><span class="p">,</span><span class="w"> </span><span class="ss">batch_max</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p" data-group-id="5229539826-1">}</span></code></pre>
+without shipping a build. <code class="inline">&quot;off&quot;</code> for a category drops it entirely.</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="group-1">%{</span><span class="ss">enabled</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p">,</span><span class="w"> </span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">categories</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="group-2">%{</span><span class="s">&quot;perf&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;off&quot;</span><span class="p" data-group-id="group-2">}</span><span class="p">,</span><span class="w"> </span><span class="ss">batch_max</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p" data-group-id="group-1">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="count_sessions/1">
@@ -329,7 +329,7 @@ without shipping a build. <code class="inline">&quot;off&quot;</code> for a cate
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_sessions(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_sessions(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -357,7 +357,7 @@ without shipping a build. <code class="inline">&quot;off&quot;</code> for a cate
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> enabled?() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> enabled?() :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -385,7 +385,7 @@ without shipping a build. <code class="inline">&quot;off&quot;</code> for a cate
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_session(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="Gamend.ClientLogs.Session.html#t:t/0">Gamend.ClientLogs.Session.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_session(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="Gamend.ClientLogs.Session.html#t:t/0">Gamend.ClientLogs.Session.t</a>() | nil</pre>
 
       </div>
 
@@ -415,10 +415,7 @@ without shipping a build. <code class="inline">&quot;off&quot;</code> for a cate
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> ingest(
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> ingest(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()}</pre>
 
       </div>
 
@@ -454,7 +451,7 @@ worth a 500 to a client that is probably already having a bad time.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_sessions(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.ClientLogs.Session.html#t:t/0">Gamend.ClientLogs.Session.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_sessions(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.ClientLogs.Session.html#t:t/0">Gamend.ClientLogs.Session.t</a>()]</pre>
 
       </div>
 
@@ -484,13 +481,13 @@ worth a 500 to a client that is probably already having a bad time.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> logger_level_blocks_collection?() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> logger_level_blocks_collection?() :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
-<p>Whether the host's own <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> level is discarding client entries before
+<p>Whether the host's own <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> level is discarding client entries before
 they reach any handler.</p><p>Collection is configured in two places that know nothing about each other —
-<code class="inline">level</code> here, and the server's <a href="https://hexdocs.pm/logger/Logger.html"><code class="inline">Logger</code></a> level — and the failure mode when
+<code class="inline">level</code> here, and the server's <a href="https://logger.hexdocs.pm/Logger.html"><code class="inline">Logger</code></a> level — and the failure mode when
 they disagree is an empty page rather than an error. Worth answering rather
 than leaving to be rediscovered.</p>
   </section>
@@ -516,7 +513,7 @@ than leaving to be rediscovered.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> resolved_config(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> resolved_config(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">atom</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()</pre>
 
       </div>
 
@@ -545,7 +542,7 @@ a copy of it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> session_lobby_ids(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> session_lobby_ids(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: [<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()]</pre>
 
       </div>
 
@@ -575,7 +572,7 @@ state that produced it are one click apart.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> set_flagged(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> set_flagged(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()) :: :ok</pre>
 
       </div>
 
@@ -617,7 +614,7 @@ retention window.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

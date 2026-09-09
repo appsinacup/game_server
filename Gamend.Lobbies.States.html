@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Lobbies.States — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -120,9 +120,9 @@ nothing more. So the values below are documentation, not an enum: core
 accepts any state word, any state may follow any other, and a game that
 needs a vocabulary or an ordering enforces both in
 <code class="inline">before_lobby_state_change</code> — the same callback that already gates who may
-move to what:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">before_lobby_state_change</span><span class="p" data-group-id="3578756805-1">(</span><span class="c">_lobby</span><span class="p">,</span><span class="w"> </span><span class="c">_from</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="p" data-group-id="3578756805-1">)</span><span class="w">
-    </span><span class="ow">when</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p" data-group-id="3578756805-2">[</span><span class="s">&quot;created&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;starting&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;playing&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ended&quot;</span><span class="p" data-group-id="3578756805-2">]</span><span class="p">,</span><span class="w">
-    </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="3578756805-3">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:unknown_state</span><span class="p" data-group-id="3578756805-3">}</span></code></pre><p>A state is a word, not a lifecycle: core attaches no meaning to any of them,
+move to what:</p><pre><code class="makeup elixir" translate="no"><span class="kd">def</span><span class="w"> </span><span class="nf">before_lobby_state_change</span><span class="p" data-group-id="group-1">(</span><span class="c">_lobby</span><span class="p">,</span><span class="w"> </span><span class="c">_from</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="p" data-group-id="group-1">)</span><span class="w">
+    </span><span class="ow">when</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p" data-group-id="group-2">[</span><span class="s">&quot;created&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;starting&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;playing&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;ended&quot;</span><span class="p" data-group-id="group-2">]</span><span class="p">,</span><span class="w">
+    </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="group-3">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:unknown_state</span><span class="p" data-group-id="group-3">}</span></code></pre><p>A state is a word, not a lifecycle: core attaches no meaning to any of them,
 including whether one ends the lobby. A game that finishes a match deletes
 the lobby itself; retention only reaps lobbies everyone has gone quiet in.</p>
     </section>
@@ -196,7 +196,7 @@ the lobby itself; retention only reaps lobbies everyone has gone quiet in.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> core() :: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> core() :: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()}</pre>
 
       </div>
 
@@ -224,7 +224,7 @@ the lobby itself; retention only reaps lobbies everyone has gone quiet in.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> initial() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> initial() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -265,7 +265,7 @@ the lobby itself; retention only reaps lobbies everyone has gone quiet in.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

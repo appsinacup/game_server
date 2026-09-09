@@ -80,10 +80,7 @@ Returns `{:error, :not_connected}`.
 # `list_invitations`
 
 ```elixir
-@spec list_invitations(
-  Ecto.UUID.t(),
-  keyword()
-) :: [map()]
+@spec list_invitations(Ecto.UUID.t(), keyword()) :: [map()]
 ```
 
 List pending group invitations for a user.
@@ -91,10 +88,7 @@ List pending group invitations for a user.
 # `list_sent_invitations`
 
 ```elixir
-@spec list_sent_invitations(
-  Ecto.UUID.t(),
-  keyword()
-) :: [map()]
+@spec list_sent_invitations(Ecto.UUID.t(), keyword()) :: [map()]
 ```
 
 List group invitations sent by a user.

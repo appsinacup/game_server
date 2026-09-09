@@ -274,10 +274,7 @@ To end a party outright rather than leave it, call `disband/1`.
 # `list_all_parties`
 
 ```elixir
-@spec list_all_parties(
-  map(),
-  keyword()
-) :: [Gamend.Parties.Party.t()]
+@spec list_all_parties(map(), keyword()) :: [Gamend.Parties.Party.t()]
 ```
 
 List all parties with optional filters and pagination.

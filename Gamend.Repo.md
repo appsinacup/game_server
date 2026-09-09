@@ -51,10 +51,7 @@ option in your repository configuration instead.
 # `durable_transaction`
 
 ```elixir
-@spec durable_transaction(
-  (-&gt; result),
-  keyword()
-) :: {:ok, result} | {:error, term()}
+@spec durable_transaction((-&gt; result), keyword()) :: {:ok, result} | {:error, term()}
 when result: term()
 ```
 

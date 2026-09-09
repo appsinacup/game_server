@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.KV — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -359,9 +359,9 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@type</span> attrs() :: %{
-  :key =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  optional(:user_id) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  optional(:lobby_id) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  :key =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(),
+  optional(:user_id) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(),
+  optional(:lobby_id) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(),
   :value =&gt; <a href="#t:value/0">value</a>(),
   optional(:metadata) =&gt; <a href="#t:metadata/0">metadata</a>()
 }</pre>
@@ -393,12 +393,12 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@type</span> list_opts() :: [
-  page: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
-  page_size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
-  user_id: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
-  lobby_id: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
-  global_only: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
-  key: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
+  page: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>(),
+  page_size: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>(),
+  user_id: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  lobby_id: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(),
+  global_only: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>(),
+  key: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()
 ]</pre>
 
       </div>
@@ -427,7 +427,7 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> metadata() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> metadata() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()</pre>
 
       </div>
 
@@ -483,7 +483,7 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> value() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> value() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()</pre>
 
       </div>
 
@@ -526,7 +526,7 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_entries(<a href="#t:list_opts/0">list_opts</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_entries(<a href="#t:list_opts/0">list_opts</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -555,7 +555,7 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> create_entry(<a href="#t:attrs/0">attrs</a>()) ::
-  {:ok, Gamend.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+  {:ok, Gamend.KV.Entry.t()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -587,10 +587,7 @@ Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete(
-  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: :ok</pre>
 
       </div>
 
@@ -618,7 +615,7 @@ Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_entry(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_entry(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -646,7 +643,7 @@ Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_user_lobby_entries(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_user_lobby_entries(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -678,10 +675,7 @@ Entries scoped to the lobby alone, or to the user alone, are left untouched.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get(
-  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: {:ok, <a href="#t:payload/0">payload</a>()} | :error</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: {:ok, <a href="#t:payload/0">payload</a>()} | :error</pre>
 
       </div>
 
@@ -710,7 +704,7 @@ Returns <code class="inline">{:ok, %{value: map(), metadata: map()}}</code> when
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_entry(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: Gamend.KV.Entry.t() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_entry(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: Gamend.KV.Entry.t() | nil</pre>
 
       </div>
 
@@ -774,8 +768,8 @@ Returns a list of <code class="inline">Entry</code> structs ordered by most rece
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="#t:value/0">value</a>(), <a href="#t:metadata/0">metadata</a>()) ::
-  {:ok, Gamend.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="#t:value/0">value</a>(), <a href="#t:metadata/0">metadata</a>()) ::
+  {:ok, Gamend.KV.Entry.t()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -803,8 +797,8 @@ Returns a list of <code class="inline">Entry</code> structs ordered by most rece
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="#t:value/0">value</a>(), <a href="#t:metadata/0">metadata</a>(), <a href="#t:list_opts/0">list_opts</a>()) ::
-  {:ok, Gamend.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="#t:value/0">value</a>(), <a href="#t:metadata/0">metadata</a>(), <a href="#t:list_opts/0">list_opts</a>()) ::
+  {:ok, Gamend.KV.Entry.t()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -836,10 +830,7 @@ Returns <code class="inline">{:ok, entry}</code> on success or <code class="inli
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe(
-  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -869,10 +860,7 @@ Returns <code class="inline">{:ok, entry}</code> on success or <code class="inli
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> unsubscribe(
-  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -900,10 +888,10 @@ Returns <code class="inline">{:ok, entry}</code> on success or <code class="inli
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> update_entry(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:attrs/0">attrs</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> update_entry(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:attrs/0">attrs</a>()) ::
   {:ok, Gamend.KV.Entry.t()}
   | {:error, :not_found}
-  | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+  | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -945,7 +933,7 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

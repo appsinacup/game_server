@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Inventory — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,16 +117,16 @@ gamend_core
 <p>Player item stacks — the non-fungible companion to <a href="Gamend.Economy.html"><code class="inline">Gamend.Economy</code></a>.</p><p>Items are free-form string codes (<code class="inline">&quot;health_potion&quot;</code>, <code class="inline">&quot;sword&quot;</code>, <code class="inline">&quot;card_374&quot;</code>);
 each <code class="inline">(user, item)</code> pair holds a quantity and per-stack <code class="inline">metadata</code>. Grants and
 consumes are atomic — a consume can never take a stack below zero — and every
-change is recorded in the <code class="inline">inventory_ledger</code>.</p><h2 id="module-usage-server-side-hooks" class="section-heading"><a href="#module-usage-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Inventory</span><span class="o">.</span><span class="n">grant_item</span><span class="p" data-group-id="1225997253-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="1225997253-1">)</span><span class="w">
-</span><span class="k">case</span><span class="w"> </span><span class="nc">Inventory</span><span class="o">.</span><span class="n">consume_item</span><span class="p" data-group-id="1225997253-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="1225997253-2">)</span><span class="w"> </span><span class="k" data-group-id="1225997253-3">do</span><span class="w">
-  </span><span class="p" data-group-id="1225997253-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">remaining</span><span class="p" data-group-id="1225997253-4">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:ok</span><span class="w">
-  </span><span class="p" data-group-id="1225997253-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:insufficient_items</span><span class="p" data-group-id="1225997253-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:none_left</span><span class="w">
-</span><span class="k" data-group-id="1225997253-3">end</span><span class="w">
+change is recorded in the <code class="inline">inventory_ledger</code>.</p><h2 id="module-usage-server-side-hooks" class="section-heading"><a href="#module-usage-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Inventory</span><span class="o">.</span><span class="n">grant_item</span><span class="p" data-group-id="group-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="k">case</span><span class="w"> </span><span class="nc">Inventory</span><span class="o">.</span><span class="n">consume_item</span><span class="p" data-group-id="group-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="group-2">)</span><span class="w"> </span><span class="k" data-group-id="group-3">do</span><span class="w">
+  </span><span class="p" data-group-id="group-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">remaining</span><span class="p" data-group-id="group-4">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:ok</span><span class="w">
+  </span><span class="p" data-group-id="group-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="ss">:insufficient_items</span><span class="p" data-group-id="group-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="ss">:none_left</span><span class="w">
+</span><span class="k" data-group-id="group-3">end</span><span class="w">
 
-</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">quantity</span><span class="p" data-group-id="1225997253-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p" data-group-id="1225997253-6">)</span><span class="w">  </span><span class="c1">#=&gt; 2</span><span class="w">
-</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">inventory</span><span class="p" data-group-id="1225997253-7">(</span><span class="n">user_id</span><span class="p" data-group-id="1225997253-7">)</span><span class="w">                  </span><span class="c1">#=&gt; %{&quot;health_potion&quot; =&gt; 2}</span></code></pre><h2 id="module-idempotency" class="section-heading"><a href="#module-idempotency" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Idempotency</span></h2><p>Pass <code class="inline">:idempotency_key</code> so a retried request (network retry, at-least-once
+</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">quantity</span><span class="p" data-group-id="group-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;health_potion&quot;</span><span class="p" data-group-id="group-6">)</span><span class="w">  </span><span class="c1">#=&gt; 2</span><span class="w">
+</span><span class="nc">Inventory</span><span class="o">.</span><span class="n">inventory</span><span class="p" data-group-id="group-7">(</span><span class="n">user_id</span><span class="p" data-group-id="group-7">)</span><span class="w">                  </span><span class="c1">#=&gt; %{&quot;health_potion&quot; =&gt; 2}</span></code></pre><h2 id="module-idempotency" class="section-heading"><a href="#module-idempotency" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Idempotency</span></h2><p>Pass <code class="inline">:idempotency_key</code> so a retried request (network retry, at-least-once
 job) can't double-apply — the second call is a no-op that returns the current
-quantity:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Inventory</span><span class="o">.</span><span class="n">grant_item</span><span class="p" data-group-id="3727679076-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;loot_crate&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">idempotency_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;quest:</span><span class="si" data-group-id="3727679076-2">#{</span><span class="n">progress_id</span><span class="si" data-group-id="3727679076-2">}</span><span class="s">:1&quot;</span><span class="p" data-group-id="3727679076-1">)</span></code></pre><p>Like the economy these are <strong>server-authoritative</strong>: expose them from hooks and
+quantity:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Inventory</span><span class="o">.</span><span class="n">grant_item</span><span class="p" data-group-id="group-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;loot_crate&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">idempotency_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;quest:</span><span class="si" data-group-id="group-2">#{</span><span class="n">progress_id</span><span class="si" data-group-id="group-2">}</span><span class="s">:1&quot;</span><span class="p" data-group-id="group-1">)</span></code></pre><p>Like the economy these are <strong>server-authoritative</strong>: expose them from hooks and
 admin tools, never as a raw client &quot;give me items&quot; endpoint.</p>
     </section>
 
@@ -272,7 +272,7 @@ doesn't hold enough — the stack never goes negative.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> item() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> item() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -300,7 +300,7 @@ doesn't hold enough — the stack never goes negative.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
 
       </div>
 
@@ -343,8 +343,8 @@ doesn't hold enough — the stack never goes negative.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> consume_item(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, :insufficient_items | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> consume_item(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, :insufficient_items | <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -375,8 +375,8 @@ doesn't hold enough — the stack never goes negative.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> grant_item(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> grant_item(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -405,7 +405,7 @@ Returns <code class="inline">{:ok, new_quantity}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> inventory(<a href="#t:user_id/0">user_id</a>()) :: %{required(<a href="#t:item/0">item</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> inventory(<a href="#t:user_id/0">user_id</a>()) :: %{required(<a href="#t:item/0">item</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
 
       </div>
 
@@ -433,7 +433,7 @@ Returns <code class="inline">{:ok, new_quantity}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> quantity(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> quantity(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -461,7 +461,7 @@ Returns <code class="inline">{:ok, new_quantity}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> set_metadata(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> set_metadata(<a href="#t:user_id/0">user_id</a>(), <a href="#t:item/0">item</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -489,7 +489,7 @@ Returns <code class="inline">{:ok, new_quantity}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="#t:user_id/0">user_id</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -558,7 +558,7 @@ Returns <code class="inline">{:ok, new_quantity}</code>.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

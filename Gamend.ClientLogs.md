@@ -101,10 +101,7 @@ One session by its client-generated id.
 # `ingest`
 
 ```elixir
-@spec ingest(
-  map(),
-  keyword()
-) :: {:ok, map()} | {:error, atom()}
+@spec ingest(map(), keyword()) :: {:ok, map()} | {:error, atom()}
 ```
 
 Accept one batch from a client.

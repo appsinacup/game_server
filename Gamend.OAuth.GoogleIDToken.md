@@ -18,10 +18,7 @@ by the web OAuth callbacks.
 # `verify`
 
 ```elixir
-@spec verify(
-  String.t(),
-  keyword()
-) :: {:ok, claims()} | {:error, term()}
+@spec verify(String.t(), keyword()) :: {:ok, claims()} | {:error, term()}
 ```
 
 ---

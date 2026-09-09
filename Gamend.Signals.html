@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Signals — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,10 +117,10 @@ gamend_core
 <p>Server-side signals: a plugin emits a named event, another part of the plugin
 waits for it.</p><p>This is the server's answer to Godot's <code class="inline">signal</code> / <code class="inline">emit</code> / <code class="inline">await</code>. Nothing
 on the server emits engine signals, so a hook that wants to wait for
-something needs a source of its own:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Gamend.Signals</span><span class="o">.</span><span class="n">subscribe</span><span class="p" data-group-id="9267671691-1">(</span><span class="s">&quot;my_game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;level_up&quot;</span><span class="p" data-group-id="9267671691-1">)</span><span class="w">
-</span><span class="nc">Gamend.Signals</span><span class="o">.</span><span class="n">emit</span><span class="p" data-group-id="9267671691-2">(</span><span class="s">&quot;my_game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;level_up&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9267671691-3">[</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p" data-group-id="9267671691-3">]</span><span class="p" data-group-id="9267671691-2">)</span><span class="w">
-</span><span class="p" data-group-id="9267671691-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9267671691-5">[</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="p" data-group-id="9267671691-5">]</span><span class="p" data-group-id="9267671691-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Signals</span><span class="o">.</span><span class="n">await</span><span class="p" data-group-id="9267671691-6">(</span><span class="s">&quot;my_game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;level_up&quot;</span><span class="p" data-group-id="9267671691-6">)</span></code></pre><p>Signals are scoped to one plugin, so two plugins may use the same name
-without colliding, and they ride <a href="https://hexdocs.pm/phoenix_pubsub/2.3.0/Phoenix.PubSub.html"><code class="inline">Phoenix.PubSub</code></a>, so an emit reaches every
+something needs a source of its own:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Gamend.Signals</span><span class="o">.</span><span class="n">subscribe</span><span class="p" data-group-id="group-1">(</span><span class="s">&quot;my_game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;level_up&quot;</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="nc">Gamend.Signals</span><span class="o">.</span><span class="n">emit</span><span class="p" data-group-id="group-2">(</span><span class="s">&quot;my_game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;level_up&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-3">[</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p" data-group-id="group-3">]</span><span class="p" data-group-id="group-2">)</span><span class="w">
+</span><span class="p" data-group-id="group-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-5">[</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="p" data-group-id="group-5">]</span><span class="p" data-group-id="group-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Gamend.Signals</span><span class="o">.</span><span class="n">await</span><span class="p" data-group-id="group-6">(</span><span class="s">&quot;my_game&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;level_up&quot;</span><span class="p" data-group-id="group-6">)</span></code></pre><p>Signals are scoped to one plugin, so two plugins may use the same name
+without colliding, and they ride <a href="https://phoenix-pubsub.hexdocs.pm/2.3.0/Phoenix.PubSub.html"><code class="inline">Phoenix.PubSub</code></a>, so an emit reaches every
 node in a cluster.</p><p><a href="#subscribe/2"><code class="inline">subscribe/2</code></a> before <a href="#await/3"><code class="inline">await/3</code></a>, not inside it: a signal emitted between the
 two would otherwise be missed. The GDScript front end does this
 automatically, subscribing at function entry for every signal the function
@@ -232,7 +232,7 @@ awaits.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> payload() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> payload() :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()</pre>
 
       </div>
 
@@ -275,7 +275,7 @@ awaits.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> await(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">timeout</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> await(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">timeout</a>()) ::
   {:ok, <a href="#t:payload/0">payload</a>()} | {:error, :timeout}</pre>
 
       </div>
@@ -306,7 +306,7 @@ awaits.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> emit(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="#t:payload/0">payload</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> emit(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="#t:payload/0">payload</a>()) :: :ok</pre>
 
       </div>
 
@@ -335,7 +335,7 @@ listener is dropped, as in Godot.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -364,7 +364,7 @@ ends, the subscription goes with it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> topic(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> topic(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -405,7 +405,7 @@ ends, the subscription goes with it.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

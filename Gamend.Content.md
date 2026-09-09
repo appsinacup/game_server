@@ -219,10 +219,7 @@ the day the stylesheet changed underneath it.
 # `register_path`
 
 ```elixir
-@spec register_path(
-  atom() | String.t(),
-  keyword()
-) :: :ok
+@spec register_path(atom() | String.t(), keyword()) :: :ok
 ```
 
 Registers a named content source.

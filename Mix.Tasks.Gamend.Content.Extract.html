@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>mix gamend.content.extract — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -118,13 +118,13 @@ gamend_core
 leaderboards and tournaments.</p><pre><code class="makeup elixir" translate="no"><span class="n">mix</span><span class="w"> </span><span class="n">gamend</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">extract</span><span class="w">          </span><span class="c1"># write the template</span><span class="w">
 </span><span class="n">mix</span><span class="w"> </span><span class="n">gamend</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">extract</span><span class="w"> </span><span class="o">--</span><span class="n">check</span><span class="w">  </span><span class="c1"># fail if it is out of date</span><span class="w">
 </span><span class="n">mix</span><span class="w"> </span><span class="n">gamend</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">extract</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="nc">PATH</span><span class="w">  </span><span class="c1"># write somewhere else</span></code></pre><h2 id="module-why-from-the-database-rather-than-from-source" class="section-heading"><a href="#module-why-from-the-database-rather-than-from-source" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Why from the database rather than from source</span></h2><p>The obvious approach is <code class="inline">dgettext_noop(&quot;content&quot;, &quot;Welcome aboard&quot;)</code> at each
-definition site, letting <a href="https://hexdocs.pm/gettext/1.0.2/Mix.Tasks.Gettext.Extract.html"><code class="inline">mix gettext.extract</code></a> find it. That does not work
+definition site, letting <a href="https://gettext.hexdocs.pm/1.0.2/Mix.Tasks.Gettext.Extract.html"><code class="inline">mix gettext.extract</code></a> find it. That does not work
 here, for two reasons:</p><ul><li><strong>plugins cannot use it.</strong> A plugin is its own Mix project and does not
 depend on <code class="inline">:gettext</code>, so the macro is not in scope — and plugins are
 where a game defines its content.</li><li><strong>it would miss everything an admin creates.</strong> Admin-typed titles never
 appear in source at all.</li></ul><p>Reading the rows covers both, and matches how the theme is extracted: from
 the data, not from the code that produced it. Run it after seeding or after
-an admin adds content, then <a href="https://hexdocs.pm/gettext/1.0.2/Mix.Tasks.Gettext.Merge.html"><code class="inline">mix gettext.merge</code></a> and translate.</p><p>Text still reaches the database as the <strong>source</strong> string — never wrap a title
+an admin adds content, then <a href="https://gettext.hexdocs.pm/1.0.2/Mix.Tasks.Gettext.Merge.html"><code class="inline">mix gettext.merge</code></a> and translate.</p><p>Text still reaches the database as the <strong>source</strong> string — never wrap a title
 in <code class="inline">gettext/1</code> at creation, or you freeze one locale in for every user.
 <code class="inline">GamendWeb.ContentText</code> translates per viewer at render.</p>
     </section>
@@ -162,7 +162,7 @@ in <code class="inline">gettext/1</code> at creation, or you freeze one locale i
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

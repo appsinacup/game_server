@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Quests — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -120,11 +120,11 @@ weekly / monthly / every N days / repeat-on-claim), an optional <strong>window</
 (<code class="inline">prerequisite_quest_key</code>). Any combination works — a biweekly quest inside
 a seasonal window that also requires an earlier quest is just those three
 fields set. Rewards pay into <a href="Gamend.Economy.html"><code class="inline">Gamend.Economy</code></a> / <a href="Gamend.Inventory.html"><code class="inline">Gamend.Inventory</code></a>
-exactly once. <code class="inline">category</code> is a free-form label for your UI only.</p><h2 id="module-reporting-progress-server-side-hooks" class="section-heading"><a href="#module-reporting-progress-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Reporting progress (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Quests</span><span class="o">.</span><span class="n">report_event</span><span class="p" data-group-id="4253398663-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;enemy_killed&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4253398663-2">%{</span><span class="s">&quot;map&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;desert&quot;</span><span class="p" data-group-id="4253398663-2">}</span><span class="p" data-group-id="4253398663-1">)</span></code></pre><p>Every <strong>active</strong> quest with an objective on <code class="inline">&quot;enemy_killed&quot;</code> (whose <code class="inline">params</code>
+exactly once. <code class="inline">category</code> is a free-form label for your UI only.</p><h2 id="module-reporting-progress-server-side-hooks" class="section-heading"><a href="#module-reporting-progress-server-side-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Reporting progress (server-side / hooks)</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">Quests</span><span class="o">.</span><span class="n">report_event</span><span class="p" data-group-id="group-1">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;enemy_killed&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-2">%{</span><span class="s">&quot;map&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;desert&quot;</span><span class="p" data-group-id="group-2">}</span><span class="p" data-group-id="group-1">)</span></code></pre><p>Every <strong>active</strong> quest with an objective on <code class="inline">&quot;enemy_killed&quot;</code> (whose <code class="inline">params</code>
 all match the meta) advances; a quest completes when every objective meets
 its target. There is deliberately <strong>no public endpoint</strong> for this — clients
 cannot advance their own quests. Core wires common events; games call it
-from their hooks for custom events.</p><h2 id="module-claiming" class="section-heading"><a href="#module-claiming" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Claiming</span></h2><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="2300993003-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2300993003-2">%{</span><span class="ss">progress</span><span class="p">:</span><span class="w"> </span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="ss">rewards</span><span class="p">:</span><span class="w"> </span><span class="n">rewards</span><span class="p" data-group-id="2300993003-2">}</span><span class="p" data-group-id="2300993003-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Quests</span><span class="o">.</span><span class="n">claim</span><span class="p" data-group-id="2300993003-3">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;daily_win_3&quot;</span><span class="p" data-group-id="2300993003-3">)</span></code></pre><p>Claiming is gated by an atomic <code class="inline">completed → claimed</code> status transition, so a
+from their hooks for custom events.</p><h2 id="module-claiming" class="section-heading"><a href="#module-claiming" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Claiming</span></h2><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="group-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="group-2">%{</span><span class="ss">progress</span><span class="p">:</span><span class="w"> </span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="ss">rewards</span><span class="p">:</span><span class="w"> </span><span class="n">rewards</span><span class="p" data-group-id="group-2">}</span><span class="p" data-group-id="group-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Quests</span><span class="o">.</span><span class="n">claim</span><span class="p" data-group-id="group-3">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;daily_win_3&quot;</span><span class="p" data-group-id="group-3">)</span></code></pre><p>Claiming is gated by an atomic <code class="inline">completed → claimed</code> status transition, so a
 double-tap or a concurrent claim can't double-pay. Rewards are granted after
 the transition with a per-entry idempotency key (<code class="inline">&quot;quest:&lt;progress_id&gt;:&lt;i&gt;&quot;</code>,
 or <code class="inline">&quot;quest:&lt;progress_id&gt;:&lt;claim_count&gt;:&lt;i&gt;&quot;</code> once a <code class="inline">repeat</code> quest has been
@@ -608,7 +608,7 @@ lazily when they list their quests). Returns the number of rows retried.</p></di
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> user_id() :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
 
       </div>
 
@@ -677,9 +677,9 @@ lazily when they list their quests). Returns the number of rows retried.</p></di
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> admin_claim(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
-  {:ok, %{progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>(), rewards: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]}}
-  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> admin_claim(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) ::
+  {:ok, %{progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>(), rewards: [<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()]}}
+  | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -707,8 +707,8 @@ lazily when they list their quests). Returns the number of rows retried.</p></di
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> admin_complete(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
-  {:ok, <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> admin_complete(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) ::
+  {:ok, <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -737,8 +737,8 @@ its target and the normal completion side effects fire (hooks, auto-claim).</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> admin_reset(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
-  {:ok, <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>() | :not_found} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> admin_reset(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) ::
+  {:ok, <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>() | :not_found} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -766,13 +766,13 @@ its target and the normal completion side effects fire (hooks, auto-claim).</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> chain(<a href="#t:user_id/0">user_id</a>() | nil, <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> chain(<a href="#t:user_id/0">user_id</a>() | nil, <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: [
   %{
     quest: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(),
     progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>() | nil,
-    claimable: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
-    locked: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
-    tier: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()
+    claimable: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>(),
+    locked: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>(),
+    tier: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>()
   }
 ]</pre>
 
@@ -810,7 +810,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> change_quest(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> change_quest(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()</pre>
 
       </div>
 
@@ -840,9 +840,9 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> claim(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, %{progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>(), rewards: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]}}
-  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> claim(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, %{progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>(), rewards: [<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()]}}
+  | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -872,7 +872,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> claimable_count(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> claimable_count(<a href="#t:user_id/0">user_id</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -902,7 +902,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_progress(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_progress(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -932,7 +932,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_quests(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_quests(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -962,10 +962,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_user_completions(
-  <a href="#t:user_id/0">user_id</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_user_completions(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -995,10 +992,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_user_quests(
-  <a href="#t:user_id/0">user_id</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_user_quests(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -1026,7 +1020,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> create_quest(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: {:ok, <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> create_quest(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) :: {:ok, <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1054,7 +1048,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> dashboard_stats() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> dashboard_stats() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()</pre>
 
       </div>
 
@@ -1083,7 +1077,7 @@ returns just its own entry.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> delete_quest(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()) ::
-  {:ok, <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+  {:ok, <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -1111,7 +1105,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> funnel(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> funnel(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
 
       </div>
 
@@ -1139,7 +1133,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_progress(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_progress(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>() | nil</pre>
 
       </div>
 
@@ -1167,7 +1161,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_quest(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_quest(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>() | nil</pre>
 
       </div>
 
@@ -1195,7 +1189,7 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_quest_by_key(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_quest_by_key(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>() | nil</pre>
 
       </div>
 
@@ -1223,11 +1217,11 @@ returns just its own entry.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> group(<a href="#t:user_id/0">user_id</a>() | nil, <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: [
+          <pre translate="no"><span class="attribute">@spec</span> group(<a href="#t:user_id/0">user_id</a>() | nil, <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: [
   %{
     quest: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(),
     progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>() | nil,
-    claimable: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()
+    claimable: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()
   }
 ]</pre>
 
@@ -1261,7 +1255,7 @@ out too, so the count on the collapsed entry matches what opening it reveals.</p
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> host_lock_label(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(), <a href="#t:user_id/0">user_id</a>() | nil) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> host_lock_label(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(), <a href="#t:user_id/0">user_id</a>() | nil) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil</pre>
 
       </div>
 
@@ -1337,7 +1331,7 @@ left it; veto the claim in <code class="inline">before_quest_claim</code> if tha
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_progress(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_progress(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>()]</pre>
 
       </div>
 
@@ -1367,7 +1361,7 @@ left it; veto the claim in <code class="inline">before_quest_claim</code> if tha
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_quests(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_quests(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()]</pre>
 
       </div>
 
@@ -1397,10 +1391,7 @@ left it; veto the claim in <code class="inline">before_quest_claim</code> if tha
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_user_completions(
-  <a href="#t:user_id/0">user_id</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_user_completions(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [
   %{quest: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(), progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>()}
 ]</pre>
 
@@ -1433,14 +1424,11 @@ left it; veto the claim in <code class="inline">before_quest_claim</code> if tha
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_user_quests(
-  <a href="#t:user_id/0">user_id</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [
+          <pre translate="no"><span class="attribute">@spec</span> list_user_quests(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [
   %{
     quest: <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(),
     progress: <a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>() | nil,
-    claimable: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()
+    claimable: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()
   }
 ]</pre>
 
@@ -1474,7 +1462,7 @@ quests collapse to one entry carrying <code class="inline">:group_size</code>.</
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> period_key(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> period_key(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>() | <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/DateTime.html#t:t/0">DateTime.t</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -1505,7 +1493,7 @@ from the clock, so a reset needs nothing to fire at midnight.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> prerequisite_met?(<a href="#t:user_id/0">user_id</a>(), <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> prerequisite_met?(<a href="#t:user_id/0">user_id</a>(), <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -1533,7 +1521,7 @@ from the clock, so a reset needs nothing to fire at midnight.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> prune_old_periods() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> prune_old_periods() :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -1564,7 +1552,7 @@ from the clock, so a reset needs nothing to fire at midnight.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> rearm_repeat_quests(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> rearm_repeat_quests(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -1596,7 +1584,7 @@ back, without a job that has to be running for the feature to work.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> recover_pending_rewards(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> recover_pending_rewards(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -1662,7 +1650,7 @@ visitor browsing the catalog is looking at the run they would start.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> report_event(<a href="#t:user_id/0">user_id</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> report_event(<a href="#t:user_id/0">user_id</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
   {:ok, [<a href="Gamend.Quests.QuestProgress.html#t:t/0">Gamend.Quests.QuestProgress.t</a>()]}</pre>
 
       </div>
@@ -1734,9 +1722,9 @@ so this is invisible to everything that does not opt in.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> stats() :: %{
-  quests_total: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
-  completed: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
-  claimed: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()
+  quests_total: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(),
+  completed: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(),
+  claimed: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()
 }</pre>
 
       </div>
@@ -1766,7 +1754,7 @@ completed rows, and the group-by reads the same rows the listing already does.</
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> subscribe_quests() :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_quests() :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1794,8 +1782,8 @@ completed rows, and the group-by reads the same rows the listing already does.</
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> update_quest(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> update_quest(<a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="Gamend.Quests.Quest.html#t:t/0">Gamend.Quests.Quest.t</a>()} | {:error, <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
@@ -1825,7 +1813,7 @@ completed rows, and the group-by reads the same rows the listing already does.</
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> visible_categories(<a href="#t:user_id/0">user_id</a>() | nil) :: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> visible_categories(<a href="#t:user_id/0">user_id</a>() | nil) :: [<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()]</pre>
 
       </div>
 
@@ -1869,7 +1857,7 @@ the signed-out catalog.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

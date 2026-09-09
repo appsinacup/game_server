@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Hooks.DynamicRpcs — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,10 +117,10 @@ gamend_core
 <p>Runtime registry for <em>dynamic</em> RPC function names exported by hook plugins.</p><h2 id="module-goal" class="section-heading"><a href="#module-goal" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Goal</span></h2><p>Allow hook plugins to expose additional callable function names without
 defining them as exported Elixir functions (eg. without <code class="inline">def my_fn/1</code>).</p><p>The intended pattern is:</p><ul><li>Plugin implements <code class="inline">after_startup/0</code> and returns a list of maps describing
 which dynamic RPC names should be callable.</li><li>Plugin implements <code class="inline">rpc/2</code> (or <code class="inline">rpc/3</code>) to handle these names at runtime.</li><li><a href="Gamend.Hooks.PluginManager.html#call_rpc/4"><code class="inline">Gamend.Hooks.PluginManager.call_rpc/4</code></a> falls back to the registry when
-the requested function is not exported.</li></ul><h2 id="module-export-format" class="section-heading"><a href="#module-export-format" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Export format</span></h2><p><code class="inline">after_startup/0</code> may return a list like:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="4201142813-1">[</span><span class="w">
-  </span><span class="p" data-group-id="4201142813-2">%{</span><span class="ss">hook</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my_dynamic_fn&quot;</span><span class="p" data-group-id="4201142813-2">}</span><span class="p">,</span><span class="w">
-  </span><span class="p" data-group-id="4201142813-3">%{</span><span class="s">&quot;hook&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;other_fn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;meta&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="4201142813-4">%{</span><span class="n">...</span><span class="p" data-group-id="4201142813-4">}</span><span class="p" data-group-id="4201142813-3">}</span><span class="w">
-</span><span class="p" data-group-id="4201142813-1">]</span></code></pre><p>Required:</p><ul><li><code class="inline">hook</code> (string): the callable function name.</li></ul><p>Optional:</p><ul><li><code class="inline">meta</code> (map): arbitrary metadata.</li></ul><p>Names are validated to contain only letters, digits, and underscores.</p><p>Note: this registry is in-memory and is rebuilt on plugin reload.</p>
+the requested function is not exported.</li></ul><h2 id="module-export-format" class="section-heading"><a href="#module-export-format" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Export format</span></h2><p><code class="inline">after_startup/0</code> may return a list like:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="group-1">[</span><span class="w">
+  </span><span class="p" data-group-id="group-2">%{</span><span class="ss">hook</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my_dynamic_fn&quot;</span><span class="p" data-group-id="group-2">}</span><span class="p">,</span><span class="w">
+  </span><span class="p" data-group-id="group-3">%{</span><span class="s">&quot;hook&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;other_fn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;meta&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="group-4">%{</span><span class="n">...</span><span class="p" data-group-id="group-4">}</span><span class="p" data-group-id="group-3">}</span><span class="w">
+</span><span class="p" data-group-id="group-1">]</span></code></pre><p>Required:</p><ul><li><code class="inline">hook</code> (string): the callable function name.</li></ul><p>Optional:</p><ul><li><code class="inline">meta</code> (map): arbitrary metadata.</li></ul><p>Names are validated to contain only letters, digits, and underscores.</p><p>Note: this registry is in-memory and is rebuilt on plugin reload.</p>
     </section>
 
 </div>
@@ -250,7 +250,7 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> export() :: %{hook: <a href="#t:hook_name/0">hook_name</a>(), meta: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}</pre>
+          <pre translate="no"><span class="attribute">@type</span> export() :: %{hook: <a href="#t:hook_name/0">hook_name</a>(), meta: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">map</a>()}</pre>
 
       </div>
 
@@ -278,7 +278,7 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> hook_name() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> hook_name() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -306,7 +306,7 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> plugin_name() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> plugin_name() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -347,7 +347,7 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> allowed?(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="#t:hook_name/0">hook_name</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> allowed?(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="#t:hook_name/0">hook_name</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -459,8 +459,8 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> register_exports(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()) ::
-  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> register_exports(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">any</a>()) ::
+  {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -529,7 +529,7 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

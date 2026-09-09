@@ -67,10 +67,7 @@ Cancels a tournament (terminal, no hooks fired, no recurrence spawn).
 # `count_entries`
 
 ```elixir
-@spec count_entries(
-  Ecto.UUID.t(),
-  keyword()
-) :: non_neg_integer()
+@spec count_entries(Ecto.UUID.t(), keyword()) :: non_neg_integer()
 ```
 
 Counts entries. Accepts the same `:state` and `:search` options as the listing.
@@ -175,10 +172,7 @@ Withdraws `user`'s entry. Only before the draw; `before_tournament_leave` can ve
 # `list_brackets`
 
 ```elixir
-@spec list_brackets(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Tournaments.Bracket.t()]
+@spec list_brackets(Ecto.UUID.t(), keyword()) :: [Gamend.Tournaments.Bracket.t()]
 ```
 
 Brackets for a tournament. Options: `:page`, `:page_size`.
@@ -186,10 +180,7 @@ Brackets for a tournament. Options: `:page`, `:page_size`.
 # `list_entries`
 
 ```elixir
-@spec list_entries(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Tournaments.Entry.t()]
+@spec list_entries(Ecto.UUID.t(), keyword()) :: [Gamend.Tournaments.Entry.t()]
 ```
 
 Entries for a tournament, oldest first (registration order = seed rank).
@@ -203,10 +194,7 @@ Options: `:page`, `:page_size` (capped at 100), `:state`, plus
 # `list_matches`
 
 ```elixir
-@spec list_matches(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Tournaments.Match.t()]
+@spec list_matches(Ecto.UUID.t(), keyword()) :: [Gamend.Tournaments.Match.t()]
 ```
 
 Matches for a tournament, bracket-major order.

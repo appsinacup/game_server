@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Storage.Adapter — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -303,7 +303,7 @@ either way.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> key() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> key() :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -333,8 +333,8 @@ either way.</p></div>
 
           <pre translate="no"><span class="attribute">@type</span> object() :: %{
   key: <a href="#t:key/0">key</a>(),
-  size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
-  last_modified: <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>() | nil
+  size: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(),
+  last_modified: <a href="https://elixir.hexdocs.pm/DateTime.html#t:t/0">DateTime.t</a>() | nil
 }</pre>
 
       </div>
@@ -364,11 +364,11 @@ either way.</p></div>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@type</span> presigned() :: %{
-  method: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  url: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  headers: %{optional(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()},
+  method: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(),
+  url: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(),
+  headers: %{optional(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()},
   key: <a href="#t:key/0">key</a>(),
-  expires_in: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()
+  expires_in: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>()
 }</pre>
 
       </div>
@@ -399,7 +399,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> stat() :: %{size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), content_type: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil}</pre>
+          <pre translate="no"><span class="attribute">@type</span> stat() :: %{size: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), content_type: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil}</pre>
 
       </div>
 
@@ -440,7 +440,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> delete(<a href="#t:key/0">key</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@callback</span> delete(<a href="#t:key/0">key</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -468,7 +468,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> delete_prefix(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@callback</span> delete_prefix(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -496,7 +496,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> exists?(<a href="#t:key/0">key</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> exists?(<a href="#t:key/0">key</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -524,7 +524,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> get(<a href="#t:key/0">key</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@callback</span> get(<a href="#t:key/0">key</a>()) :: {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">binary</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -552,7 +552,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> list(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="#t:object/0">object</a>()]</pre>
+          <pre translate="no"><span class="attribute">@callback</span> list(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="#t:object/0">object</a>()]</pre>
 
       </div>
 
@@ -580,10 +580,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> presigned_upload(
-  <a href="#t:key/0">key</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: {:ok, <a href="#t:presigned/0">presigned</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@callback</span> presigned_upload(<a href="#t:key/0">key</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: {:ok, <a href="#t:presigned/0">presigned</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -611,7 +608,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> put(<a href="#t:key/0">key</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iodata</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: {:ok, <a href="#t:key/0">key</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@callback</span> put(<a href="#t:key/0">key</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">iodata</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: {:ok, <a href="#t:key/0">key</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -639,7 +636,7 @@ either way.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> stat(<a href="#t:key/0">key</a>()) :: {:ok, <a href="#t:stat/0">stat</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@callback</span> stat(<a href="#t:key/0">key</a>()) :: {:ok, <a href="#t:stat/0">stat</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -668,10 +665,7 @@ per-object metadata and always reports <code class="inline">nil</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> url(
-  <a href="#t:key/0">key</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> url(<a href="#t:key/0">key</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -699,7 +693,7 @@ per-object metadata and always reports <code class="inline">nil</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> usage(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: %{count: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), bytes: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+          <pre translate="no"><span class="attribute">@callback</span> usage(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: %{count: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), bytes: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
 
       </div>
 
@@ -740,7 +734,7 @@ per-object metadata and always reports <code class="inline">nil</code>.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

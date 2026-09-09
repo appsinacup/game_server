@@ -673,10 +673,7 @@ skip a newly promoted moderator.
 # `list_all_users`
 
 ```elixir
-@spec list_all_users(
-  map(),
-  keyword()
-) :: [Gamend.Accounts.User.t()]
+@spec list_all_users(map(), keyword()) :: [Gamend.Accounts.User.t()]
 ```
 
 Admin user listing: search across identity fields (or an exact id), optional
@@ -692,10 +689,7 @@ of `"online"`, `"unactivated"`, and provider names). `opts`: `:page`,
 # `list_user_tokens`
 
 ```elixir
-@spec list_user_tokens(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Accounts.UserToken.t()]
+@spec list_user_tokens(Ecto.UUID.t(), keyword()) :: [Gamend.Accounts.UserToken.t()]
 ```
 
 Lists tokens for a given user, optionally filtered by context.

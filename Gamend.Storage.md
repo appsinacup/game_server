@@ -134,10 +134,8 @@ One page of stored objects. Opts: `:prefix`, `:offset`, `:limit` (admin use).
 # `presigned_upload`
 
 ```elixir
-@spec presigned_upload(
-  Gamend.Storage.Adapter.key(),
-  keyword()
-) :: {:ok, Gamend.Storage.Adapter.presigned()} | {:error, term()}
+@spec presigned_upload(Gamend.Storage.Adapter.key(), keyword()) ::
+  {:ok, Gamend.Storage.Adapter.presigned()} | {:error, term()}
 ```
 
 An upload ticket for the client (see the module doc).
@@ -172,10 +170,7 @@ Size and stored content type of `key`, without downloading it.
 # `url`
 
 ```elixir
-@spec url(
-  Gamend.Storage.Adapter.key(),
-  keyword()
-) :: String.t()
+@spec url(Gamend.Storage.Adapter.key(), keyword()) :: String.t()
 ```
 
 A readable URL for `key` (public or signed, backend-dependent).

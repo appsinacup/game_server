@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>mix gamend.theme.extract — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -116,7 +116,7 @@ gamend_core
     <section id="moduledoc">
 <p>Writes <code class="inline">theme.pot</code> from the strings in the theme config.</p><pre><code class="makeup elixir" translate="no"><span class="n">mix</span><span class="w"> </span><span class="n">gamend</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">extract</span><span class="w">          </span><span class="c1"># write the template</span><span class="w">
 </span><span class="n">mix</span><span class="w"> </span><span class="n">gamend</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">extract</span><span class="w"> </span><span class="o">--</span><span class="n">check</span><span class="w">  </span><span class="c1"># fail if it is out of date</span><span class="w">
-</span><span class="n">mix</span><span class="w"> </span><span class="n">gamend</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">extract</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="nc">PATH</span><span class="w">  </span><span class="c1"># write somewhere else</span></code></pre><p><a href="https://hexdocs.pm/gettext/1.0.2/Mix.Tasks.Gettext.Extract.html"><code class="inline">mix gettext.extract</code></a> cannot find these: it scans source for <code class="inline">gettext(...)</code>
+</span><span class="n">mix</span><span class="w"> </span><span class="n">gamend</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">extract</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="nc">PATH</span><span class="w">  </span><span class="c1"># write somewhere else</span></code></pre><p><a href="https://gettext.hexdocs.pm/1.0.2/Mix.Tasks.Gettext.Extract.html"><code class="inline">mix gettext.extract</code></a> cannot find these: it scans source for <code class="inline">gettext(...)</code>
 calls, and theme text lives in data. This walks the config instead, using the
 same <a href="Gamend.Theme.Translatable.html"><code class="inline">Gamend.Theme.Translatable</code></a> list the renderer uses, so the strings a
 translator is offered are exactly the strings the server will translate.</p><p>Merge into the per-locale PO files afterwards the usual way:</p><pre><code class="makeup elixir" translate="no"><span class="n">mix</span><span class="w"> </span><span class="n">gettext</span><span class="o">.</span><span class="n">merge</span><span class="w"> </span><span class="n">priv</span><span class="o">/</span><span class="n">gettext</span></code></pre>
@@ -155,7 +155,7 @@ translator is offered are exactly the strings the server will translate.</p><p>M
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

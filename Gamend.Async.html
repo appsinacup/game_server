@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Async — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -115,13 +115,13 @@ gamend_core
 
     <section id="moduledoc">
 <p>Utilities for running best-effort background work.</p><p>This is intentionally used for <em>non-critical</em> side effects (cache invalidation,
-notifications, hooks) where we want the caller to return quickly.</p><p>Tasks are started under a <a href="https://hexdocs.pm/elixir/Task.Supervisor.html"><code class="inline">Task.Supervisor</code></a> bounded by <code class="inline">:max_children</code>
+notifications, hooks) where we want the caller to return quickly.</p><p>Tasks are started under a <a href="https://elixir.hexdocs.pm/Task.Supervisor.html"><code class="inline">Task.Supervisor</code></a> bounded by <code class="inline">:max_children</code>
 (see the host application supervision tree). When the supervisor is at
 capacity, the work runs <strong>inline in the caller</strong> instead of spawning an
 unsupervised process — under overload the system degrades to synchronous
 execution, which applies natural back-pressure instead of growing an
 unbounded process count. If the supervisor isn't running at all (e.g.
-certain test setups), we fall back to <a href="https://hexdocs.pm/elixir/Task.html#start/1"><code class="inline">Task.start/1</code></a>.</p><p>Telemetry: <code class="inline">[:gamend, :async, :overload]</code> is emitted each time a task
+certain test setups), we fall back to <a href="https://elixir.hexdocs.pm/Task.html#start/1"><code class="inline">Task.start/1</code></a>.</p><p>Telemetry: <code class="inline">[:gamend, :async, :overload]</code> is emitted each time a task
 is executed inline because the supervisor was full.</p>
     </section>
 
@@ -196,7 +196,7 @@ is executed inline because the supervisor was full.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> zero_arity_fun() :: (-&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>())</pre>
+          <pre translate="no"><span class="attribute">@type</span> zero_arity_fun() :: (-&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">any</a>())</pre>
 
       </div>
 
@@ -278,7 +278,7 @@ is executed inline because the supervisor was full.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

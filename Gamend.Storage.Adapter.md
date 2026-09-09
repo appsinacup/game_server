@@ -87,10 +87,7 @@ One page of objects. Opts: `:prefix`, `:offset`, `:limit`.
 # `presigned_upload`
 
 ```elixir
-@callback presigned_upload(
-  key(),
-  keyword()
-) :: {:ok, presigned()} | {:error, term()}
+@callback presigned_upload(key(), keyword()) :: {:ok, presigned()} | {:error, term()}
 ```
 
 # `put`
@@ -113,10 +110,7 @@ per-object metadata and always reports `nil`.
 # `url`
 
 ```elixir
-@callback url(
-  key(),
-  keyword()
-) :: String.t()
+@callback url(key(), keyword()) :: String.t()
 ```
 
 # `usage`

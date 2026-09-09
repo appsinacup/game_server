@@ -259,19 +259,15 @@ context remains the source of truth for what a user owns inside the game.
 # `list_user_entitlements`
 
 ```elixir
-@spec list_user_entitlements(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Payments.Entitlement.t()]
+@spec list_user_entitlements(Ecto.UUID.t(), keyword()) :: [
+  Gamend.Payments.Entitlement.t()
+]
 ```
 
 # `list_user_purchases`
 
 ```elixir
-@spec list_user_purchases(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Payments.Purchase.t()]
+@spec list_user_purchases(Ecto.UUID.t(), keyword()) :: [Gamend.Payments.Purchase.t()]
 ```
 
 # `mark_event_processed`

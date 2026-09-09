@@ -105,10 +105,7 @@ Returns `{:ok, entry}` or `{:error, changeset}`.
 # `delete`
 
 ```elixir
-@spec delete(
-  String.t(),
-  keyword()
-) :: :ok
+@spec delete(String.t(), keyword()) :: :ok
 ```
 
 Delete the entry at `key`.
@@ -142,10 +139,7 @@ Returns the number of entries deleted.
 # `get`
 
 ```elixir
-@spec get(
-  String.t(),
-  keyword()
-) :: {:ok, payload()} | :error
+@spec get(String.t(), keyword()) :: {:ok, payload()} | :error
 ```
 
 Retrieve the value and metadata stored for `key`.
@@ -198,10 +192,7 @@ Returns `{:ok, entry}` on success or `{:error, changeset}` on validation failure
 # `subscribe`
 
 ```elixir
-@spec subscribe(
-  String.t(),
-  keyword()
-) :: :ok | {:error, term()}
+@spec subscribe(String.t(), keyword()) :: :ok | {:error, term()}
 ```
 
 Subscribe the current process to changes for a specific key/scope.
@@ -209,10 +200,7 @@ Subscribe the current process to changes for a specific key/scope.
 # `unsubscribe`
 
 ```elixir
-@spec unsubscribe(
-  String.t(),
-  keyword()
-) :: :ok | {:error, term()}
+@spec unsubscribe(String.t(), keyword()) :: :ok | {:error, term()}
 ```
 
 Unsubscribe the current process from changes for a specific key/scope.

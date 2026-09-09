@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.ReadyChecks — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -122,9 +122,9 @@ ready or matchmaking accept — one match at a time) and the party lane. The
 lanes are independent, so a party's standing board never blocks the party's
 lobby from opening its own check.</p><h2 id="module-what-core-does-not-do" class="section-heading"><a href="#module-what-core-does-not-do" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">What core does <em>not</em> do</span></h2><p>A failed check kicks nobody, deletes no lobby and moves no lobby state. Core
 records who did not answer (<a href="#not_ready/1"><code class="inline">not_ready/1</code></a>); the host — or the game, in
-<code class="inline">after_ready_check_failed</code> — decides what that is worth.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="8987337548-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">check</span><span class="p" data-group-id="8987337548-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">ReadyChecks</span><span class="o">.</span><span class="n">open</span><span class="p" data-group-id="8987337548-2">(</span><span class="n">lobby</span><span class="p">,</span><span class="w"> </span><span class="n">member_ids</span><span class="p">,</span><span class="w"> </span><span class="ss">opened_by</span><span class="p">:</span><span class="w"> </span><span class="n">host</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="8987337548-2">)</span><span class="w">
-</span><span class="p" data-group-id="8987337548-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">check</span><span class="p" data-group-id="8987337548-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">ReadyChecks</span><span class="o">.</span><span class="n">respond</span><span class="p" data-group-id="8987337548-4">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="8987337548-4">)</span><span class="w">
-</span><span class="nc">ReadyChecks</span><span class="o">.</span><span class="n">passed?</span><span class="p" data-group-id="8987337548-5">(</span><span class="n">lobby</span><span class="p" data-group-id="8987337548-5">)</span></code></pre><h2 id="module-concurrency" class="section-heading"><a href="#module-concurrency" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Concurrency</span></h2><p>Answering is a single-row write, so no two players can lose each other's
+<code class="inline">after_ready_check_failed</code> — decides what that is worth.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="group-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">check</span><span class="p" data-group-id="group-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">ReadyChecks</span><span class="o">.</span><span class="n">open</span><span class="p" data-group-id="group-2">(</span><span class="n">lobby</span><span class="p">,</span><span class="w"> </span><span class="n">member_ids</span><span class="p">,</span><span class="w"> </span><span class="ss">opened_by</span><span class="p">:</span><span class="w"> </span><span class="n">host</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="group-2">)</span><span class="w">
+</span><span class="p" data-group-id="group-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">check</span><span class="p" data-group-id="group-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">ReadyChecks</span><span class="o">.</span><span class="n">respond</span><span class="p" data-group-id="group-4">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="group-4">)</span><span class="w">
+</span><span class="nc">ReadyChecks</span><span class="o">.</span><span class="n">passed?</span><span class="p" data-group-id="group-5">(</span><span class="n">lobby</span><span class="p" data-group-id="group-5">)</span></code></pre><h2 id="module-concurrency" class="section-heading"><a href="#module-concurrency" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Concurrency</span></h2><p>Answering is a single-row write, so no two players can lose each other's
 flag. <em>Evaluating</em> the result is the part that races: two players answering
 at once can each count the other as still pending, and nobody passes. So
 <a href="#respond/3"><code class="inline">respond/3</code></a> holds a per-check advisory lock (<code class="inline">:ready_check</code>) around
@@ -437,7 +437,7 @@ numbers on the admin page.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> answer() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@type</span> answer() :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -534,7 +534,7 @@ numbers on the admin page.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> add_member(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> add_member(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -562,7 +562,7 @@ numbers on the admin page.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> add_party_member(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> add_party_member(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -590,8 +590,8 @@ numbers on the admin page.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> answer_for(<a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:answer/0">answer</a>()) ::
-  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> answer_for(<a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:answer/0">answer</a>()) ::
+  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -623,8 +623,8 @@ over RPC and mark someone else ready.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cancel(<a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
-  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cancel(<a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) ::
+  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -652,7 +652,7 @@ over RPC and mark someone else ready.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cancel_for_lobby(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cancel_for_lobby(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -680,7 +680,7 @@ over RPC and mark someone else ready.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cancel_for_party(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cancel_for_party(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -710,7 +710,7 @@ over RPC and mark someone else ready.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_checks(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_checks(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -768,7 +768,7 @@ over RPC and mark someone else ready.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> expire_due(<a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> expire_due(<a href="https://elixir.hexdocs.pm/DateTime.html#t:t/0">DateTime.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
@@ -800,7 +800,7 @@ matchmaking sweep's backstop can both run it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> for_user(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>() | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:scope/0">scope</a>() | :any) ::
+          <pre translate="no"><span class="attribute">@spec</span> for_user(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>() | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:scope/0">scope</a>() | :any) ::
   <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>() | nil</pre>
 
       </div>
@@ -831,7 +831,7 @@ API's.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_check(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get_check(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>() | nil</pre>
 
       </div>
 
@@ -861,7 +861,7 @@ API's.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_checks(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_checks(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()]</pre>
 
       </div>
 
@@ -921,8 +921,8 @@ API's.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> open(<a href="#t:subject/0">subject</a>(), [<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()], <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> open(<a href="#t:subject/0">subject</a>(), [<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()], <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -955,8 +955,8 @@ and <code class="inline">{:error, :too_many_participants}</code> past <code clas
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> passed?(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | <a href="Gamend.Parties.Party.html#t:t/0">Gamend.Parties.Party.t</a>() | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> passed?(<a href="Gamend.Lobbies.Lobby.html#t:t/0">Gamend.Lobbies.Lobby.t</a>() | <a href="Gamend.Parties.Party.html#t:t/0">Gamend.Parties.Party.t</a>() | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) ::
+  <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -986,7 +986,7 @@ rematch cannot ride the previous match's pass.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> pending_for_lobby(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> pending_for_lobby(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>() | nil</pre>
 
       </div>
 
@@ -1014,7 +1014,7 @@ rematch cannot ride the previous match's pass.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> pending_for_party(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> pending_for_party(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>() | nil</pre>
 
       </div>
 
@@ -1042,7 +1042,7 @@ rematch cannot ride the previous match's pass.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> remove_member(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> remove_member(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -1071,7 +1071,7 @@ answered is a legitimate way to pass a check.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> remove_party_member(<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> remove_party_member(<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()) :: :ok</pre>
 
       </div>
 
@@ -1101,8 +1101,8 @@ answered is a legitimate way to pass a check.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> reset(<a href="#t:subject/0">subject</a>(), [<a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()], <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> reset(<a href="#t:subject/0">subject</a>(), [<a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()], <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1137,8 +1137,8 @@ re-confirm on a deadline_at (&quot;force ready&quot;). Same options as <a href="
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> respond(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>() | <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:answer/0">answer</a>(), <a href="#t:scope/0">scope</a>()) ::
-  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> respond(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>() | <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>(), <a href="#t:answer/0">answer</a>(), <a href="#t:scope/0">scope</a>()) ::
+  {:ok, <a href="Gamend.ReadyChecks.Check.html#t:t/0">Gamend.ReadyChecks.Check.t</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -1179,7 +1179,7 @@ answered, <code class="inline">{:error, :not_revocable}</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> stats(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: %{required(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> stats(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>()) :: %{required(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) =&gt; <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
 
       </div>
 
@@ -1221,7 +1221,7 @@ numbers on the admin page.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

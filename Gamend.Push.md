@@ -88,10 +88,7 @@ Whether every delivery is forced to the Log provider (`PUSH_ADAPTER=log`).
 # `list_all_tokens`
 
 ```elixir
-@spec list_all_tokens(
-  map(),
-  keyword()
-) :: [Gamend.Push.PushToken.t()]
+@spec list_all_tokens(map(), keyword()) :: [Gamend.Push.PushToken.t()]
 ```
 
 Admin listing across all users. Supported `filters` keys (atom or string):
@@ -103,10 +100,7 @@ so the admin UI can show names, not UUIDs.
 # `list_tokens`
 
 ```elixir
-@spec list_tokens(
-  user_id(),
-  keyword()
-) :: [Gamend.Push.PushToken.t()]
+@spec list_tokens(user_id(), keyword()) :: [Gamend.Push.PushToken.t()]
 ```
 
 List a user's registered tokens, newest first. Includes disabled rows (they

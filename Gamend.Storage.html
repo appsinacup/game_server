@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Storage — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -125,8 +125,8 @@ and the bytes must actually be that format (<a href="#sniff_content_type/1"><cod
 (<code class="inline">max_upload_bytes_per_owner</code>).</li></ul><p>We never decode an image server-side, so there is no image-parser attack
 surface here; the risk being defended against is serving attacker-chosen bytes
 under an attacker-chosen type from our own origin.</p><h2 id="module-direct-uploads" class="section-heading"><a href="#module-direct-uploads" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Direct uploads</span></h2><p>Clients never stream bytes through the app. The server issues an upload ticket
-and the client uploads straight to the backend:</p><pre><code class="makeup elixir" translate="no"><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">build_key</span><span class="p" data-group-id="1719749601-1">(</span><span class="s">&quot;avatars&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;me.png&quot;</span><span class="p" data-group-id="1719749601-1">)</span><span class="w">
-</span><span class="p" data-group-id="1719749601-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ticket</span><span class="p" data-group-id="1719749601-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">presigned_upload</span><span class="p" data-group-id="1719749601-3">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="ss">content_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;image/png&quot;</span><span class="p" data-group-id="1719749601-3">)</span><span class="w">
+and the client uploads straight to the backend:</p><pre><code class="makeup elixir" translate="no"><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">build_key</span><span class="p" data-group-id="group-1">(</span><span class="s">&quot;avatars&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;me.png&quot;</span><span class="p" data-group-id="group-1">)</span><span class="w">
+</span><span class="p" data-group-id="group-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ticket</span><span class="p" data-group-id="group-2">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Storage</span><span class="o">.</span><span class="n">presigned_upload</span><span class="p" data-group-id="group-3">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="ss">content_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;image/png&quot;</span><span class="p" data-group-id="group-3">)</span><span class="w">
 </span><span class="c1"># -&gt; client PUTs the file to ticket.url, then tells the server `key` is ready</span></code></pre><p>The ticket shape is identical for local disk and S3, so the client code does
 not change between environments.</p><h2 id="module-what-is-checked-and-where" class="section-heading"><a href="#module-what-is-checked-and-where" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">What is checked, and where</span></h2><p>The two backends do not offer the same guarantees at upload time, so the
 checks are deliberately split:</p><ul><li><strong>At ticket time</strong> (both backends) the declared content type must be one
@@ -343,7 +343,7 @@ and set as S3 object metadata at upload.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> adapter() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> adapter() :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">module</a>()</pre>
 
       </div>
 
@@ -371,7 +371,7 @@ and set as S3 object metadata at upload.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> build_key(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> build_key(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -400,7 +400,7 @@ server-chosen so a client can't overwrite another object.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cache_control(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cache_control(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -430,7 +430,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: :ok | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -458,7 +458,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_prefix(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> delete_prefix(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -486,7 +486,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> exists?(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> exists?(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -514,7 +514,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> extension_for(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> extension_for(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -542,7 +542,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> get(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) :: {:ok, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">binary</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -572,7 +572,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_objects(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Storage.Adapter.html#t:object/0">Gamend.Storage.Adapter.object</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_objects(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: [<a href="Gamend.Storage.Adapter.html#t:object/0">Gamend.Storage.Adapter.object</a>()]</pre>
 
       </div>
 
@@ -602,10 +602,8 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> presigned_upload(
-  <a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: {:ok, <a href="Gamend.Storage.Adapter.html#t:presigned/0">Gamend.Storage.Adapter.presigned</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> presigned_upload(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="Gamend.Storage.Adapter.html#t:presigned/0">Gamend.Storage.Adapter.presigned</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -635,8 +633,8 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> put(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iodata</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, <a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> put(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">iodata</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -664,7 +662,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> sniff_content_type(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> sniff_content_type(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">binary</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil</pre>
 
       </div>
 
@@ -694,7 +692,7 @@ and set as S3 object metadata at upload.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@spec</span> stat(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>()) ::
-  {:ok, <a href="Gamend.Storage.Adapter.html#t:stat/0">Gamend.Storage.Adapter.stat</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+  {:ok, <a href="Gamend.Storage.Adapter.html#t:stat/0">Gamend.Storage.Adapter.stat</a>()} | {:error, <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
@@ -724,10 +722,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> url(
-  <a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> url(<a href="Gamend.Storage.Adapter.html#t:key/0">Gamend.Storage.Adapter.key</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -757,7 +752,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> usage(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: %{count: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), bytes: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> usage(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) :: %{count: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), bytes: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
 
       </div>
 
@@ -787,7 +782,7 @@ and set as S3 object metadata at upload.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> validate_upload(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> validate_upload(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">non_neg_integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">keyword</a>()) ::
   :ok | {:error, :unsupported_content_type | :too_large}</pre>
 
       </div>
@@ -830,7 +825,7 @@ and set as S3 object metadata at upload.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.Accounts.AgePolicy — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -357,17 +357,17 @@ while its age is still unknown.</p></div>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@type</span> t() :: %Gamend.Accounts.AgePolicy{
-  avatar_upload?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  chat_default_on?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  class: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  custom_display_name?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  discoverable?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  leaderboard_identity: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  map_presence_published?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  public_groups?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  purchases?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  third_party_egress?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  timers_enforced?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
+  avatar_upload?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  chat_default_on?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  class: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  custom_display_name?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  discoverable?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  leaderboard_identity: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  map_presence_published?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  public_groups?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  purchases?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  third_party_egress?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>(),
+  timers_enforced?: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()
 }</pre>
 
       </div>
@@ -409,7 +409,7 @@ while its age is still unknown.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> age_in_years(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/Date.html#t:t/0">Date.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> age_in_years(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">integer</a>(), <a href="https://elixir.hexdocs.pm/Date.html#t:t/0">Date.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">integer</a>()</pre>
 
       </div>
 
@@ -439,7 +439,7 @@ than this says, never younger.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> class_for_age(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil) :: <a href="#t:class/0">class</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> class_for_age(<a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">integer</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil) :: <a href="#t:class/0">class</a>()</pre>
 
       </div>
 
@@ -470,7 +470,7 @@ can be a teen in one country and a child in another.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> classify(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/Date.html#t:t/0">Date.t</a>() | nil) :: <a href="#t:class/0">class</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> classify(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://elixir.hexdocs.pm/Date.html#t:t/0">Date.t</a>() | nil) :: <a href="#t:class/0">class</a>()</pre>
 
       </div>
 
@@ -500,7 +500,7 @@ rather than reading this directly; it resolves that rule for you.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> digital_consent_age(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> digital_consent_age(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil) :: <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">pos_integer</a>()</pre>
 
       </div>
 
@@ -530,7 +530,7 @@ rather than reading this directly; it resolves that rule for you.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> effective_class(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/Date.html#t:t/0">Date.t</a>() | nil) :: <a href="#t:class/0">class</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> effective_class(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://elixir.hexdocs.pm/Date.html#t:t/0">Date.t</a>() | nil) :: <a href="#t:class/0">class</a>()</pre>
 
       </div>
 
@@ -560,7 +560,7 @@ treated as an adult until it answers.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> grandfathered?(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> grandfathered?(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>()) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -590,7 +590,7 @@ governs and this returns false.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> known_countries() :: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> known_countries() :: [<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()]</pre>
 
       </div>
 
@@ -618,8 +618,8 @@ governs and this returns false.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> may_change_age?(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> may_change_age?(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">integer</a>(), <a href="https://elixir.hexdocs.pm/typespecs.html#basic-types">integer</a>(), <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()) ::
+  <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -649,7 +649,7 @@ restriction in the same session.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> methods() :: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> methods() :: [<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>()]</pre>
 
       </div>
 
@@ -679,7 +679,7 @@ restriction in the same session.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> policy(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/Date.html#t:t/0">Date.t</a>() | nil) :: <a href="#t:t/0">t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> policy(<a href="Gamend.Accounts.User.html#t:t/0">Gamend.Accounts.User.t</a>(), <a href="https://elixir.hexdocs.pm/Date.html#t:t/0">Date.t</a>() | nil) :: <a href="#t:t/0">t</a>()</pre>
 
       </div>
 
@@ -737,7 +737,7 @@ as <code class="inline">before_kv_get/2</code>.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> stronger_signal?(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil, <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> stronger_signal?(<a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil, <a href="https://elixir.hexdocs.pm/String.html#t:t/0">String.t</a>() | nil) :: <a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">boolean</a>()</pre>
 
       </div>
 
@@ -778,7 +778,7 @@ as <code class="inline">before_kv_get/2</code>.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

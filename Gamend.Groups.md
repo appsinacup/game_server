@@ -159,10 +159,7 @@ Total member count across all groups.
 # `count_group_members`
 
 ```elixir
-@spec count_group_members(
-  Ecto.UUID.t(),
-  keyword()
-) :: non_neg_integer()
+@spec count_group_members(Ecto.UUID.t(), keyword()) :: non_neg_integer()
 ```
 
 Count members in a group. Accepts the same `:search` option as the listing.
@@ -302,10 +299,9 @@ Get all members of a group.
 # `get_group_members_paginated`
 
 ```elixir
-@spec get_group_members_paginated(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Groups.GroupMember.t()]
+@spec get_group_members_paginated(Ecto.UUID.t(), keyword()) :: [
+  Gamend.Groups.GroupMember.t()
+]
 ```
 
 Get paginated members of a group with user info.
@@ -400,10 +396,7 @@ Leave a group.
 # `list_all_groups`
 
 ```elixir
-@spec list_all_groups(
-  map(),
-  keyword()
-) :: [Gamend.Groups.Group.t()]
+@spec list_all_groups(map(), keyword()) :: [Gamend.Groups.Group.t()]
 ```
 
 List ALL groups including hidden (admin only).
@@ -411,10 +404,7 @@ List ALL groups including hidden (admin only).
 # `list_groups`
 
 ```elixir
-@spec list_groups(
-  map(),
-  keyword()
-) :: [Gamend.Groups.Group.t()]
+@spec list_groups(map(), keyword()) :: [Gamend.Groups.Group.t()]
 ```
 
 List groups visible to the public (excludes hidden).
@@ -435,10 +425,7 @@ List groups visible to the public (excludes hidden).
 # `list_invitations`
 
 ```elixir
-@spec list_invitations(
-  Ecto.UUID.t(),
-  keyword()
-) :: [map()]
+@spec list_invitations(Ecto.UUID.t(), keyword()) :: [map()]
 ```
 
 List pending group invitations for a user.
@@ -455,10 +442,7 @@ List pending join requests for a group (admin only).
 # `list_sent_invitations`
 
 ```elixir
-@spec list_sent_invitations(
-  Ecto.UUID.t(),
-  keyword()
-) :: [map()]
+@spec list_sent_invitations(Ecto.UUID.t(), keyword()) :: [map()]
 ```
 
 List group invitations sent by a user.
@@ -466,10 +450,7 @@ List group invitations sent by a user.
 # `list_user_groups`
 
 ```elixir
-@spec list_user_groups(
-  Ecto.UUID.t(),
-  keyword()
-) :: [Gamend.Groups.Group.t()]
+@spec list_user_groups(Ecto.UUID.t(), keyword()) :: [Gamend.Groups.Group.t()]
 ```
 
 List groups the user belongs to.

@@ -49,10 +49,7 @@ Tests may replace the exchanger via application config for easier stubbing.
 # `exchange_steam_ticket`
 
 ```elixir
-@spec exchange_steam_ticket(
-  String.t(),
-  keyword()
-) :: {:ok, map()} | {:error, term()}
+@spec exchange_steam_ticket(String.t(), keyword()) :: {:ok, map()} | {:error, term()}
 ```
 
 Verify a Steam auth ticket using ISteamUserAuth/AuthenticateUserTicket/v1

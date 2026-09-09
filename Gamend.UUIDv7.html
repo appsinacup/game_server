@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.40.3">
+    <meta name="generator" content="ExDoc v0.40.4">
     <meta name="project" content="gamend_core v1.0.1214">
 
 
     <title>Gamend.UUIDv7 — gamend_core v1.0.1214</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-NHQLCD6Y.css" />
+    <link rel="stylesheet" href="dist/html-elixir-RXHHCTJW.css" />
 
     <script defer src="dist/sidebar_items-0381F603.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-Y2MUTVIN.js"></script>
+    <script defer src="dist/html-MI33G4N7.js"></script>
 
   </head>
   <body>
@@ -117,7 +117,7 @@ gamend_core
 <p>UUIDv7 Ecto type used for all primary and foreign keys.</p><p>UUIDv7 embeds a 48-bit unix-millisecond timestamp in the most significant
 bits, so freshly inserted rows sort (and index) in insertion order like the
 old integer ids did, while remaining unguessable — random ids prevent
-enumeration of API resources.</p><p>Cast/dump/load are delegated to <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html"><code class="inline">Ecto.UUID</code></a>, so storage behavior matches
+enumeration of API resources.</p><p>Cast/dump/load are delegated to <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html"><code class="inline">Ecto.UUID</code></a>, so storage behavior matches
 <code class="inline">:binary_id</code> on both SQLite and Postgres; only generation differs (v7
 instead of v4).</p>
     </section>
@@ -191,12 +191,12 @@ instead of v4).</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> cast_or_nil(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> cast_or_nil(<a href="https://elixir.hexdocs.pm/typespecs.html#built-in-types">term</a>()) :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>() | nil</pre>
 
       </div>
 
 <p>Casts a value to a UUID string, returning <code class="inline">nil</code> when invalid.</p><p>Convenience for boundary code (channel topics, URL params) that previously
-used <a href="https://hexdocs.pm/elixir/Integer.html#parse/1"><code class="inline">Integer.parse/1</code></a> to validate ids.</p>
+used <a href="https://elixir.hexdocs.pm/Integer.html#parse/1"><code class="inline">Integer.parse/1</code></a> to validate ids.</p>
   </section>
 </section>
 <section class="detail" id="generate/0">
@@ -220,7 +220,7 @@ used <a href="https://hexdocs.pm/elixir/Integer.html#parse/1"><code class="inlin
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> generate() :: <a href="https://hexdocs.pm/ecto/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> generate() :: <a href="https://ecto.hexdocs.pm/3.14.2/Ecto.UUID.html#t:t/0">Ecto.UUID.t</a>()</pre>
 
       </div>
 
@@ -264,7 +264,7 @@ pagination) keeps working under bursts.</p>
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.4) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

@@ -139,10 +139,9 @@ Get a single notification by ID (raises if not found).
 # `list_all_notifications`
 
 ```elixir
-@spec list_all_notifications(
-  map(),
-  keyword()
-) :: [Gamend.Notifications.Notification.t()]
+@spec list_all_notifications(map(), keyword()) :: [
+  Gamend.Notifications.Notification.t()
+]
 ```
 
 List all notifications (admin), with optional filters.
@@ -161,10 +160,9 @@ List all notifications (admin), with optional filters.
 # `list_notifications`
 
 ```elixir
-@spec list_notifications(
-  user_id(),
-  keyword()
-) :: [Gamend.Notifications.Notification.t()]
+@spec list_notifications(user_id(), keyword()) :: [
+  Gamend.Notifications.Notification.t()
+]
 ```
 
 List all notifications for a user, ordered oldest-first so the client
