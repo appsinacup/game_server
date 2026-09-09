@@ -1,3 +1,9 @@
+# September 2026
+
+- [added] **`gamend_core` and `gamend_web` publish to Hex.** Both packages were held back by pigeon: its kadabra-to-mint rewrite sat unreleased for over a year, Hex refuses a package with a git dependency, and the released 2.0.1 would have dragged httpoison and hackney back in. pigeon 2.1.0 shipped, so the dependency points at Hex and CI publishes both packages alongside the SDK.
+- [changed] **Push credential errors stop retrying.** pigeon 2.1.0 reports a rejected FCM service account as `:unauthenticated` and Apple's two token-key mismatches as their own responses, instead of folding them into the generic error every dispatcher retried until the attempt budget ran out.
+- [fixed] **mint 1.10** — closes two denial-of-service advisories in the HTTP client that push and outbound requests run on.
+
 # August 2026
 
 - [added] **`mix host.proto.check`** — checks every registered protobuf schema against the JSON actually stored under it, and reports which values fall back to JSON and why. A schema missing one field is not an error anywhere: it simply never encodes, so the optimisation looks shipped and is inert. Covers KV entry values and user/lobby/group/party metadata, takes a captured payload with `--json FILE --message Mod`, and exits 1 so it can gate CI. Also lists what is *not* typed — the KV keys, entities and hooks still going out as JSON.
