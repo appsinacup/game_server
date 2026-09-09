@@ -51,11 +51,24 @@ defmodule GamendWeb.MixProject do
       {:oban_web, "~> 2.11"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
-      # heroicons is intentionally NOT listed here.
-      # It is a GitHub-only dep (not on Hex) so it cannot be declared in a
-      # library that is published to Hex. The host/consumer app must declare
-      # heroicons in its own mix.exs and run `assets.setup` to make the icon
-      # CSS available to the shared tailwind plugin in apps/gamend_web/assets/vendor/heroicons.
+      # dev/test only, and deliberately so: heroicons is a GitHub-only dep, and
+      # Hex reads requirements from the published environments alone — a
+      # runtime entry here would make gamend_web unpublishable. The
+      # host/consumer app still declares heroicons in its own mix.exs and runs
+      # `assets.setup` to make the icon CSS available to the shared tailwind
+      # plugin in apps/gamend_web/assets/vendor/heroicons. This copy is the one
+      # `GamendWeb.Icons` embeds when the app is compiled on its own, with no
+      # host deps directory to look in: its standalone test suite, and the docs
+      # build inside `mix hex.publish`.
+      {:heroicons,
+       github: "tailwindlabs/heroicons",
+       tag: "v2.2.0",
+       sparse: "optimized",
+       app: false,
+       compile: false,
+       depth: 1,
+       only: [:dev, :test],
+       runtime: false},
       {:swoosh, "~> 1.20"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.6"},
