@@ -846,56 +846,55 @@ jobs:
             mix hex.publish --yes
           fi
 
-      # gamend_core and gamend_web are NOT published to Hex.
-      #
-      # gamend_core depends on pigeon by git ref: upstream merged the
-      # kadabra->mint rewrite in May 2025 and bumped mix.exs to 2.1.0 but never
-      # released it (codedge-llc/pigeon "Publish v2.1.0"), so the newest Hex
-      # release is still 2.0.1. Hex refuses a package with any non-Hex dep, and
-      # 2.0.1 would drag back httpoison -> hackney and reintroduce the
-      # vulnerability chain that issue is about. gamend_web follows: its
-      # published form points at {:gamend_core, "~> 1.0"}, which would not exist.
-      #
-      # Consumers use the GitHub sparse deps instead (see gamend_starter), and
-      # the API reference is published to docs.gamend.org by the `docs` job — so
-      # nothing downstream depends on these being on Hex. Re-enable the block
-      # below if pigeon 2.1.0 ships.
-      #
-      #       - name: Rewrite in_umbrella deps and stamp version for core/web
-      #         run: |
-      #           # gamend_web depends on gamend_core by path; Hex only accepts Hex
-      #           # deps, so the published package points at the version being cut.
-      #           # This matched `in_umbrella: true` for months, which the file never
-      #           # said — so the substitution silently did nothing and every
-      #           # gamend_web publish failed.
-      #           sed -i "s|{:gamend_core, path: \"../gamend_core\"}|{:gamend_core, \"~> 1.0\"}|g" \
-      #             apps/gamend_web/mix.exs
-      #           grep -q '{:gamend_core, "~> 1.0"}' apps/gamend_web/mix.exs ||
-      #             { echo "::error::gamend_core path dep rewrite failed - gamend_web would publish broken"; exit 1; }
-      #           # Remove heroicons GitHub dep for Hex packaging (Hex only allows Hex deps).
-      #           # Host/consumer apps must provide icon CSS generation for `hero-*` classes.
-      #           sed -i '/{:heroicons/,/depth: 1}/d' apps/gamend_web/mix.exs
-      #           sed -i "s|@version \"[^\"]*\"|@version \"${APP_VERSION}\"|g" \
-      #             apps/gamend_core/mix.exs \
-      #             apps/gamend_web/mix.exs
-      #
-      #       - name: Publish gamend_core
-      #         working-directory: apps/gamend_core
-      #         run: |
-      #           mix deps.get
-      #           # Do not swallow the exit code: publishing silently failed for
-      #           # months behind an `|| echo`. A version that already exists is
-      #           # not an error to hex.publish, so a non-zero exit is real.
-      #           mix hex.publish --yes
-      #
-      #       - name: Publish gamend_web
-      #         working-directory: apps/gamend_web
-      #         run: |
-      #           mix deps.get
-      #           # Do not swallow the exit code: publishing silently failed for
-      #           # months behind an `|| echo`. A version that already exists is
-      #           # not an error to hex.publish, so a non-zero exit is real.
-      #           mix hex.publish --yes
+      - name: Rewrite the gamend_core path dep and stamp versions
+        run: |
+          # gamend_web depends on gamend_core by path; Hex only accepts Hex
+          # deps, so the published package points at the version being cut.
+          # This matched `in_umbrella: true` for months, which the file never
+          # said — so the substitution silently did nothing and every
+          # gamend_web publish failed.
+          sed -i "s|{:gamend_core, path: \"../gamend_core\"}|{:gamend_core, \"~> 1.0\"}|g" \
+            apps/gamend_web/mix.exs
+          grep -q '{:gamend_core, "~> 1.0"}' apps/gamend_web/mix.exs ||
+            { echo "::error::gamend_core path dep rewrite failed - gamend_web would publish broken"; exit 1; }
+          sed -i "s|@version \"[^\"]*\"|@version \"${APP_VERSION}\"|g" \
+            apps/gamend_core/mix.exs \
+            apps/gamend_web/mix.exs
+
+      # Before gamend_web, which resolves gamend_core from the release this
+      # step cuts.
+      - name: Publish gamend_core
+        working-directory: apps/gamend_core
+        run: |
+          mix deps.get
+          # Same re-publish guard as gamend_sdk above.
+          if curl -sfo /dev/null "https://hex.pm/api/packages/gamend_core/releases/${APP_VERSION}"; then
+            echo "gamend_core ${APP_VERSION} is already on Hex - skipping (workflow re-run on the same commit)."
+          else
+            mix hex.publish --yes
+          fi
+
+      - name: Publish gamend_web
+        working-directory: apps/gamend_web
+        run: |
+          # gamend_core landed seconds ago and the package list the resolver
+          # reads is served from a CDN, so the first deps.get can still be
+          # looking at an index that predates it.
+          for attempt in $(seq 1 6); do
+            mix deps.get && break
+            if [ "$attempt" = 6 ]; then
+              echo "::error::gamend_core ${APP_VERSION} never became resolvable from Hex"
+              exit 1
+            fi
+            echo "gamend_core ${APP_VERSION} not in the registry yet - retrying in 20s."
+            sleep 20
+          done
+          # Same re-publish guard as gamend_sdk above.
+          if curl -sfo /dev/null "https://hex.pm/api/packages/gamend_web/releases/${APP_VERSION}"; then
+            echo "gamend_web ${APP_VERSION} is already on Hex - skipping (workflow re-run on the same commit)."
+          else
+            mix hex.publish --yes
+          fi
 
   docs:
     runs-on: ubuntu-latest

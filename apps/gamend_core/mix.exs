@@ -58,10 +58,10 @@ defmodule GamendCore.MixProject do
       {:jose, "~> 1.11"},
       {:guardian, "~> 2.3"},
       {:oban, "~> 2.19"},
-      # Pinned past the released 2.0.1: main replaced kadabra+httpoison with
-      # mint (#296), which also avoids a conflict with ueberauth_steam_strategy's
-      # httpoison ~> 3.0 pin. Re-point at hex on the next pigeon release.
-      {:pigeon, github: "codedge-llc/pigeon", ref: "712d5c2b20100d56bed08efed42e4eed924c422a"},
+      # 2.1.0 is the release that replaced kadabra+httpoison with mint (#296),
+      # which also avoids a conflict with ueberauth_steam_strategy's
+      # httpoison ~> 3.0 pin. Anything older drags hackney back in.
+      {:pigeon, "~> 2.1"},
       {:goth, "~> 1.4"},
       # crontab was pulled in transitively by quantum; the Schedule tick worker
       # still parses/matches cron expressions with it.

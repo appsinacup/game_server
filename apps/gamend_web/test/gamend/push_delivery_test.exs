@@ -284,6 +284,19 @@ defmodule Gamend.PushDeliveryTest do
 
       assert {:error, :transient, :expired_provider_token} =
                APNs.classify(%APNSNotification{response: :expired_provider_token})
+
+      # Token-key mismatches Apple reports separately since Pigeon 2.1.0: the
+      # .p8 belongs to another environment or another app entirely, so every
+      # retry with it fails the same way.
+      assert {:error, :permanent, :bad_environment_key_id_in_token} =
+               APNs.classify(%APNSNotification{response: :bad_environment_key_id_in_token})
+
+      assert {:error, :permanent, :unrelated_key_id_in_token} =
+               APNs.classify(%APNSNotification{response: :unrelated_key_id_in_token})
+
+      # The dispatcher had no connection, so the push never went out.
+      assert {:error, :transient, :not_connected} =
+               APNs.classify(%APNSNotification{response: :not_connected})
     end
 
     test "FCM" do
@@ -306,6 +319,19 @@ defmodule Gamend.PushDeliveryTest do
                FCM.classify(%FCMNotification{
                  target: {:token, "t"},
                  response: :unavailable
+               })
+
+      # FCM rejected the service account itself, which no retry fixes.
+      assert {:error, :permanent, :unauthenticated} =
+               FCM.classify(%FCMNotification{
+                 target: {:token, "t"},
+                 response: :unauthenticated
+               })
+
+      assert {:error, :transient, :not_connected} =
+               FCM.classify(%FCMNotification{
+                 target: {:token, "t"},
+                 response: :not_connected
                })
     end
   end

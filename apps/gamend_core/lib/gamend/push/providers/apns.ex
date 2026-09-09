@@ -25,6 +25,7 @@ defmodule Gamend.Push.Providers.APNs do
     :bad_certificate,
     :bad_certificate_environment,
     :bad_collapse_id,
+    :bad_environment_key_id_in_token,
     :bad_expiration_date,
     :bad_message_id,
     :bad_path,
@@ -40,7 +41,8 @@ defmodule Gamend.Push.Providers.APNs do
     :missing_topic,
     :payload_empty,
     :payload_too_large,
-    :topic_disallowed
+    :topic_disallowed,
+    :unrelated_key_id_in_token
   ]
 
   @impl true

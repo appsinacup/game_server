@@ -16,7 +16,12 @@ defmodule Gamend.Push.Providers.FCM do
   @invalid_responses [:unregistered, :invalid_argument]
 
   # Project/credential misconfiguration a retry cannot fix.
-  @permanent_responses [:sender_id_mismatch, :third_party_auth_error, :permission_denied]
+  @permanent_responses [
+    :sender_id_mismatch,
+    :third_party_auth_error,
+    :permission_denied,
+    :unauthenticated
+  ]
 
   # FCM caps a message at 4096 bytes and reports oversize as INVALID_ARGUMENT —
   # the same error as a malformed token. Rejecting oversize before the wire is
