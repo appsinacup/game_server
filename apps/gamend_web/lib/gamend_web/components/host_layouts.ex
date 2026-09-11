@@ -769,33 +769,22 @@ defmodule GamendWeb.HostLayouts do
       <.flash kind={:info} flash={@flash} />
       <.flash kind={:error} flash={@flash} />
 
-      <.flash
-        id="client-error"
-        kind={:error}
-        title={translate("Loading...")}
-        phx-disconnected={JS.dispatch("gs:lv-disconnected")}
-        phx-connected={JS.dispatch("gs:lv-connected")}
-        phx-hook="ReconnectNotice"
-        data-delay-ms="5000"
-        hidden
+      <%!-- Shown by CSS while <html data-connection="offline"> is set, which
+            `startConnectionState` in app.js does 5 s into a drop and clears on
+            reconnect. No `hidden` toggle and no dismiss button: the next DOM
+            patch would undo the one, and the other would hide a notice that
+            is still true. --%>
+      <div
+        id="connection-notice"
+        role="status"
+        class="toast toast-top toast-center z-50 hidden [html[data-connection=offline]_&]:flex"
       >
-        {translate("Loading...")}
-        <.icon name="hero-arrow-path" class="ms-1 size-3 motion-safe:animate-spin" />
-      </.flash>
-
-      <.flash
-        id="server-error"
-        kind={:error}
-        title={translate("Loading...")}
-        phx-disconnected={JS.dispatch("gs:lv-disconnected")}
-        phx-connected={JS.dispatch("gs:lv-connected")}
-        phx-hook="ReconnectNotice"
-        data-delay-ms="5000"
-        hidden
-      >
-        {translate("Loading...")}
-        <.icon name="hero-arrow-path" class="ms-1 size-3 motion-safe:animate-spin" />
-      </.flash>
+        <div class="alert alert-warning">
+          <.icon name="hero-signal-slash" class="size-5 shrink-0" />
+          <span>{translate("You're offline. Trying to reconnect...")}</span>
+          <.icon name="hero-arrow-path" class="size-4 shrink-0 motion-safe:animate-spin" />
+        </div>
+      </div>
     </div>
     """
   end
