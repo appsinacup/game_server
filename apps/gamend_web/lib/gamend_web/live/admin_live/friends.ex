@@ -128,7 +128,12 @@ defmodule GamendWeb.AdminLive.Friends do
             page.
           </p>
 
-          <form phx-change="filter" id="friends-filter-form" class="flex flex-wrap gap-2 my-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="friends-filter-form"
+            class="flex flex-wrap gap-2 my-2"
+          >
             <select name="status" class="select select-sm w-40">
               <option value="all" selected={@status_filter == "all"}>All statuses</option>
               <option value="pending" selected={@status_filter == "pending"}>Pending</option>

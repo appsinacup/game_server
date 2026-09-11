@@ -612,7 +612,7 @@ defmodule GamendWeb.TournamentsLive do
           </h2>
 
           <div class="flex flex-col sm:flex-row gap-2">
-            <form phx-change="filter_state" id="players-state-form">
+            <form phx-change="filter_state" phx-no-unused-field id="players-state-form">
               <select name="state" class="select select-bordered w-full sm:w-44">
                 <option value="all" selected={@state_filter == "all"}>
                   {gettext("All results")}
@@ -632,7 +632,13 @@ defmodule GamendWeb.TournamentsLive do
               </select>
             </form>
 
-            <form phx-change="search" phx-submit="search" id="players-search-form" class="sm:w-64">
+            <form
+              phx-change="search"
+              phx-no-unused-field
+              phx-submit="search"
+              id="players-search-form"
+              class="sm:w-64"
+            >
               <.input
                 name="search"
                 value={@search}

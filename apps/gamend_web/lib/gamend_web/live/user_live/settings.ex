@@ -273,6 +273,7 @@ defmodule GamendWeb.UserLive.Settings do
        settings_tab: tab
      )
      |> PaymentsTab.assign_payment_data()
+     |> GroupsTab.apply_params(params)
      |> refresh_streams_for_tab(tab)}
   end
 

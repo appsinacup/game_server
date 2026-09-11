@@ -363,6 +363,7 @@ defmodule GamendWeb.AdminLive.ChatMutes do
           <form
             phx-submit="mute"
             phx-change="form_change"
+            phx-no-unused-field
             id="chat-mute-add-form"
             class="flex flex-wrap items-end gap-2 my-2"
           >
@@ -437,7 +438,12 @@ defmodule GamendWeb.AdminLive.ChatMutes do
 
           <p :if={@form_error} class="text-error text-xs">{@form_error}</p>
 
-          <form phx-change="filter" id="chat-mutes-filter-form" class="flex flex-wrap gap-3 my-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="chat-mutes-filter-form"
+            class="flex flex-wrap gap-3 my-2"
+          >
             <select name="scope" class="select select-sm">
               <option value="">{gettext("All scopes")}</option>
               <option :for={scope <- Mute.scopes()} value={scope} selected={@scope_filter == scope}>
@@ -542,6 +548,7 @@ defmodule GamendWeb.AdminLive.ChatMutes do
           <form
             phx-submit="save_edit"
             phx-change="edit_change"
+            phx-no-unused-field
             id="chat-mute-edit-form"
             class="mt-3 space-y-2"
           >

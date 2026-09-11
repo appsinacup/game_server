@@ -336,6 +336,7 @@ defmodule GamendWeb.AdminLive.ChatFilter do
 
           <form
             phx-change="import_change"
+            phx-no-unused-field
             id="chat-filter-import-form"
             class="flex flex-wrap items-end gap-2 mt-2"
           >
@@ -386,7 +387,7 @@ defmodule GamendWeb.AdminLive.ChatFilter do
             {gettext("Runs the phrase through the live blocklist, exactly as chat does.")}
           </p>
 
-          <form phx-change="test_change" id="chat-filter-test-form" class="mt-2">
+          <form phx-change="test_change" phx-no-unused-field id="chat-filter-test-form" class="mt-2">
             <input
               type="text"
               name="phrase"
@@ -450,6 +451,7 @@ defmodule GamendWeb.AdminLive.ChatFilter do
 
           <form
             phx-change="word_form_change"
+            phx-no-unused-field
             id="chat-filter-word-form"
             class="flex flex-wrap items-end gap-2 mt-2"
           >
@@ -498,7 +500,12 @@ defmodule GamendWeb.AdminLive.ChatFilter do
             </button>
           </form>
 
-          <form phx-change="filter" id="chat-filter-filters" class="flex flex-wrap gap-2 my-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="chat-filter-filters"
+            class="flex flex-wrap gap-2 my-2"
+          >
             <input
               type="text"
               name="word"

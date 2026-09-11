@@ -44,7 +44,7 @@ defmodule GamendWeb.AdminLive.Groups do
               </button>
             </div>
 
-            <form phx-change="filter" id="groups-filter-form">
+            <form phx-change="filter" phx-no-unused-field id="groups-filter-form">
               <div class="flex items-center gap-3 mt-4">
                 <label class="text-sm text-base-content/70">Sort by:</label>
                 <select

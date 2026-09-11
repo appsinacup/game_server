@@ -434,7 +434,13 @@ defmodule GamendWeb.GroupsLive do
   defp render_group_list(assigns) do
     ~H"""
     <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-      <form phx-change="search" phx-submit="search" class="flex-1 w-full" id="groups-search-form">
+      <form
+        phx-change="search"
+        phx-no-unused-field
+        phx-submit="search"
+        class="flex-1 w-full"
+        id="groups-search-form"
+      >
         <.input
           name="search"
           value={@search}
@@ -630,6 +636,7 @@ defmodule GamendWeb.GroupsLive do
 
           <form
             phx-change="search_members"
+            phx-no-unused-field
             phx-submit="search_members"
             id="members-search-form"
             class="sm:w-64"

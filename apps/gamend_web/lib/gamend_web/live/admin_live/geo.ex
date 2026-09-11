@@ -104,7 +104,13 @@ defmodule GamendWeb.AdminLive.Geo do
 
         <%!-- Filter & sort --%>
         <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-          <.form for={%{}} id="geo-filter" phx-change="update_filter" class="flex-1 w-full sm:w-auto">
+          <.form
+            for={%{}}
+            id="geo-filter"
+            phx-change="update_filter"
+            phx-no-unused-field
+            class="flex-1 w-full sm:w-auto"
+          >
             <input
               id="geo-search"
               name="search"

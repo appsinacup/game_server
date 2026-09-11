@@ -1034,6 +1034,7 @@ defmodule GamendWeb.CoreComponents do
         :if={@show_page_size?}
         id={"#{@on_page_size}-form"}
         phx-change={@on_page_size}
+        phx-no-unused-field
         class="inline"
       >
         <input :for={{key, val} <- @value} type="hidden" name={key} value={val} />

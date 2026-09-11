@@ -58,7 +58,22 @@ defmodule GamendWeb.LobbyLive.Index do
      )}
   end
 
+  # Which lobby is being joined or managed lives in the URL (`join`, `manage`):
+  # a reconnect re-mounts the view, and the form has to be in the new render for
+  # LiveView to recover what was typed into it.
   @impl true
+  def handle_params(params, _uri, socket) do
+    {:noreply,
+     socket
+     |> assign_joining(params["join"])
+     |> assign_managing(params["manage"])}
+  end
+
+  @impl true
+  def handle_event("create_change", %{"title" => title}, socket) do
+    {:noreply, assign(socket, title: title)}
+  end
+
   def handle_event("create", %{"title" => title}, socket) do
     attrs = %{"title" => title}
 
@@ -129,7 +144,7 @@ defmodule GamendWeb.LobbyLive.Index do
     case Lobbies.get_lobby(id) do
       lobby when lobby != nil ->
         if lobby.password_hash != nil do
-          {:noreply, assign(socket, joining_lobby_id: lobby.id, join_password: "")}
+          {:noreply, patch_lobbies(socket, join: lobby.id)}
         else
           # Public lobby, join directly
           handle_start_join_for_lobby(socket, lobby)
@@ -150,6 +165,10 @@ defmodule GamendWeb.LobbyLive.Index do
     end
   end
 
+  def handle_event("join_change", %{"password" => password}, socket) do
+    {:noreply, assign(socket, join_password: password)}
+  end
+
   @impl true
   def handle_event("start_join", %{"id" => id}, socket) do
     case parse_int(id) do
@@ -162,7 +181,7 @@ defmodule GamendWeb.LobbyLive.Index do
             {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
           %{} = l when l.password_hash != nil ->
-            {:noreply, assign(socket, joining_lobby_id: l.id, join_password: "")}
+            {:noreply, patch_lobbies(socket, join: l.id)}
 
           %{} = l ->
             # delegate the complicated user check / join flow to helpers to keep
@@ -176,33 +195,31 @@ defmodule GamendWeb.LobbyLive.Index do
   end
 
   def handle_event("cancel_join", _params, socket) do
-    {:noreply, assign(socket, joining_lobby_id: nil, join_password: "")}
+    {:noreply, patch_lobbies(socket, join: nil)}
   end
 
   def handle_event("start_manage", %{"id" => id}, socket) do
-    lobby = Lobbies.get_lobby(id)
-
-    edit_attrs = %{
-      "title" => lobby.title || "",
-      "max_users" => lobby.max_users,
-      "is_hidden" => lobby.is_hidden,
-      "is_locked" => lobby.is_locked
-    }
-
-    # everyone without authority over the lobby gets a view-only modal
-    can_edit =
-      Lobbies.can_manage_lobby?(Scope.user(socket.assigns.current_scope), lobby)
-
-    {:noreply,
-     assign(socket,
-       editing_lobby_id: lobby.id,
-       edit_attrs: edit_attrs,
-       editing_can_edit: can_edit
-     )}
+    {:noreply, patch_lobbies(socket, manage: id)}
   end
 
   def handle_event("cancel_manage", _params, socket) do
-    {:noreply, assign(socket, editing_lobby_id: nil, edit_attrs: %{}, editing_can_edit: false)}
+    {:noreply, patch_lobbies(socket, manage: nil)}
+  end
+
+  def handle_event("manage_change", params, socket) do
+    if (params["_id"] || params["id"]) == socket.assigns.editing_lobby_id do
+      edit_attrs = %{
+        "title" => params["title"] || "",
+        "max_users" => params["max_users"],
+        "is_hidden" => params["is_hidden"] == "true",
+        "is_locked" => params["is_locked"] == "true",
+        "password" => params["password"] || ""
+      }
+
+      {:noreply, assign(socket, edit_attrs: edit_attrs)}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("update_lobby", params, socket) do
@@ -249,14 +266,6 @@ defmodule GamendWeb.LobbyLive.Index do
                 {lp.id, Lobbies.list_memberships_for_lobby(lp.id)}
               end)
 
-            # refresh edit_attrs so the form shows updated values
-            new_edit_attrs = %{
-              "title" => updated_lobby.title || "",
-              "max_users" => updated_lobby.max_users,
-              "is_hidden" => updated_lobby.is_hidden,
-              "is_locked" => updated_lobby.is_locked
-            }
-
             {:noreply,
              socket
              |> put_flash(:info, gettext("Success."))
@@ -264,7 +273,8 @@ defmodule GamendWeb.LobbyLive.Index do
                lobbies: lobbies,
                memberships_map: memberships_map,
                editing_lobby_id: updated_lobby.id,
-               edit_attrs: new_edit_attrs
+               # refresh edit_attrs so the form shows updated values
+               edit_attrs: edit_attrs(updated_lobby)
              )}
 
           {:error, reason} ->
@@ -389,13 +399,13 @@ defmodule GamendWeb.LobbyLive.Index do
         updated_scope = socket.assigns.current_scope
 
         {:noreply,
-         assign(socket,
+         socket
+         |> assign(
            lobbies: lobbies,
            memberships_map: memberships_map,
-           joining_lobby_id: nil,
-           join_password: "",
            current_scope: updated_scope
-         )}
+         )
+         |> patch_lobbies(join: nil)}
 
       {:error, reason} ->
         {:noreply,
@@ -459,6 +469,58 @@ defmodule GamendWeb.LobbyLive.Index do
   defp parse_int(v) when is_binary(v), do: Ecto.UUID.cast(v)
   defp parse_int(_), do: :error
 
+  # Re-applying the open lobby keeps what was typed into its form so far.
+  defp assign_joining(%{assigns: %{joining_lobby_id: id}} = socket, id) when id != nil,
+    do: socket
+
+  defp assign_joining(socket, id) do
+    case id && Lobbies.get_lobby(id) do
+      %{password_hash: hash} = lobby when hash != nil ->
+        assign(socket, joining_lobby_id: lobby.id, join_password: "")
+
+      _ ->
+        assign(socket, joining_lobby_id: nil, join_password: "")
+    end
+  end
+
+  defp assign_managing(%{assigns: %{editing_lobby_id: id}} = socket, id) when id != nil,
+    do: socket
+
+  defp assign_managing(socket, id) do
+    case id && Lobbies.get_lobby(id) do
+      %{} = lobby ->
+        # everyone without authority over the lobby gets a view-only modal
+        can_edit = Lobbies.can_manage_lobby?(Scope.user(socket.assigns.current_scope), lobby)
+
+        assign(socket,
+          editing_lobby_id: lobby.id,
+          edit_attrs: edit_attrs(lobby),
+          editing_can_edit: can_edit
+        )
+
+      _ ->
+        assign(socket, editing_lobby_id: nil, edit_attrs: %{}, editing_can_edit: false)
+    end
+  end
+
+  defp edit_attrs(lobby) do
+    %{
+      "title" => lobby.title || "",
+      "max_users" => lobby.max_users,
+      "is_hidden" => lobby.is_hidden,
+      "is_locked" => lobby.is_locked
+    }
+  end
+
+  defp patch_lobbies(socket, changes) do
+    query =
+      [join: socket.assigns.joining_lobby_id, manage: socket.assigns.editing_lobby_id]
+      |> Keyword.merge(changes)
+      |> Enum.reject(fn {_key, id} -> is_nil(id) end)
+
+    push_patch(socket, to: ~p"/admin/lobbies/live?#{query}", replace: true)
+  end
+
   # PubSub handlers for real-time updates
 
   @impl true
@@ -508,7 +570,8 @@ defmodule GamendWeb.LobbyLive.Index do
 
         {:noreply,
          socket
-         |> assign(current_scope: updated_scope, subscribed_lobby_id: nil, editing_lobby_id: nil)
+         |> assign(current_scope: updated_scope, subscribed_lobby_id: nil)
+         |> patch_lobbies(manage: nil)
          |> put_flash(:error, gettext("Removed"))}
 
       _ ->
@@ -644,7 +707,13 @@ defmodule GamendWeb.LobbyLive.Index do
               class="mt-2"
             />
 
-            <form phx-submit="create" class="mt-4 space-y-3">
+            <form
+              id="lobby-create-form"
+              phx-change="create_change"
+              phx-submit="create"
+              phx-no-unused-field
+              class="mt-4 space-y-3"
+            >
               <.input name="title" label={gettext("Title")} value={@title} />
               <div class="flex items-center gap-2">
                 <button type="submit" class="btn btn-primary">{gettext("Create")}</button>
@@ -733,7 +802,12 @@ defmodule GamendWeb.LobbyLive.Index do
 
                 <%= if @joining_lobby_id == lobby.id do %>
                   <div class="mt-3">
-                    <form phx-submit="confirm_join">
+                    <form
+                      id={"lobby-join-" <> to_string(lobby.id)}
+                      phx-change="join_change"
+                      phx-submit="confirm_join"
+                      phx-no-unused-field
+                    >
                       <input type="hidden" name="_id" value={lobby.id} />
                       <div class="flex items-center gap-2">
                         <input
@@ -756,7 +830,12 @@ defmodule GamendWeb.LobbyLive.Index do
                 <%= if @editing_lobby_id == lobby.id do %>
                   <div class="mt-3 bg-base-300 p-3 rounded">
                     <%= if @editing_can_edit do %>
-                      <form phx-submit="update_lobby">
+                      <form
+                        id={"lobby-manage-" <> to_string(lobby.id)}
+                        phx-change="manage_change"
+                        phx-submit="update_lobby"
+                        phx-no-unused-field
+                      >
                         <input type="hidden" name="_id" value={lobby.id} />
                         <div class="grid grid-cols-1 gap-2">
                           <input
@@ -791,6 +870,7 @@ defmodule GamendWeb.LobbyLive.Index do
                           <input
                             name="password"
                             class="input input-sm"
+                            value={@edit_attrs["password"]}
                             placeholder={gettext("Clear")}
                           />
                           <div class="flex items-center gap-2 mt-2">

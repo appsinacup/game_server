@@ -48,6 +48,7 @@ defmodule GamendWeb.UserLive.Settings.AccountTab do
             <form
               :if={@can_upload_avatar}
               phx-change="validate_avatar"
+              phx-no-unused-field
               phx-submit="save_avatar"
               id="avatar_form"
               class="space-y-2"

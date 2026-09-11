@@ -38,7 +38,7 @@ defmodule GamendWeb.AdminLive.Chat do
               </button>
             </div>
 
-            <form phx-change="filter" id="admin-chat-filter-form">
+            <form phx-change="filter" phx-no-unused-field id="admin-chat-filter-form">
               <div class="overflow-x-auto mt-4">
                 <table class="table table-zebra w-full">
                   <thead>

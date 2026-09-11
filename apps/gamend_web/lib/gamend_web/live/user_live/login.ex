@@ -41,11 +41,13 @@ defmodule GamendWeb.UserLive.Login do
             for={@form}
             id="login_form_magic"
             action={~p"/users/log_in"}
+            phx-change="remember_email"
             phx-submit="submit_magic"
           >
             <.input
               readonly={!!@current_scope}
               field={f[:email]}
+              value={@email}
               type="email"
               label={gettext("Email")}
               autocomplete="username"
@@ -60,6 +62,12 @@ defmodule GamendWeb.UserLive.Login do
 
           <div class="divider lg:hidden">{gettext("or")}</div>
 
+          <%!-- `phx-change` on the email input, not the form: a form-level
+                change event serializes every field, and the password has no
+                business crossing the socket on each keystroke. Only this input
+                is sent. The magic-link form above carries the form-level
+                binding that reconnect recovery needs, and both inputs render
+                `@email`, so an address typed here comes back too. --%>
           <.form
             :let={f}
             for={@form}
@@ -71,10 +79,12 @@ defmodule GamendWeb.UserLive.Login do
             <.input
               readonly={!!@current_scope}
               field={f[:email]}
+              value={@email}
               type="email"
               label={gettext("Email")}
               autocomplete="username"
               required
+              phx-change="remember_email"
             />
             <.input
               field={@form[:password]}
@@ -112,6 +122,10 @@ defmodule GamendWeb.UserLive.Login do
     {:ok,
      assign(socket,
        form: form,
+       # Both forms' email inputs are bound to this rather than to `form`, so a
+       # reconnect's form recovery can put a typed address back without
+       # re-rendering (and emptying) the password input beside it.
+       email: email,
        trigger_submit: false,
        page_title: gettext("Log in"),
        client_ip: client_ip
@@ -119,6 +133,12 @@ defmodule GamendWeb.UserLive.Login do
   end
 
   @impl true
+  def handle_event("remember_email", %{"user" => %{"email" => email}}, socket) do
+    {:noreply, assign(socket, :email, email)}
+  end
+
+  def handle_event("remember_email", _params, socket), do: {:noreply, socket}
+
   def handle_event("submit_password", _params, socket) do
     {:noreply, assign(socket, :trigger_submit, true)}
   end

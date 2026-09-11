@@ -289,7 +289,13 @@ defmodule GamendWeb.LeaderboardsLive do
             <span class="text-base-content/70 font-normal text-base">({@records_count})</span>
           </h2>
 
-          <form phx-change="search" phx-submit="search" id="records-search-form" class="sm:w-64">
+          <form
+            phx-change="search"
+            phx-no-unused-field
+            phx-submit="search"
+            id="records-search-form"
+            class="sm:w-64"
+          >
             <.input
               name="search"
               value={@records_search}

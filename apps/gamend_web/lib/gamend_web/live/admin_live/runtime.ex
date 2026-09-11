@@ -212,7 +212,12 @@ defmodule GamendWeb.AdminLive.Runtime do
           </div>
 
           <div class="flex flex-wrap items-center gap-2 mb-2">
-            <form phx-change="search" id={"runtime-search-#{@tab}"} class="grow max-w-md">
+            <form
+              phx-change="search"
+              phx-no-unused-field
+              id={"runtime-search-#{@tab}"}
+              class="grow max-w-md"
+            >
               <input
                 type="text"
                 name="q"
@@ -222,7 +227,12 @@ defmodule GamendWeb.AdminLive.Runtime do
                 class="input input-sm w-full"
               />
             </form>
-            <form :if={facet_field(assigns) != nil} phx-change="facet" id={"facet-#{@tab}"}>
+            <form
+              :if={facet_field(assigns) != nil}
+              phx-change="facet"
+              phx-no-unused-field
+              id={"facet-#{@tab}"}
+            >
               <select name="value" class="select select-sm w-48">
                 <option value="all" selected={@facet == "all"}>{facet_label(assigns)}</option>
                 <option

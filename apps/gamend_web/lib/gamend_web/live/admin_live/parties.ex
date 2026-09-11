@@ -58,7 +58,7 @@ defmodule GamendWeb.AdminLive.Parties do
               </div>
             </div>
 
-            <form phx-change="filter" id="parties-filter-form">
+            <form phx-change="filter" phx-no-unused-field id="parties-filter-form">
               <div class="flex items-center gap-3 mt-4">
                 <label class="text-sm text-base-content/70">Sort by:</label>
                 <select

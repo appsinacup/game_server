@@ -185,6 +185,7 @@ defmodule GamendWeb.AdminLive.Storage do
           <form
             id="storage-upload-form"
             phx-change="validate_upload"
+            phx-no-unused-field
             phx-submit="upload"
             class="flex flex-wrap items-center gap-2 mt-3"
           >
@@ -237,7 +238,12 @@ defmodule GamendWeb.AdminLive.Storage do
 
       <div class="card bg-base-200">
         <div class="card-body">
-          <form phx-change="filter" id="storage-filter-form" class="flex flex-wrap gap-2 mb-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="storage-filter-form"
+            class="flex flex-wrap gap-2 mb-2"
+          >
             <input
               type="text"
               name="prefix"

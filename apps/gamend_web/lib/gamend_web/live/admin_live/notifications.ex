@@ -95,7 +95,7 @@ defmodule GamendWeb.AdminLive.Notifications do
               </button>
             </div>
 
-            <form phx-change="filter" id="notifications-filter-form">
+            <form phx-change="filter" phx-no-unused-field id="notifications-filter-form">
               <div class="overflow-x-auto mt-4">
                 <table class="table table-zebra w-full min-w-[48rem]">
                   <thead>

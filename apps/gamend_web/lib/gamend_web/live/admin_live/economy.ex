@@ -165,7 +165,12 @@ defmodule GamendWeb.AdminLive.Economy do
             <h2 class="card-title">Economy · grant / spend</h2>
             <button phx-click="refresh" class="btn btn-ghost btn-sm">Refresh</button>
           </div>
-          <form phx-change="form_change" id="economy-form" class="flex flex-wrap items-end gap-2 mt-2">
+          <form
+            phx-change="form_change"
+            phx-no-unused-field
+            id="economy-form"
+            class="flex flex-wrap items-end gap-2 mt-2"
+          >
             <input
               type="text"
               name="user_id"
@@ -204,7 +209,12 @@ defmodule GamendWeb.AdminLive.Economy do
       <div class="card bg-base-200 mb-4">
         <div class="card-body">
           <h2 class="card-title">Wallets ({@count})</h2>
-          <form phx-change="filter" id="economy-filter" class="flex flex-wrap gap-2 mb-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="economy-filter"
+            class="flex flex-wrap gap-2 mb-2"
+          >
             <input
               type="text"
               name="user_id"
@@ -258,6 +268,7 @@ defmodule GamendWeb.AdminLive.Economy do
           <h2 class="card-title">Inventory · grant / consume</h2>
           <form
             phx-change="item_form_change"
+            phx-no-unused-field
             id="inventory-form"
             class="flex flex-wrap items-end gap-2 mt-2"
           >

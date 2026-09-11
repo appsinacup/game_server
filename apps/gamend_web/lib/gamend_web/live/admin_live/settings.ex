@@ -160,7 +160,7 @@ defmodule GamendWeb.AdminLive.Settings do
             placeholder="Search name, variable or description…"
             class="input input-bordered flex-1 min-w-[16rem]"
           />
-          <form id="settings-group-filter" phx-change="group">
+          <form id="settings-group-filter" phx-change="group" phx-no-unused-field>
             <select name="group" class="select select-bordered">
               <option value="">All groups</option>
               <option

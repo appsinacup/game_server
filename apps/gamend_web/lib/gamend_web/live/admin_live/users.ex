@@ -32,6 +32,7 @@ defmodule GamendWeb.AdminLive.Users do
                 <form
                   id="admin-user-search-form"
                   phx-change="search_users"
+                  phx-no-unused-field
                   phx-submit="search_users"
                   class="flex items-center"
                 >

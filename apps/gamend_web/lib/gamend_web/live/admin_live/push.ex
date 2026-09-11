@@ -88,7 +88,7 @@ defmodule GamendWeb.AdminLive.Push do
           <div class="card-body">
             <h2 class="card-title">Registered Devices ({@count})</h2>
 
-            <form phx-change="filter" id="push-tokens-filter-form">
+            <form phx-change="filter" phx-no-unused-field id="push-tokens-filter-form">
               <div class="overflow-x-auto mt-4">
                 <table class="table table-zebra w-full min-w-[48rem]">
                   <thead>

@@ -120,6 +120,7 @@ defmodule GamendWeb.AdminLive.Logs do
         for={%{}}
         id="log-filters"
         phx-change="update_filters"
+        phx-no-unused-field
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2"
       >
         <select name="source" class="select select-sm">
@@ -259,6 +260,7 @@ defmodule GamendWeb.AdminLive.Logs do
         for={%{}}
         id="session-filters"
         phx-change="update_session_filters"
+        phx-no-unused-field
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2"
       >
         <input

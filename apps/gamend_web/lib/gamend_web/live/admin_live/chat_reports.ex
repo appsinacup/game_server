@@ -398,7 +398,12 @@ defmodule GamendWeb.AdminLive.ChatReports do
             )}
           </p>
 
-          <form phx-change="filter" id="chat-reports-filter-form" class="flex flex-wrap gap-2 my-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="chat-reports-filter-form"
+            class="flex flex-wrap gap-2 my-2"
+          >
             <select name="status" class="select select-sm">
               <option value="">{gettext("All")}</option>
               <option
@@ -544,6 +549,7 @@ defmodule GamendWeb.AdminLive.ChatReports do
           <form
             phx-submit="submit_action"
             phx-change="form_change"
+            phx-no-unused-field
             id="chat-report-action-form"
             class="mt-3 space-y-3"
           >

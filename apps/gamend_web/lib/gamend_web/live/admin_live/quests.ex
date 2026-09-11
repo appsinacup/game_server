@@ -41,15 +41,22 @@ defmodule GamendWeb.AdminLive.Quests do
             <div class="flex flex-wrap items-center justify-between">
               <h2 class="card-title">Quests ({@count})</h2>
               <div class="flex flex-wrap gap-2">
-                <input
-                  type="text"
-                  name="category"
-                  value={@category_filter || ""}
-                  placeholder="Filter by category"
-                  class="input input-sm input-bordered"
+                <%!-- LiveView only sends change events from inputs inside a form. --%>
+                <form
+                  id="quests-category-filter-form"
                   phx-change="filter_category"
-                  phx-debounce="300"
-                />
+                  phx-submit="filter_category"
+                  phx-no-unused-field
+                >
+                  <input
+                    type="text"
+                    name="category"
+                    value={@category_filter || ""}
+                    placeholder="Filter by category"
+                    class="input input-sm input-bordered"
+                    phx-debounce="300"
+                  />
+                </form>
                 <button phx-click="new_quest" class="btn btn-primary btn-sm">
                   + Create Quest
                 </button>
@@ -150,6 +157,7 @@ defmodule GamendWeb.AdminLive.Quests do
             <form
               id="progress-filter-form"
               phx-change="filter_progress"
+              phx-no-unused-field
               class="flex flex-wrap gap-2 mt-2"
             >
               <input

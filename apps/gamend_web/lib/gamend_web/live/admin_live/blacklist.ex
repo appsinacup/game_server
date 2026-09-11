@@ -115,7 +115,12 @@ defmodule GamendWeb.AdminLive.Blacklist do
             invite or message each other.
           </p>
 
-          <form phx-change="filter" id="blacklist-filter-form" class="flex flex-wrap gap-2 my-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="blacklist-filter-form"
+            class="flex flex-wrap gap-2 my-2"
+          >
             <input
               type="text"
               name="user_id"

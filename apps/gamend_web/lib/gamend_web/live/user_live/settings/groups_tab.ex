@@ -850,14 +850,7 @@ defmodule GamendWeb.UserLive.Settings.GroupsTab do
   end
 
   def handle_event("groups_toggle_create", _params, socket) do
-    show = !socket.assigns.groups_show_create
-
-    form =
-      if show,
-        do: to_form(Groups.change_group(%Group{}), as: :group),
-        else: socket.assigns.create_group_form
-
-    {:noreply, assign(socket, groups_show_create: show, create_group_form: form)}
+    {:noreply, patch_groups(socket, create: !socket.assigns.groups_show_create)}
   end
 
   def handle_event("group_validate_create", %{"group" => group_params}, socket) do
@@ -879,7 +872,8 @@ defmodule GamendWeb.UserLive.Settings.GroupsTab do
          |> assign(:groups_show_create, false)
          |> assign(:create_group_form, to_form(Groups.change_group(%Group{}), as: :group))
          |> assign(:groups_tab, "my_groups")
-         |> reload_groups()}
+         |> reload_groups()
+         |> patch_groups(create: false)}
 
       {:error, changeset} ->
         changeset = Map.put(changeset, :action, :validate)
@@ -902,7 +896,8 @@ defmodule GamendWeb.UserLive.Settings.GroupsTab do
          |> put_success_flash()
          |> assign(:group_detail, nil)
          |> assign(:group_detail_role, nil)
-         |> reload_groups()}
+         |> reload_groups()
+         |> patch_groups(group: nil, edit: false)}
 
       {:error, reason} ->
         {:noreply, put_failure_flash(socket, reason)}
@@ -1063,38 +1058,15 @@ defmodule GamendWeb.UserLive.Settings.GroupsTab do
   end
 
   def handle_event("group_view_detail", %{"group_id" => gid}, socket) do
-    gid = to_string(gid)
-    handle_group_view_detail(socket, gid)
+    {:noreply, patch_groups(socket, group: to_string(gid), edit: false)}
   end
 
   def handle_event("group_close_detail", _params, socket) do
-    {:noreply,
-     socket
-     |> assign(:group_detail, nil)
-     |> assign(:group_detail_role, nil)
-     |> assign(:group_members, [])
-     |> assign(:group_members_total, 0)
-     |> assign(:group_members_total_pages, 0)
-     |> assign(:invite_search_query, "")
-     |> assign(:invite_search_results, [])
-     |> assign(:invite_friends, [])
-     |> assign(:group_editing, false)
-     |> assign(:group_edit_form, nil)
-     |> assign(:group_join_requests, [])}
+    {:noreply, patch_groups(socket, group: nil, edit: false)}
   end
 
   def handle_event("group_toggle_edit", _params, socket) do
-    editing = !socket.assigns.group_editing
-
-    form =
-      if editing do
-        group = socket.assigns.group_detail
-        to_form(Groups.change_group(group), as: :group)
-      else
-        nil
-      end
-
-    {:noreply, assign(socket, group_editing: editing, group_edit_form: form)}
+    {:noreply, patch_groups(socket, edit: !socket.assigns.group_editing)}
   end
 
   def handle_event("group_validate_edit", %{"group" => group_params}, socket) do
@@ -1117,7 +1089,8 @@ defmodule GamendWeb.UserLive.Settings.GroupsTab do
          |> assign(:group_detail, updated)
          |> assign(:group_editing, false)
          |> assign(:group_edit_form, nil)
-         |> reload_groups()}
+         |> reload_groups()
+         |> patch_groups(edit: false)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, group_edit_form: to_form(changeset, as: :group))}
@@ -1285,39 +1258,122 @@ defmodule GamendWeb.UserLive.Settings.GroupsTab do
     |> assign(:browse_groups_total_pages, total_pages)
   end
 
-  defp handle_group_view_detail(socket, gid) do
+  @doc """
+  Applies the part of the tab that lives in the URL: `create=1` opens the create
+  form, `group=<id>` one of the user's groups and `edit=1` its edit form. A
+  reconnect re-mounts the page, and a form has to be in the new render for
+  LiveView to recover what was typed into it.
+  """
+  def apply_params(socket, params) do
+    socket
+    |> apply_create_param(params["create"] == "1")
+    |> apply_detail_param(params["group"], params["edit"] == "1")
+  end
+
+  # Re-applying the current state keeps what was typed into its form so far.
+  defp apply_create_param(%{assigns: %{groups_show_create: show}} = socket, show), do: socket
+
+  defp apply_create_param(socket, true) do
+    assign(socket,
+      groups_show_create: true,
+      create_group_form: to_form(Groups.change_group(%Group{}), as: :group)
+    )
+  end
+
+  defp apply_create_param(socket, false), do: assign(socket, :groups_show_create, false)
+
+  defp apply_detail_param(socket, nil, _edit?), do: close_group_detail(socket)
+
+  defp apply_detail_param(%{assigns: %{group_detail: %{id: gid}}} = socket, gid, edit?),
+    do: apply_edit_param(socket, edit?)
+
+  defp apply_detail_param(socket, gid, edit?),
+    do: socket |> load_group_detail(gid) |> apply_edit_param(edit?)
+
+  defp apply_edit_param(
+         %{assigns: %{group_detail_role: "admin", group_editing: true}} = socket,
+         true
+       ),
+       do: socket
+
+  defp apply_edit_param(
+         %{assigns: %{group_detail_role: "admin", group_detail: group}} = socket,
+         true
+       ) do
+    assign(socket,
+      group_editing: true,
+      group_edit_form: to_form(Groups.change_group(group), as: :group)
+    )
+  end
+
+  defp apply_edit_param(socket, _edit?),
+    do: assign(socket, group_editing: false, group_edit_form: nil)
+
+  defp patch_groups(socket, changes) do
+    state = [
+      create: socket.assigns.groups_show_create,
+      group: socket.assigns.group_detail && socket.assigns.group_detail.id,
+      edit: socket.assigns.group_editing
+    ]
+
+    query =
+      state
+      |> Keyword.merge(changes)
+      |> Enum.flat_map(fn
+        {_key, value} when value in [nil, false] -> []
+        {key, true} -> [{key, "1"}]
+        {key, value} -> [{key, value}]
+      end)
+
+    push_patch(socket, to: ~p"/users/settings?#{[tab: "groups"] ++ query}", replace: true)
+  end
+
+  defp close_group_detail(socket) do
+    socket
+    |> assign(:group_detail, nil)
+    |> assign(:group_detail_role, nil)
+    |> assign(:group_members, [])
+    |> assign(:group_members_total, 0)
+    |> assign(:group_members_total_pages, 0)
+    |> assign(:invite_search_query, "")
+    |> assign(:invite_search_results, [])
+    |> assign(:invite_friends, [])
+    |> assign(:group_editing, false)
+    |> assign(:group_edit_form, nil)
+    |> assign(:group_join_requests, [])
+  end
+
+  # Only the user's own groups open: the id now arrives in the URL, and a
+  # hidden group's member list is not for anyone who can guess the id.
+  defp load_group_detail(socket, gid) do
     user = Shared.current_user(socket)
+    group = Groups.get_group(gid)
+    membership = group && Groups.get_membership(group.id, user.id)
 
-    case Groups.get_group(gid) do
-      nil ->
-        {:noreply, put_flash(socket, :error, gettext("Not found"))}
-
-      group ->
-        role =
-          case Groups.get_membership(gid, user.id) do
-            %{role: r} -> r
-            _ -> nil
-          end
-
+    case membership do
+      %{role: role} ->
         member_ids =
-          Groups.get_group_members(gid) |> Enum.map(& &1.user_id) |> MapSet.new()
+          Groups.get_group_members(group.id) |> Enum.map(& &1.user_id) |> MapSet.new()
 
         friends_not_in_group =
           Friends.list_friends_for_user(user.id)
           |> Enum.reject(fn f -> MapSet.member?(member_ids, f.id) end)
 
-        join_requests = load_join_requests(role, user.id, gid)
+        join_requests = load_join_requests(role, user.id, group.id)
 
-        {:noreply,
-         socket
-         |> assign(:group_detail, group)
-         |> assign(:group_detail_role, role)
-         |> assign(:group_members_page, 1)
-         |> assign(:invite_search_query, "")
-         |> assign(:invite_search_results, [])
-         |> assign(:invite_friends, friends_not_in_group)
-         |> assign(:group_join_requests, join_requests)
-         |> reload_group_members()}
+        socket
+        |> close_group_detail()
+        |> assign(:group_detail, group)
+        |> assign(:group_detail_role, role)
+        |> assign(:group_members_page, 1)
+        |> assign(:invite_friends, friends_not_in_group)
+        |> assign(:group_join_requests, join_requests)
+        |> reload_group_members()
+
+      _ ->
+        socket
+        |> close_group_detail()
+        |> put_flash(:error, gettext("Not found"))
     end
   end
 

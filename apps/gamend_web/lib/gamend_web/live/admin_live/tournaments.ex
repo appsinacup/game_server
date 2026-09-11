@@ -31,16 +31,19 @@ defmodule GamendWeb.AdminLive.Tournaments do
             <div class="flex items-center justify-between">
               <h2 class="card-title">Tournaments ({@count})</h2>
               <div class="flex flex-wrap gap-2">
-                <select class="select select-sm" phx-change="filter_state" name="state">
-                  <option value="all" selected={@state_filter == "all"}>All states</option>
-                  <option
-                    :for={state <- Tournament.states()}
-                    value={state}
-                    selected={@state_filter == state}
-                  >
-                    {state}
-                  </option>
-                </select>
+                <%!-- LiveView only sends change events from inputs inside a form. --%>
+                <form id="tournaments-state-filter-form" phx-change="filter_state" phx-no-unused-field>
+                  <select class="select select-sm" name="state">
+                    <option value="all" selected={@state_filter == "all"}>All states</option>
+                    <option
+                      :for={state <- Tournament.states()}
+                      value={state}
+                      selected={@state_filter == state}
+                    >
+                      {state}
+                    </option>
+                  </select>
+                </form>
                 <button phx-click="new_tournament" class="btn btn-primary btn-sm">
                   New tournament
                 </button>

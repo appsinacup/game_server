@@ -212,7 +212,12 @@ defmodule GamendWeb.UserLive.Settings.FriendsTab do
           </div>
 
           <div class="flex items-center gap-2">
-            <form id="settings-search-users-form" phx-change="search_users" class="w-full">
+            <form
+              id="settings-search-users-form"
+              phx-change="search_users"
+              phx-no-unused-field
+              class="w-full"
+            >
               <input
                 type="text"
                 name="q"

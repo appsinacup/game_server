@@ -100,7 +100,7 @@ defmodule GamendWeb.AdminLive.Translations do
             </h2>
 
             <%!-- Filters --%>
-            <form phx-change="filter" id="translations-filter-form" class="mt-2">
+            <form phx-change="filter" phx-no-unused-field id="translations-filter-form" class="mt-2">
               <div class="flex flex-wrap gap-3 items-end">
                 <div class="form-control w-full sm:w-auto">
                   <label class="label py-0.5">

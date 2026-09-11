@@ -260,7 +260,12 @@ defmodule GamendWeb.AdminLive.Matchmaking do
             </div>
           </div>
 
-          <form phx-change="filter" id="matchmaking-filter-form" class="flex flex-wrap gap-2 my-2">
+          <form
+            phx-change="filter"
+            phx-no-unused-field
+            id="matchmaking-filter-form"
+            class="flex flex-wrap gap-2 my-2"
+          >
             <select name="status" class="select select-sm w-40">
               <option value="all" selected={@status_filter == "all"}>All statuses</option>
               <option value="queued" selected={@status_filter == "queued"}>Queued</option>

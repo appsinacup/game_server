@@ -67,7 +67,7 @@ defmodule GamendWeb.AdminLive.Lobbies do
               </div>
             </div>
 
-            <form phx-change="filter" id="lobbies-filter-form">
+            <form phx-change="filter" phx-no-unused-field id="lobbies-filter-form">
               <div class="flex items-center gap-3 mt-4">
                 <label class="text-sm text-base-content/70">Sort by:</label>
                 <select

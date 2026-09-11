@@ -54,68 +54,36 @@ defmodule GamendWeb.ChatLive do
      |> assign(:page, 1)
      |> assign(:page_size, @page_size)
      |> assign(:has_more, false)
+     # composer draft, bound to the input so a reconnect's form recovery
+     # can put it back
+     |> assign(:draft, "")
      # editing
      |> assign(:editing_message_id, nil)
      |> assign(:editing_message_content, "")}
   end
 
+  # The message being edited rides in the URL (`edit`) next to the
+  # conversation: a reconnect re-mounts the view, and the edit form has to be
+  # in the new render for LiveView to recover what was typed into it.
   @impl true
-  def handle_params(%{"type" => "group", "id" => id_str}, _uri, socket) do
-    if connected?(socket) do
-      gid = parse_id(id_str)
-      group = Groups.get_group(gid)
+  def handle_params(%{"type" => type, "id" => id_str} = params, _uri, socket)
+      when type in ["group", "friend"] do
+    id = parse_id(id_str)
 
-      if group do
-        user = Scope.user(socket.assigns.current_scope)
-        mark_group_chat_read(user.id, gid)
+    cond do
+      not connected?(socket) ->
+        {:noreply, socket}
 
-        {:noreply,
-         socket
-         |> assign(:chat_type, "group")
-         |> assign(:chat_target, gid)
-         |> assign(:chat_target_name, group.title || group.name)
-         |> assign(:chat_target_user, nil)
-         |> assign(:chat_target_icon, group.icon_url)
-         |> assign(:page, 1)
-         |> assign(:editing_message_id, nil)
-         |> assign(:editing_message_content, "")
-         |> update(:group_unread, &Map.delete(&1, gid))
-         |> reload_messages()}
-      else
-        {:noreply, put_flash(socket, :error, gettext("Not found"))}
-      end
-    else
-      {:noreply, socket}
-    end
-  end
+      # Only the edit changed: re-opening would reset the page and drop the
+      # older messages the user loaded.
+      socket.assigns.chat_type == type and socket.assigns.chat_target == id ->
+        {:noreply, assign_editing(socket, params["edit"])}
 
-  @impl true
-  def handle_params(%{"type" => "friend", "id" => id_str}, _uri, socket) do
-    if connected?(socket) do
-      fid = parse_id(id_str)
-      target = Accounts.get_user(fid)
-
-      if target do
-        user = Scope.user(socket.assigns.current_scope)
-        mark_friend_chat_read(user.id, fid)
-
-        {:noreply,
-         socket
-         |> assign(:chat_type, "friend")
-         |> assign(:chat_target, fid)
-         |> assign(:chat_target_name, LiveHelpers.public_user_name(target))
-         |> assign(:chat_target_user, target)
-         |> assign(:chat_target_icon, nil)
-         |> assign(:page, 1)
-         |> assign(:editing_message_id, nil)
-         |> assign(:editing_message_content, "")
-         |> update(:friend_unread, &Map.delete(&1, fid))
-         |> reload_messages()}
-      else
-        {:noreply, put_flash(socket, :error, gettext("Not found"))}
-      end
-    else
-      {:noreply, socket}
+      true ->
+        case open_chat(socket, type, id) do
+          {:ok, socket} -> {:noreply, assign_editing(socket, params["edit"])}
+          :error -> {:noreply, put_flash(socket, :error, gettext("Not found"))}
+        end
     end
   end
 
@@ -257,7 +225,9 @@ defmodule GamendWeb.ChatLive do
 
                 <%= if @editing_message_id == msg.id do %>
                   <form
+                    phx-change="chat_edit_change"
                     phx-submit="chat_edit_save"
+                    phx-no-unused-field
                     id={"edit-" <> to_string(msg.id)}
                     class="flex gap-1 w-full max-w-[80%]"
                   >
@@ -289,7 +259,6 @@ defmodule GamendWeb.ChatLive do
                       <button
                         phx-click="chat_edit_start"
                         phx-value-id={msg.id}
-                        phx-value-content={msg.content}
                         class="btn btn-xs btn-ghost min-h-[2rem] min-w-[2rem] px-2 lg:px-1"
                         title={gettext("Edit")}
                       >
@@ -321,14 +290,16 @@ defmodule GamendWeb.ChatLive do
 
             <%!-- Send form --%>
             <form
+              phx-change="draft_change"
               phx-submit="send_message"
+              phx-no-unused-field
               id="chat-send-form"
               class="flex gap-2 mt-3 pt-3 border-t border-base-300"
             >
               <input
                 type="text"
                 name="content"
-                value=""
+                value={@draft}
                 placeholder={gettext("Send")}
                 class="input input-bordered input-sm flex-1"
                 autocomplete="off"
@@ -383,7 +354,7 @@ defmodule GamendWeb.ChatLive do
 
       with :ok <- GamendWeb.RateLimit.check_chat_daily(user.id),
            {:ok, _msg} <- Chat.send_message(%{user: user}, attrs) do
-        {:noreply, reload_messages(socket)}
+        {:noreply, socket |> assign(:draft, "") |> reload_messages()}
       else
         {:error, :chat_daily_limit} ->
           {:noreply, put_flash(socket, :error, gettext("Failed"))}
@@ -397,6 +368,11 @@ defmodule GamendWeb.ChatLive do
     else
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_event("draft_change", %{"content" => content}, socket) do
+    {:noreply, assign(socket, :draft, content)}
   end
 
   @impl true
@@ -424,19 +400,22 @@ defmodule GamendWeb.ChatLive do
   end
 
   @impl true
-  def handle_event("chat_edit_start", %{"id" => id, "content" => content}, socket) do
-    {:noreply,
-     socket
-     |> assign(:editing_message_id, parse_id(id))
-     |> assign(:editing_message_content, content)}
+  def handle_event("chat_edit_start", %{"id" => id}, socket) do
+    {:noreply, patch_editing(socket, parse_id(id))}
   end
 
   @impl true
   def handle_event("chat_edit_cancel", _params, socket) do
-    {:noreply,
-     socket
-     |> assign(:editing_message_id, nil)
-     |> assign(:editing_message_content, "")}
+    {:noreply, patch_editing(socket, nil)}
+  end
+
+  @impl true
+  def handle_event("chat_edit_change", %{"message_id" => id, "content" => content}, socket) do
+    if parse_id(id) == socket.assigns.editing_message_id do
+      {:noreply, assign(socket, :editing_message_content, content)}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
@@ -452,7 +431,8 @@ defmodule GamendWeb.ChatLive do
            socket
            |> assign(:editing_message_id, nil)
            |> assign(:editing_message_content, "")
-           |> reload_messages()}
+           |> reload_messages()
+           |> patch_editing(nil)}
 
         {:error, reason} ->
           {:noreply, put_failure_flash(socket, reason)}
@@ -466,11 +446,15 @@ defmodule GamendWeb.ChatLive do
   def handle_event("chat_delete", %{"id" => id}, socket) do
     case Chat.delete_own_message(socket.assigns.current_scope.user_id, parse_id(id)) do
       {:ok, _msg} ->
-        {:noreply,
-         socket
-         |> assign(:editing_message_id, nil)
-         |> assign(:editing_message_content, "")
-         |> reload_messages()}
+        editing? = socket.assigns.editing_message_id != nil
+
+        socket =
+          socket
+          |> assign(:editing_message_id, nil)
+          |> assign(:editing_message_content, "")
+          |> reload_messages()
+
+        {:noreply, if(editing?, do: patch_editing(socket, nil), else: socket)}
 
       {:error, reason} ->
         {:noreply, put_failure_flash(socket, reason)}
@@ -546,6 +530,88 @@ defmodule GamendWeb.ChatLive do
   # ---------------------------------------------------------------------------
   # Private helpers
   # ---------------------------------------------------------------------------
+
+  defp open_chat(socket, "group", gid) do
+    if group = Groups.get_group(gid) do
+      user = Scope.user(socket.assigns.current_scope)
+      mark_group_chat_read(user.id, gid)
+
+      {:ok,
+       socket
+       |> assign(:chat_type, "group")
+       |> assign(:chat_target, gid)
+       |> assign(:chat_target_name, group.title || group.name)
+       |> assign(:chat_target_user, nil)
+       |> assign(:chat_target_icon, group.icon_url)
+       |> reset_conversation()
+       |> update(:group_unread, &Map.delete(&1, gid))
+       |> reload_messages()}
+    else
+      :error
+    end
+  end
+
+  defp open_chat(socket, "friend", fid) do
+    if target = Accounts.get_user(fid) do
+      user = Scope.user(socket.assigns.current_scope)
+      mark_friend_chat_read(user.id, fid)
+
+      {:ok,
+       socket
+       |> assign(:chat_type, "friend")
+       |> assign(:chat_target, fid)
+       |> assign(:chat_target_name, LiveHelpers.public_user_name(target))
+       |> assign(:chat_target_user, target)
+       |> assign(:chat_target_icon, nil)
+       |> reset_conversation()
+       |> update(:friend_unread, &Map.delete(&1, fid))
+       |> reload_messages()}
+    else
+      :error
+    end
+  end
+
+  defp reset_conversation(socket) do
+    socket
+    |> assign(:page, 1)
+    |> assign(:draft, "")
+    |> assign(:editing_message_id, nil)
+    |> assign(:editing_message_content, "")
+  end
+
+  # Only the sender's own, loaded messages can be edited. Re-opening the same
+  # message keeps the text typed so far.
+  defp assign_editing(socket, id) do
+    user_id = socket.assigns.user_id
+    msg = id && Enum.find(socket.assigns.messages, &(&1.id == id and &1.sender_id == user_id))
+
+    cond do
+      is_nil(msg) ->
+        socket
+        |> assign(:editing_message_id, nil)
+        |> assign(:editing_message_content, "")
+
+      socket.assigns.editing_message_id == msg.id ->
+        socket
+
+      true ->
+        socket
+        |> assign(:editing_message_id, msg.id)
+        |> assign(:editing_message_content, msg.content)
+    end
+  end
+
+  defp chat_path(socket, edit_id) do
+    query =
+      [type: socket.assigns.chat_type, id: socket.assigns.chat_target, edit: edit_id]
+      |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+
+    ~p"/chat?#{query}"
+  end
+
+  defp patch_editing(socket, edit_id) do
+    push_patch(socket, to: chat_path(socket, edit_id), replace: true)
+  end
 
   defp reload_messages(socket) do
     chat_type = socket.assigns.chat_type

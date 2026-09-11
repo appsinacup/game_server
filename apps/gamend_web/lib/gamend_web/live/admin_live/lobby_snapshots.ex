@@ -145,7 +145,7 @@ defmodule GamendWeb.AdminLive.LobbySnapshots do
             <%!-- Filters everything on the page at once: diff paths and values,
                   event kinds and payloads. A real run puts hundreds of rows on
                   screen, so finding one field by eye is the slow path. --%>
-            <form id="run-filter" phx-change="filter" class="sm:ml-auto">
+            <form id="run-filter" phx-change="filter" phx-no-unused-field class="sm:ml-auto">
               <input
                 type="search"
                 name="q"
@@ -211,6 +211,7 @@ defmodule GamendWeb.AdminLive.LobbySnapshots do
                     <form
                       id={"section-filter-#{interval.snapshot.id}-#{section}"}
                       phx-change="filter_section"
+                      phx-no-unused-field
                     >
                       <input type="hidden" name="section" value={section} />
                       <input
