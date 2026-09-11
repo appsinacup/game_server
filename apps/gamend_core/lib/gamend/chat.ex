@@ -628,7 +628,12 @@ defmodule Gamend.Chat do
             ],
             where: fragment("EXCLUDED.last_read_message_id > ?", c.last_read_message_id)
           ),
-        conflict_target: {:unsafe_fragment, "(user_id, chat_type, chat_ref_id)"}
+        conflict_target: {:unsafe_fragment, "(user_id, chat_type, chat_ref_id)"},
+        # A mark that is not ahead of the cursor updates no row, which Ecto
+        # reports as stale and raises on. That is the forward-only rule doing
+        # its job — the chat page marks on its dead render and again on
+        # connect, and the second raised through the mount.
+        allow_stale: true
       )
     end
   end
