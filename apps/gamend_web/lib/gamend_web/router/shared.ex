@@ -58,7 +58,8 @@ defmodule GamendWeb.Router.Shared do
       {GamendWeb.OnMount.Locale, :default},
       {GamendWeb.UserAuth, :require_admin},
       {GamendWeb.OnMount.Theme, :mount_theme},
-      {GamendWeb.OnMount.TrackConnection, :default}
+      {GamendWeb.OnMount.TrackConnection, :default},
+      {GamendWeb.OnMount.SeoTitle, :default}
     ]
   end
 
@@ -67,7 +68,8 @@ defmodule GamendWeb.Router.Shared do
       {GamendWeb.OnMount.Locale, :default},
       {GamendWeb.UserAuth, :require_authenticated},
       {GamendWeb.OnMount.Theme, :mount_theme},
-      {GamendWeb.OnMount.TrackConnection, :default}
+      {GamendWeb.OnMount.TrackConnection, :default},
+      {GamendWeb.OnMount.SeoTitle, :default}
     ]
   end
 
@@ -76,7 +78,8 @@ defmodule GamendWeb.Router.Shared do
       {GamendWeb.OnMount.Locale, :default},
       {GamendWeb.UserAuth, :mount_current_scope},
       {GamendWeb.OnMount.Theme, :mount_theme},
-      {GamendWeb.OnMount.TrackConnection, :default}
+      {GamendWeb.OnMount.TrackConnection, :default},
+      {GamendWeb.OnMount.SeoTitle, :default}
     ]
   end
 

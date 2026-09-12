@@ -20,6 +20,7 @@ defmodule GamendWeb.TournamentsLive do
   alias Gamend.Tournaments.Tournament
   alias GamendWeb.ContentText
   alias GamendWeb.LiveHelpers
+  alias GamendWeb.OnMount.SeoTitle
 
   @page_size 25
   @brackets_page_size 12
@@ -245,7 +246,7 @@ defmodule GamendWeb.TournamentsLive do
     total = Tournaments.count_tournament_groups()
 
     socket
-    |> assign(:page_title, gettext("Tournaments"))
+    |> SeoTitle.assign_page_title(gettext("Tournaments"))
     |> assign(:tournament, nil)
     |> assign(:bracket, nil)
     |> assign(:page, page)
@@ -260,7 +261,7 @@ defmodule GamendWeb.TournamentsLive do
     editions = Tournaments.list_occurrences(tournament.slug)
 
     socket
-    |> assign(:page_title, tournament.title)
+    |> SeoTitle.assign_page_title(tournament.title)
     |> assign(:tournament, tournament)
     |> assign(:base_path, base_path(tournament, editions))
     |> assign(:bracket, nil)
@@ -353,7 +354,9 @@ defmodule GamendWeb.TournamentsLive do
     highlight = Map.get(entries, highlight_entry_id) || own
 
     socket
-    |> assign(:page_title, "#{tournament.title} — #{gettext("Bracket")} #{bracket.index + 1}")
+    |> SeoTitle.assign_page_title(
+      "#{tournament.title} — #{gettext("Bracket")} #{bracket.index + 1}"
+    )
     |> assign(:tournament, tournament)
     |> assign(:base_path, base_path(tournament, editions))
     |> assign(:bracket, bracket)

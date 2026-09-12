@@ -8,6 +8,7 @@ defmodule GamendWeb.GroupsLive do
   alias Gamend.Accounts.User
   alias Gamend.Groups
   alias GamendWeb.LiveHelpers
+  alias GamendWeb.OnMount.SeoTitle
   alias GamendWeb.Plugs.FeatureGate
 
   @page_size 12
@@ -83,8 +84,8 @@ defmodule GamendWeb.GroupsLive do
             {:noreply,
              socket
              |> resubscribe_group(group.id)
+             |> SeoTitle.assign_page_title(group.title)
              |> assign(
-               page_title: group.title,
                selected_group: group,
                members_page: 1,
                members_search: ""
@@ -96,7 +97,8 @@ defmodule GamendWeb.GroupsLive do
         {:noreply,
          socket
          |> unsubscribe_group()
-         |> assign(selected_group: nil, page_title: gettext("Groups"))}
+         |> assign(selected_group: nil)
+         |> SeoTitle.assign_page_title(gettext("Groups"))}
     end
   end
 

@@ -95,6 +95,7 @@ defmodule GamendWeb.DocsLive do
       @behaviour GamendWeb.DocsLive
 
       alias Gamend.Content
+      alias GamendWeb.OnMount.SeoTitle
 
       @doc_collection unquote(collection)
       @doc_index_path unquote(index_path)
@@ -151,7 +152,7 @@ defmodule GamendWeb.DocsLive do
 
             {:noreply,
              socket
-             |> assign(:page_title, guide.title)
+             |> SeoTitle.assign_page_title(guide.title)
              |> assign(:guide, guide)
              |> assign(:category, category)
              |> assign(:html, Content.doc_html(@doc_collection, slug))
@@ -169,12 +170,12 @@ defmodule GamendWeb.DocsLive do
         if Content.get_doc(@doc_collection, slug) do
           {:noreply, push_navigate(socket, to: "#{@doc_item_path}/#{slug}")}
         else
-          {:noreply, assign(socket, :page_title, index_title())}
+          {:noreply, SeoTitle.assign_page_title(socket, index_title())}
         end
       end
 
       def handle_params(_params, _uri, socket) do
-        {:noreply, assign(socket, :page_title, index_title())}
+        {:noreply, SeoTitle.assign_page_title(socket, index_title())}
       end
 
       defoverridable mount: 3, handle_params: 3, render: 1

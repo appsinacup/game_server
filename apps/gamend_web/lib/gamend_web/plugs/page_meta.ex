@@ -52,7 +52,7 @@ defmodule GamendWeb.Plugs.PageMeta do
 
     conn
     |> maybe_assign(:meta_description, provider_call(:describe, path))
-    |> maybe_assign(:seo_title, provider_call(:title, path))
+    |> maybe_assign(:seo_title, title_for(path))
     |> maybe_assign(:json_ld, provider_call(:json_ld, path))
     |> maybe_assign(:breadcrumbs, provider_call(:breadcrumbs, path))
     # A page can still override this by assigning `:robots` itself — the
@@ -63,6 +63,17 @@ defmodule GamendWeb.Plugs.PageMeta do
         else: maybe_assign(conn, :robots, provider_call(:robots, path))
     end)
   end
+
+  @doc """
+  The provider's SEO `<title>` for a locale-free path, or `nil`.
+
+  Public because a LiveView needs the same answer the layout already used:
+  its connected render pushes `page_title` over the socket, and a different
+  value there rewrites the tab a second after the page paints.
+  """
+  @spec title_for(String.t()) :: String.t() | nil
+  def title_for(path) when is_binary(path), do: provider_call(:title, path)
+  def title_for(_path), do: nil
 
   defp maybe_assign(conn, key, value) when is_binary(value) and value != "",
     do: assign(conn, key, value)

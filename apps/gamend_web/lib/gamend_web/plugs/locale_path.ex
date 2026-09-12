@@ -248,6 +248,22 @@ defmodule GamendWeb.Plugs.LocalePath do
   defp redirect_status(:temporary), do: :found
 
   @doc """
+  `path` with its locale prefix removed — the same value `call/2` assigns as
+  `:seo_path`, for callers that only have a URL.
+
+  A LiveView is the case this exists for: it never sees the conn, so
+  `handle_params`' `uri` is the only place the path survives, and every lookup
+  keyed by page (the SEO title, the description) is keyed by the clean one.
+  """
+  @spec clean_path(String.t()) :: String.t()
+  def clean_path(path) when is_binary(path) do
+    case path |> String.split("/", trim: true) |> strip_locale_segment() do
+      [] -> "/"
+      rest -> "/" <> Enum.join(rest, "/")
+    end
+  end
+
+  @doc """
   Whether `clean_path` is served under locale prefixes — i.e. whether it is
   worth advertising `hreflang` alternates for.
   """

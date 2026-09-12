@@ -39,6 +39,15 @@ defmodule GamendWeb.CoreComponents do
   attr :code, :any, required: true, doc: "ISO alpha-2 country code, or nil for none"
   attr :square, :boolean, default: false, doc: "1:1 box instead of 4:3"
   attr :eager, :boolean, default: false, doc: "visible at load: fetch and decode with the page"
+
+  attr :priority, :boolean,
+    default: false,
+    doc: "site chrome: ahead of the page's other images. Implies `eager`"
+
+  attr :deferred, :boolean,
+    default: false,
+    doc: "inside a closed dropdown or sheet: fetch when first painted, not at page load"
+
   attr :class, :any, default: nil
 
   @doc """
@@ -58,11 +67,21 @@ defmodule GamendWeb.CoreComponents do
   it. That is the "flash" on every refresh. `eager` opts those few out: the
   browser fetches them with the HTML and paints them with the first frame.
 
-  `eager` also raises `fetchpriority`, and that is the half that matters on a
-  cold cache. A page carries ~45 more flags than the reader can see — a closed
-  `<details>` is not "far from the viewport", so the browser fetches every
-  option in the locale dropdown anyway — and without a priority the two or
-  three visible ones queue behind them.
+  `priority` is the narrower one, and it implies `eager`: the navbar's locale
+  flag is the same two or three pixels on every page of the site, and on a cold
+  cache it queued behind whatever that page happened to be full of. It is for
+  chrome, not content — a grid of fifty language cards is eager because it *is*
+  the page, and marking all fifty high priority would only mean none of them
+  are.
+
+  `deferred` is for the ones doing the queueing. `loading="lazy"` buys nothing
+  inside a closed dropdown — an `<img>` fetches as soon as the parser sees its
+  `src`, and the lazy heuristic is about distance from the viewport, which a
+  subtree the browser is not rendering does not have. So the locale picker's
+  ~50 options were downloaded on every page load for a panel nobody opened. A
+  CSS background is the opposite: it is fetched when the element is first
+  *painted*, so a `deferred` flag costs nothing until the panel opens. Use it
+  only where the flag is decorative and hidden — it carries no `alt`.
 
   Sized in `em` so the caller still controls it with a `text-*` class, exactly
   as the old `.fi`/`.fis` classes did.
@@ -72,6 +91,23 @@ defmodule GamendWeb.CoreComponents do
   data — replace a flag by replacing the file and its year-long cache expires
   on its own, which is the one case where that is an acceptable wait.
   """
+  def flag(%{deferred: true} = assigns) do
+    assigns = assign(assigns, :url, flag_url(assigns.code))
+
+    ~H"""
+    <span
+      :if={@url}
+      aria-hidden="true"
+      style={"background-image:url(#{@url})"}
+      class={[
+        "inline-block h-[1em] shrink-0 bg-contain bg-center bg-no-repeat",
+        if(@square, do: "w-[1em]", else: "w-[1.3333em]"),
+        @class
+      ]}
+    />
+    """
+  end
+
   def flag(assigns) do
     ~H"""
     <img
@@ -79,9 +115,9 @@ defmodule GamendWeb.CoreComponents do
       src={"/flags/#{@code}.svg"}
       alt=""
       aria-hidden="true"
-      loading={if(@eager, do: "eager", else: "lazy")}
-      decoding={if(@eager, do: "sync", else: "async")}
-      fetchpriority={if(@eager, do: "high")}
+      loading={if(@eager or @priority, do: "eager", else: "lazy")}
+      decoding={if(@eager or @priority, do: "sync", else: "async")}
+      fetchpriority={if(@priority, do: "high")}
       class={[
         "inline-block h-[1em] shrink-0 object-contain",
         if(@square, do: "w-[1em]", else: "w-[1.3333em]"),
@@ -90,6 +126,17 @@ defmodule GamendWeb.CoreComponents do
     />
     """
   end
+
+  # A CSS `url()` is parsed from the attribute *after* HEEx has unescaped it,
+  # so escaping is no defence there: a code carrying a quote could close the
+  # url and start a rule of its own. Every real code is an ISO alpha-2 or a
+  # dashed subdivision ("sh-ac", "es-ga"), so anything else simply renders
+  # nothing rather than a URL built from it.
+  defp flag_url(code) when is_binary(code) do
+    if code =~ ~r/\A[a-z0-9-]{2,6}\z/, do: "/flags/#{code}.svg"
+  end
+
+  defp flag_url(_code), do: nil
 
   @doc """
   Renders flash notices.

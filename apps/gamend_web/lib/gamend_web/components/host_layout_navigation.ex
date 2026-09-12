@@ -374,16 +374,17 @@ defmodule GamendWeb.HostLayoutNavigation do
 
     ~H"""
     <div class="contents">
-      <%!-- `eager`: this flag is in the header of every page, so a lazy one
-            pops in after the label on each refresh. --%>
+      <%!-- `priority`: this flag is in the header of every page, so a lazy one
+            pops in after the label on each refresh, and a merely eager one
+            queues behind whatever that page is full of. --%>
       <label for="lang-modal" class="btn gap-1 list-none btn-outline cursor-pointer sm:hidden">
-        <.flag code={@flag_code} eager class="rounded-[2px] ring-1 ring-base-content/10" />
+        <.flag code={@flag_code} priority class="rounded-[2px] ring-1 ring-base-content/10" />
         <.icon name="hero-chevron-down-solid" class="w-3 h-3" />
       </label>
 
       <details class="dropdown dropdown-end hidden sm:block" data-navbar-dropdown>
         <summary class="btn gap-1 list-none btn-outline">
-          <.flag code={@flag_code} eager class="rounded-[2px] ring-1 ring-base-content/10" />
+          <.flag code={@flag_code} priority class="rounded-[2px] ring-1 ring-base-content/10" />
           {@label}
           <.icon name="hero-chevron-down-solid" class="w-3 h-3" />
         </summary>
@@ -433,11 +434,19 @@ defmodule GamendWeb.HostLayoutNavigation do
     <input
       type="checkbox"
       id="lang-modal"
-      class="modal-toggle sm:hidden"
+      class="peer modal-toggle sm:hidden"
       tabindex="-1"
       aria-label={GamendWeb.HostLayouts.translate("Choose language")}
     />
-    <div class="modal modal-bottom z-[100] sm:hidden" role="dialog">
+    <%!-- `peer` + `content-visibility`: a closed daisyUI modal is only
+          `visibility: hidden`, so its subtree is still laid out and every flag
+          in it is fetched on page load for a sheet nobody opened. Skipping the
+          subtree outright is what stops that; it renders normally the moment
+          the toggle is checked. --%>
+    <div
+      class="modal modal-bottom z-[100] peer-[:not(:checked)]:[content-visibility:hidden] sm:hidden"
+      role="dialog"
+    >
       <div class="modal-box max-w-2xl p-3">
         <div class="flex items-center justify-between gap-3">
           <h3 class="flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em]">
@@ -491,7 +500,13 @@ defmodule GamendWeb.HostLayoutNavigation do
           )
         ]}
       >
-        <.flag code={@link.flag_code} class="rounded-[2px] shadow-sm ring-1 ring-base-content/10" />
+        <%!-- `deferred`: this row is in the document ~30 times over, in a
+              dropdown and a sheet that are both closed. --%>
+        <.flag
+          code={@link.flag_code}
+          deferred
+          class="rounded-[2px] shadow-sm ring-1 ring-base-content/10"
+        />
         <span class="truncate">{@link.label}</span>
       </a>
     </li>
