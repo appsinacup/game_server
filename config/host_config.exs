@@ -167,7 +167,7 @@ config :gamend_core, Gamend.Cache,
 
 # Configure esbuild (the version is required)
 config :esbuild,
-  version: "0.25.4",
+  version: "0.28.2",
   gamend_web: [
     args: [
       "js/app.js",
@@ -222,7 +222,7 @@ end
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.1.7",
+  version: "4.3.3",
   gamend_web: [
     args: ~w(
       --input=assets/css/app.css

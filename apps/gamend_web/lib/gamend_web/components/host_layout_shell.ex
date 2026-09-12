@@ -66,12 +66,17 @@ defmodule GamendWeb.HostLayoutShell do
                   load on every page, so it is fetched with the HTML, decoded
                   with the first frame and prioritised over the ~45 flags the
                   locale dropdown queues behind it. Left async it painted a
-                  beat after the title beside it on every refresh. --%>
+                  beat after the title beside it on every refresh.
+
+                  `alt=""` because it is decorative: the site name is the text
+                  right beside it, so an alt repeating it makes a screen reader
+                  say it twice — `image-redundant-alt`. The link is named by
+                  that text. --%>
             <img
               src={GamendWeb.SRI.versioned_path(logo) || logo}
               width="36"
               height="36"
-              alt={title}
+              alt=""
               loading="eager"
               decoding="sync"
               fetchpriority="high"
