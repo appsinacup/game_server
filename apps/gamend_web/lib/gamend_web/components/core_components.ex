@@ -58,6 +58,12 @@ defmodule GamendWeb.CoreComponents do
   it. That is the "flash" on every refresh. `eager` opts those few out: the
   browser fetches them with the HTML and paints them with the first frame.
 
+  `eager` also raises `fetchpriority`, and that is the half that matters on a
+  cold cache. A page carries ~45 more flags than the reader can see — a closed
+  `<details>` is not "far from the viewport", so the browser fetches every
+  option in the locale dropdown anyway — and without a priority the two or
+  three visible ones queue behind them.
+
   Sized in `em` so the caller still controls it with a `text-*` class, exactly
   as the old `.fi`/`.fis` classes did.
 
@@ -75,6 +81,7 @@ defmodule GamendWeb.CoreComponents do
       aria-hidden="true"
       loading={if(@eager, do: "eager", else: "lazy")}
       decoding={if(@eager, do: "sync", else: "async")}
+      fetchpriority={if(@eager, do: "high")}
       class={[
         "inline-block h-[1em] shrink-0 object-contain",
         if(@square, do: "w-[1em]", else: "w-[1.3333em]"),

@@ -93,6 +93,43 @@ defmodule GamendWeb.ReconnectRecoveryTest do
       assert render(view) =~ "rewritten"
     end
 
+    # `msg` is the oldest; thirty newer ones push it past the first page.
+    test "an edit further back than the first page still finds its form", %{
+      conn: conn,
+      user: user,
+      group: group,
+      msg: msg
+    } do
+      for n <- 1..30 do
+        Repo.insert!(%Chat.Message{
+          content: "newer #{n}",
+          chat_type: "group",
+          chat_ref_id: group.id,
+          sender_id: user.id
+        })
+      end
+
+      chat = [type: "group", id: group.id]
+      {:ok, view, _html} = live(conn, ~p"/chat?#{chat}")
+      refute has_element?(view, ~s([phx-click="chat_edit_start"][phx-value-id="#{msg.id}"]))
+
+      view |> element(~s(button[phx-click="load_more"])) |> render_click()
+      assert_patch(view, ~p"/chat?#{chat ++ [page: 2]}")
+
+      view
+      |> element(~s([phx-click="chat_edit_start"][phx-value-id="#{msg.id}"]))
+      |> render_click()
+
+      assert_patch(view, ~p"/chat?#{chat ++ [page: 2, edit: msg.id]}")
+
+      {:ok, fresh, _html} = live(conn, ~p"/chat?#{chat ++ [page: 2, edit: msg.id]}")
+      assert has_element?(fresh, "#edit-#{msg.id}")
+
+      # The page number lost, or out of date: loaded until found.
+      {:ok, fresh, _html} = live(conn, ~p"/chat?#{chat ++ [edit: msg.id]}")
+      assert has_element?(fresh, ~s(#edit-#{msg.id} input[name="content"][value="original text"]))
+    end
+
     test "another member's message cannot be opened for editing", %{
       conn: conn,
       group: group

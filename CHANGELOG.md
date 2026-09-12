@@ -5,6 +5,9 @@
 - [fixed] **mint 1.10** — closes two denial-of-service advisories in the HTTP client that push and outbound requests run on.
 - [fixed] **Typed text survives a reconnect.** A chat draft or message edit, the login email, the group create/edit forms and the admin live-lobby forms come back after the connection drops; which edit or panel is open now lives in the URL, since a form missing from the re-mounted page cannot be recovered.
 - [fixed] **Admin quest and tournament filters** respond again — LiveView only sends change events from inputs inside a form.
+- [added] **Offline notice.** Five seconds into a dropped connection every page says so, and clears itself on reconnect. It sets `<html data-connection="offline">` and fires `gs:connection`, so a page can lock input LiveView would silently drop. Replaces the two "Loading..." flashes, which fired together, and the heartbeat goes to 15 s so a dead network is noticed within half a minute.
+- [fixed] **An edit on an older chat message** survives a reconnect too: the pages of older messages loaded are in the URL (`page`), and an edit whose message is still not loaded pages back until it is.
+- [fixed] **Opening a chat no longer crashes** when it is already read up to its last message — the forward-only read cursor updated no row, which Ecto raised as a stale entry.
 
 # August 2026
 

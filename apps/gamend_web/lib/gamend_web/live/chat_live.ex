@@ -12,6 +12,8 @@ defmodule GamendWeb.ChatLive do
   alias GamendWeb.LiveHelpers
 
   @page_size 25
+  # `reload_messages/1` never loads more than 500.
+  @max_pages div(500, @page_size)
 
   @impl true
   def mount(_params, _session, socket) do
@@ -64,25 +66,31 @@ defmodule GamendWeb.ChatLive do
 
   # The message being edited rides in the URL (`edit`) next to the
   # conversation: a reconnect re-mounts the view, and the edit form has to be
-  # in the new render for LiveView to recover what was typed into it.
+  # in the new render for LiveView to recover what was typed into it. So do
+  # the pages of older messages loaded (`page`), or an edit further back than
+  # the first page would have no message to open on.
   @impl true
   def handle_params(%{"type" => type, "id" => id_str} = params, _uri, socket)
       when type in ["group", "friend"] do
     id = parse_id(id_str)
+    page = parse_page(params["page"])
 
     cond do
       not connected?(socket) ->
         {:noreply, socket}
 
-      # Only the edit changed: re-opening would reset the page and drop the
-      # older messages the user loaded.
+      # Only the page or the edit changed: re-opening would reset the page and
+      # drop the older messages the user loaded.
       socket.assigns.chat_type == type and socket.assigns.chat_target == id ->
-        {:noreply, assign_editing(socket, params["edit"])}
+        {:noreply, socket |> apply_page(page) |> assign_editing(params["edit"])}
 
       true ->
         case open_chat(socket, type, id) do
-          {:ok, socket} -> {:noreply, assign_editing(socket, params["edit"])}
-          :error -> {:noreply, put_flash(socket, :error, gettext("Not found"))}
+          {:ok, socket} ->
+            {:noreply, socket |> apply_page(page) |> assign_editing(params["edit"])}
+
+          :error ->
+            {:noreply, put_flash(socket, :error, gettext("Not found"))}
         end
     end
   end
@@ -394,9 +402,12 @@ defmodule GamendWeb.ChatLive do
   end
 
   @impl true
+  # Through the URL, like the conversation: `handle_params/3` loads the page.
   def handle_event("load_more", _params, socket) do
-    page = socket.assigns.page + 1
-    {:noreply, socket |> assign(:page, page) |> reload_messages()}
+    page = min(socket.assigns.page + 1, @max_pages)
+    edit_id = socket.assigns.editing_message_id
+
+    {:noreply, push_patch(socket, to: chat_path(socket, edit_id, page), replace: true)}
   end
 
   @impl true
@@ -579,10 +590,41 @@ defmodule GamendWeb.ChatLive do
     |> assign(:editing_message_content, "")
   end
 
+  defp apply_page(socket, page) do
+    if socket.assigns.page == page,
+      do: socket,
+      else: socket |> assign(:page, page) |> reload_messages()
+  end
+
+  # Messages that arrived while the page was away push an older one past the
+  # pages the URL names; load further back until it is on screen, up to the
+  # same 500 `reload_messages/1` stops at.
+  defp load_until_found(socket, id) do
+    if Enum.any?(socket.assigns.messages, &(&1.id == id)) or not socket.assigns.has_more or
+         socket.assigns.page >= @max_pages do
+      socket
+    else
+      socket
+      |> assign(:page, socket.assigns.page + 1)
+      |> reload_messages()
+      |> load_until_found(id)
+    end
+  end
+
+  defp parse_page(page) when is_binary(page) do
+    case Integer.parse(page) do
+      {n, ""} when n > 1 -> min(n, @max_pages)
+      _ -> 1
+    end
+  end
+
+  defp parse_page(_page), do: 1
+
   # Only the sender's own, loaded messages can be edited. Re-opening the same
   # message keeps the text typed so far.
   defp assign_editing(socket, id) do
     user_id = socket.assigns.user_id
+    socket = if id, do: load_until_found(socket, id), else: socket
     msg = id && Enum.find(socket.assigns.messages, &(&1.id == id and &1.sender_id == user_id))
 
     cond do
@@ -601,9 +643,16 @@ defmodule GamendWeb.ChatLive do
     end
   end
 
-  defp chat_path(socket, edit_id) do
+  defp chat_path(socket, edit_id, page \\ nil) do
+    page = page || socket.assigns.page
+
     query =
-      [type: socket.assigns.chat_type, id: socket.assigns.chat_target, edit: edit_id]
+      [
+        type: socket.assigns.chat_type,
+        id: socket.assigns.chat_target,
+        page: if(page > 1, do: page),
+        edit: edit_id
+      ]
       |> Enum.reject(fn {_key, value} -> is_nil(value) end)
 
     ~p"/chat?#{query}"

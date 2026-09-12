@@ -62,12 +62,19 @@ defmodule GamendWeb.HostLayoutShell do
             href={GamendWeb.HostLayouts.localized_href(~p"/", @locale)}
             class="flex-1 flex w-fit items-center gap-2"
           >
+            <%!-- Same rule as `CoreComponents.flag/1`: this is on screen at
+                  load on every page, so it is fetched with the HTML, decoded
+                  with the first frame and prioritised over the ~45 flags the
+                  locale dropdown queues behind it. Left async it painted a
+                  beat after the title beside it on every refresh. --%>
             <img
               src={GamendWeb.SRI.versioned_path(logo) || logo}
               width="36"
               height="36"
               alt={title}
-              decoding="async"
+              loading="eager"
+              decoding="sync"
+              fetchpriority="high"
             />
             <span class="text-lg font-bold">{title}</span>
             <%= if tagline && tagline != "" do %>
